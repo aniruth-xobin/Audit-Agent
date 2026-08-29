@@ -51,8 +51,8 @@ export default function Sidebar() {
         <div>
           {!collapsed && <div className="px-3 mb-2 text-xs font-semibold text-[#52525b] uppercase tracking-wider">Evaluation</div>}
           <nav className="flex flex-col gap-1">
-            <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Scorecards">
-              <BarChart2 size={18} className="shrink-0" />
+            <Link href="/scorecards" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${pathname === '/scorecards' ? 'bg-[#1f1f22] text-[#ededed]' : 'text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed]'}`} title="Scorecards">
+              <BarChart2 size={18} className={`shrink-0 ${pathname === '/scorecards' ? 'text-emerald-500' : ''}`} />
               {!collapsed && <span>Scorecards</span>}
             </Link>
             <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Transcripts">
