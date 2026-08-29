@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, List, Settings, Key, Webhook, Activity, ChevronLeft, ChevronRight } from "lucide-react";
+import { LayoutDashboard, List, Settings, AlignLeft, BarChart2, Activity, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -39,15 +39,15 @@ export default function Sidebar() {
         </div>
 
         <div>
-          {!collapsed && <div className="px-3 mb-2 text-xs font-semibold text-[#52525b] uppercase tracking-wider">Developer</div>}
-          <nav className="flex flex-col gap-1">
-            <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="API Keys">
-              <Key size={18} className="shrink-0" />
-              {!collapsed && <span>API Keys</span>}
+          {!collapsed && <div className="px-3 mb-2 text-xs font-semibold text-[#52525b] uppercase tracking-wider">Evaluation</div>}
+                    <nav className="flex flex-col gap-1">
+            <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Scorecards">
+              <BarChart2 size={18} className="shrink-0" />
+              {!collapsed && <span>Scorecards</span>}
             </Link>
-            <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Webhooks">
-              <Webhook size={18} className="shrink-0" />
-              {!collapsed && <span>Webhooks</span>}
+            <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Transcripts">
+              <AlignLeft size={18} className="shrink-0" />
+              {!collapsed && <span>Transcripts</span>}
             </Link>
             <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Usage">
               <Activity size={18} className="shrink-0" />
@@ -59,9 +59,9 @@ export default function Sidebar() {
         <div>
           {!collapsed && <div className="px-3 mb-2 text-xs font-semibold text-[#52525b] uppercase tracking-wider">Configure</div>}
           <nav className="flex flex-col gap-1">
-            <Link href="/settings" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Settings">
+            <Link href="/settings" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="UI Settings">
               <Settings size={18} className="shrink-0" />
-              {!collapsed && <span>Settings</span>}
+              {!collapsed && <span>UI Settings</span>}
             </Link>
           </nav>
         </div>

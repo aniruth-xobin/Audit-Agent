@@ -176,7 +176,7 @@ export default function Home() {
             <div className="flex text-[10px] text-[#52525b] uppercase font-bold mt-2">
               <div className="w-8">#</div>
               <div className="flex-1">Name</div>
-              <div className="w-12 text-right">Score</div>
+              <div className="w-16 text-right">Score</div>
             </div>
           </div>
           <div className="flex-1 overflow-y-auto px-5 pb-2">
@@ -186,7 +186,7 @@ export default function Home() {
                   <tr key={c.id} className="border-b border-[#1f1f22]/50 last:border-0 h-10">
                     <td className="w-8">{c.id}</td>
                     <td className="text-[#ededed]">{c.name}</td>
-                    <td className="text-right font-mono text-[#00d8ff] w-12">{c.score}</td>
+                    <td className="text-right font-mono text-[#00d8ff] w-16 whitespace-nowrap">{c.score}</td>
                   </tr>
                 ))}
               </tbody>
