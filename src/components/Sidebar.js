@@ -2,13 +2,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, List, Settings, AlignLeft, BarChart2, Activity, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
 
   return (
-    <aside className={`${collapsed ? 'w-20' : 'w-64'} bg-[#111113] border-r border-[#1f1f22] flex flex-col h-full shrink-0 transition-all duration-300 relative`}>
+    <aside className={`${collapsed ? 'w-20' : 'w-64'} bg-[#111113] border-r border-[#1f1f22] flex flex-col h-full shrink-0 transition-all duration-300 relative z-50`}>
       <div className="h-16 flex items-center justify-between px-6 border-b border-[#1f1f22]">
         <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
           <Image src="/Favicon.png" alt="Xobin" width={28} height={28} className="rounded object-contain shrink-0" />
@@ -27,12 +29,20 @@ export default function Sidebar() {
         <div>
           {!collapsed && <div className="px-3 mb-2 text-xs font-semibold text-[#52525b] uppercase tracking-wider">Dashboard</div>}
           <nav className="flex flex-col gap-1">
-            <Link href="/" className="flex items-center gap-3 px-3 py-2 rounded-md bg-[#1f1f22] text-[#ededed] text-sm font-medium transition-colors" title="Overview">
-              <LayoutDashboard size={18} className="shrink-0 text-emerald-500" />
+            <Link 
+              href="/" 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${pathname === '/' ? 'bg-[#1f1f22] text-[#ededed]' : 'text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed]'}`} 
+              title="Overview"
+            >
+              <LayoutDashboard size={18} className={`shrink-0 ${pathname === '/' ? 'text-emerald-500' : ''}`} />
               {!collapsed && <span>Overview</span>}
             </Link>
-            <Link href="/sessions" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Sessions">
-              <List size={18} className="shrink-0" />
+            <Link 
+              href="/sessions" 
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${pathname === '/sessions' ? 'bg-[#1f1f22] text-[#ededed]' : 'text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed]'}`} 
+              title="Sessions"
+            >
+              <List size={18} className={`shrink-0 ${pathname === '/sessions' ? 'text-emerald-500' : ''}`} />
               {!collapsed && <span>Sessions</span>}
             </Link>
           </nav>
@@ -40,7 +50,7 @@ export default function Sidebar() {
 
         <div>
           {!collapsed && <div className="px-3 mb-2 text-xs font-semibold text-[#52525b] uppercase tracking-wider">Evaluation</div>}
-                    <nav className="flex flex-col gap-1">
+          <nav className="flex flex-col gap-1">
             <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Scorecards">
               <BarChart2 size={18} className="shrink-0" />
               {!collapsed && <span>Scorecards</span>}
