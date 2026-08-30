@@ -19,8 +19,6 @@ export const metadata = {
   description: "Production Monitoring Dashboard for the AI Audit Agent",
   icons: {
     icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
   },
 };
 
