@@ -34,10 +34,10 @@ export default function Header() {
         </div>
       </div>
       
-      <div className="flex items-center gap-2 relative">
+      <div className="flex items-center gap-1 sm:gap-4 relative">
         <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded hover:bg-[var(--bg-secondary)] transition-colors">
           <RefreshCcw size={12} />
-          Auto-refresh off
+          <span className="hidden sm:inline">Auto-refresh off</span>
         </button>
         
         <div className="relative" ref={timeRef}>

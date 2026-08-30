@@ -2,7 +2,7 @@
 "use client";
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Search, FileText, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check } from 'lucide-react';
+import { Search, FileText, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check, ChevronLeft } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 
 const mockSessions = [
@@ -71,7 +71,8 @@ function ScorecardsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const idParam = searchParams.get('id');
-  const [activeSession, setActiveSession] = useState(() => {
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
+    const [activeSession, setActiveSession] = useState(() => {
     return mockSessions.find(s => s.id === idParam) || mockSessions[0];
   });
   
@@ -121,7 +122,7 @@ function ScorecardsContent() {
   }
 
   return (
-    <div className="flex gap-6 h-[calc(100vh-8rem)] font-sans">
+    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-8rem)] font-sans relative">
       
       {/* Left Pane - Session List */}
       <div className="w-1/3 flex flex-col border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm overflow-hidden min-w-[320px]">
@@ -194,7 +195,7 @@ function ScorecardsContent() {
           {filteredSessions.map(session => (
             <div 
               key={session.id} 
-              onClick={() => setActiveSession(session)}
+              onClick={() => { setActiveSession(session); setShowMobileDetail(true); }}
               className={`p-4 border-b border-[var(--border-color)] cursor-pointer transition-colors ${activeSession.id === session.id ? 'bg-[var(--bg-secondary)]/60 border-l-2 border-l-[var(--chart-cyan)]' : 'hover:bg-[var(--bg-secondary)]/30 border-l-2 border-l-transparent'}`}
             >
               <div className="flex justify-between items-start mb-1">
