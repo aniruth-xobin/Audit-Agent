@@ -1,6 +1,8 @@
-﻿"use client";
-import { useState, useRef, useEffect } from 'react';
-import { Search, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check } from 'lucide-react';
+
+"use client";
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { Search, FileText, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 
 const mockSessions = [
@@ -65,21 +67,30 @@ const mockSessions = [
   }
 ];
 
-export default function ScorecardsPage() {
-  const [activeSession, setActiveSession] = useState(mockSessions[0]);
+function ScorecardsContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const idParam = searchParams.get('id');
+  const [activeSession, setActiveSession] = useState(() => {
+    return mockSessions.find(s => s.id === idParam) || mockSessions[0];
+  });
+  
+  useEffect(() => {
+    if (idParam) {
+      const found = mockSessions.find(s => s.id === idParam);
+      if (found) setActiveSession(found);
+    }
+  }, [idParam]);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Filter State
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [activeFilters, setActiveFilters] = useState({ Roleplay: false, Guided: false, Freeflow: false });
   const filterRef = useRef(null);
 
-  // Sort State
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [sortOption, setSortOption] = useState('Newest');
   const sortRef = useRef(null);
 
-  // Close dropdowns when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (filterRef.current && !filterRef.current.contains(event.target)) setIsFilterOpen(false);
@@ -96,18 +107,13 @@ export default function ScorecardsPage() {
   const hasActiveFilters = Object.values(activeFilters).some(Boolean);
 
   let filteredSessions = mockSessions.filter(session => {
-    // Search check
     const matchesSearch = session.candidate.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           session.mode.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           session.id.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    // Filter check (if no filters active, show all)
     const matchesFilter = hasActiveFilters ? activeFilters[session.mode] : true;
-
     return matchesSearch && matchesFilter;
   });
 
-  // Sort Logic
   if (sortOption === 'Score: High to Low') {
     filteredSessions.sort((a, b) => b.scoreNum - a.scoreNum);
   } else if (sortOption === 'Score: Low to High') {
@@ -133,9 +139,7 @@ export default function ScorecardsPage() {
             />
           </div>
 
-          {/* Filter & Sort Controls */}
           <div className="flex items-center gap-2 mt-1">
-            {/* Filter Dropdown */}
             <div className="relative flex-1" ref={filterRef}>
               <button 
                 onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -160,7 +164,6 @@ export default function ScorecardsPage() {
               )}
             </div>
 
-            {/* Sort Dropdown */}
             <div className="relative flex-1" ref={sortRef}>
               <button 
                 onClick={() => setIsSortOpen(!isSortOpen)}
@@ -235,17 +238,19 @@ export default function ScorecardsPage() {
               <span>{activeSession.duration}</span>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-right flex flex-col items-end">
             <div className={`text-4xl font-bold tracking-tight ${activeSession.score >= 8 ? 'text-emerald-500' : activeSession.score >= 5 ? 'text-yellow-500' : 'text-rose-500'}`}>
               {activeSession.score}
             </div>
-            <div className="text-[10px] text-[#52525b] uppercase tracking-widest font-semibold mt-1">Final Score</div>
+            <div className="text-[10px] text-[#52525b] uppercase tracking-widest font-semibold mt-1 mb-3">Final Score</div>
+            <button onClick={() => router.push('/transcripts?id=' + activeSession.id)} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#00d8ff]/10 hover:bg-[#00d8ff]/20 text-[#00d8ff] rounded-md text-xs font-semibold transition-colors border border-[#00d8ff]/20">
+              <FileText size={14} /> View Transcript
+            </button>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 custom-scrollbar">
           
-          {/* Executive Summary / Overall Insight */}
           <div className="bg-[#111113] border border-[#27272a] rounded-lg p-5">
             <h3 className="text-[11px] font-bold text-[#a1a1aa] uppercase tracking-widest mb-2 flex items-center gap-2">
               <Lightbulb size={14} className="text-emerald-500" /> Overall Agent Insight
@@ -255,9 +260,7 @@ export default function ScorecardsPage() {
             </p>
           </div>
 
-          {/* Top Section: Radar Chart & Mini Rubrics */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-auto lg:h-[400px]">
-            {/* Radar Chart */}
             <div className="bg-[#111113] rounded-lg border border-[#1f1f22] flex flex-col h-full">
               <div className="p-4 border-b border-[#1f1f22] text-xs font-semibold text-[#a1a1aa] uppercase tracking-wider flex items-center gap-2">
                 <Activity size={14} /> Evaluation Matrix
@@ -274,7 +277,6 @@ export default function ScorecardsPage() {
               </div>
             </div>
             
-            {/* Rubric Breakdown */}
             <div className="flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
               <div className="text-xs font-semibold text-[#a1a1aa] uppercase tracking-wider mb-1">Full Rubric Breakdown</div>
               
@@ -336,7 +338,6 @@ export default function ScorecardsPage() {
             </div>
           </div>
 
-          {/* Bottom Section: Deductions & Insights */}
           <div className="bg-[#111113] rounded-lg border border-[#1f1f22] p-6 mt-4">
             <h3 className="text-sm font-semibold text-[#ededed] mb-4 flex items-center gap-2">
               <AlertTriangle size={16} className="text-yellow-500" /> Flagged Issues & Insights
@@ -346,7 +347,6 @@ export default function ScorecardsPage() {
               <div className="flex flex-col gap-4">
                 {activeSession.deductions.map((deduction, i) => (
                   <div key={i} className="flex flex-col gap-3 p-4 bg-[#1f1f22]/40 border border-[#27272a] rounded-lg">
-                    {/* Header: Timestamp + Type + Metric */}
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#27272a] pb-2">
                       <div className="flex items-center gap-3">
                         <span className="font-mono text-xs font-bold text-[#00d8ff] bg-[#00d8ff]/10 px-2.5 py-1 rounded-md">{deduction.time}</span>
@@ -357,10 +357,8 @@ export default function ScorecardsPage() {
                       </span>
                     </div>
                     
-                    {/* Reason */}
                     <p className="text-sm text-[#ededed] pl-1 leading-relaxed">{deduction.reason}</p>
                     
-                    {/* Agent Insight Block */}
                     <div className="flex gap-3 p-3.5 bg-[#0a0a0a] border border-[#27272a] rounded-md text-xs mt-1">
                       <Lightbulb size={16} className="text-emerald-500 shrink-0 mt-0.5" />
                       <div>
@@ -382,5 +380,13 @@ export default function ScorecardsPage() {
       </div>
       
     </div>
+  );
+}
+
+export default function ScorecardsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-[#ededed]">Loading...</div>}>
+      <ScorecardsContent />
+    </Suspense>
   );
 }

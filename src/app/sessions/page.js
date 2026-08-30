@@ -1,5 +1,6 @@
-"use client";
+﻿"use client";
 import { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { Search, Filter, SlidersHorizontal, HelpCircle, Check, ArrowDown, ArrowUp } from 'lucide-react';
 
@@ -26,6 +27,7 @@ function CardTitle({ title }) {
 }
 
 export default function SessionsPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   
   // Filter State
@@ -228,7 +230,7 @@ export default function SessionsPage() {
             <tbody className="text-[#a1a1aa]">
               {filteredSessions.length > 0 ? (
                 filteredSessions.map((session, i) => (
-                  <tr key={i} className="border-b border-[#1f1f22]/50 hover:bg-[#1f1f22]/30 transition-colors cursor-pointer">
+                  <tr key={i} onClick={() => router.push('/scorecards?id=' + session.id.replace('...', ''))} className="border-b border-[#1f1f22]/50 hover:bg-[#1f1f22]/30 transition-colors cursor-pointer">
                     <td className="px-5 py-3.5 font-mono text-[#ededed]">{session.id}</td>
                     <td className="px-5 py-3.5">{session.candidate}</td>
                     <td className="px-5 py-3.5 text-[#00d8ff]">{session.mode}</td>
@@ -270,3 +272,5 @@ export default function SessionsPage() {
     </div>
   );
 }
+
+

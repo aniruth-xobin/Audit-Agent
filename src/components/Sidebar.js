@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -55,7 +55,7 @@ export default function Sidebar() {
               <BarChart2 size={18} className={`shrink-0 ${pathname === '/scorecards' ? 'text-emerald-500' : ''}`} />
               {!collapsed && <span>Scorecards</span>}
             </Link>
-            <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Transcripts">
+            <Link href="/transcripts" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${pathname === '/transcripts' ? 'bg-[#1f1f22] text-[#ededed]' : 'text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed]'}`} title="Transcripts">
               <AlignLeft size={18} className="shrink-0" />
               {!collapsed && <span>Transcripts</span>}
             </Link>
