@@ -18,7 +18,9 @@ export const metadata = {
   title: "Xobin Audit Agent",
   description: "Production Monitoring Dashboard for the AI Audit Agent",
   icons: {
-    icon: "/favicon.png",
+    icon: "/xobin-logo.png",
+    shortcut: "/xobin-logo.png",
+    apple: "/xobin-logo.png",
   },
 };
 

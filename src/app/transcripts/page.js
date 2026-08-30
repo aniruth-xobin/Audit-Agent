@@ -55,10 +55,10 @@ function TranscriptsContent() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   return (
-    <div className="flex gap-6 h-[calc(100vh-8rem)] font-sans">
+    <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-8rem)] font-sans relative">
       
       {/* Left Pane - Session List */}
-      <div className="w-1/3 flex flex-col border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm overflow-hidden min-w-[320px]">
+      <div className={`w-full lg:w-1/3 flex-col border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm overflow-hidden lg:min-w-[320px] ${showMobileDetail ? "hidden lg:flex" : "flex"}`}>
         <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]">
           <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Audit Inbox</h2>
           <div className="relative flex items-center">
@@ -93,10 +93,16 @@ function TranscriptsContent() {
       </div>
 
       {/* Right Pane - Transcript View */}
-      <div className="flex-1 border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm flex flex-col relative overflow-hidden">
+      <div className={`flex-1 border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm flex-col relative overflow-hidden ${showMobileDetail ? "flex" : "hidden lg:flex"}`}>
         
         {/* Header */}
-        <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-card)] z-10 relative">
+        <div className="p-6 border-b border-[var(--border-color)] bg-[var(--bg-card)] z-10 relative">
+          {showMobileDetail && (
+            <button onClick={() => setShowMobileDetail(false)} className="lg:hidden mb-4 flex items-center gap-2 text-sm text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+              <ChevronLeft size={16} /> Back to Transcripts
+            </button>
+          )}
+          <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-[var(--text-primary)] mb-1">{activeSession.candidate}</h1>
             <div className="flex items-center gap-3 text-xs text-[var(--text-muted)]">
@@ -109,6 +115,7 @@ function TranscriptsContent() {
             <button onClick={() => router.push('/scorecards?id=' + activeSession.id)} className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-card-hover)] border border-[var(--border-strong)] hover:bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-md text-xs font-semibold transition-colors">
               <BarChart2 size={14} /> Back to Scorecard
             </button>
+          </div>
           </div>
         </div>
 
