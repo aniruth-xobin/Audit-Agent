@@ -25,7 +25,7 @@ export default function SettingsPage() {
           </div>
           <p className="text-sm text-[var(--text-muted)] mb-6">Select your preferred application interface theme.</p>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <button 
               onClick={() => setTheme('dark')}
               className={`flex flex-col items-center gap-3 p-4 rounded-lg border transition-all ${

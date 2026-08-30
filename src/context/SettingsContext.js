@@ -9,6 +9,7 @@ export const SettingsProvider = ({ children }) => {
   const [theme, setTheme] = useState('dark');
   const [colorMode, setColorMode] = useState('colorful');
   const [chartStyle, setChartStyle] = useState('matrix');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from local storage on mount
@@ -50,7 +51,8 @@ export const SettingsProvider = ({ children }) => {
     <SettingsContext.Provider value={{
       theme, setTheme,
       colorMode, setColorMode,
-      chartStyle, setChartStyle
+      chartStyle, setChartStyle,
+      isMobileMenuOpen, setIsMobileMenuOpen
     }}>
       {children}
     </SettingsContext.Provider>

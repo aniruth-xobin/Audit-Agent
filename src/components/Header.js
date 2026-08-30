@@ -1,11 +1,13 @@
-"use client";
+﻿"use client";
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDown, RefreshCcw, Clock, Check } from 'lucide-react';
+import { ChevronDown, RefreshCcw, Clock, Check, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { useSettings } from '../context/SettingsContext';
 
 export default function Header() {
   const pathname = usePathname();
   const isSessions = pathname === '/sessions';
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useSettings();
   
   const [isTimeOpen, setIsTimeOpen] = useState(false);
   const [timeframe, setTimeframe] = useState('Past 24 hours');
@@ -23,10 +25,13 @@ export default function Header() {
 
   return (
     <header className="h-16 flex items-center justify-between px-8 border-b border-[var(--border-color)] bg-[var(--bg-main)] z-50">
-      <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-        <span className="font-medium text-[var(--text-primary)]">AI Interviews</span>
-        <span>/</span>
-        <span className="capitalize">{isSessions ? 'Sessions' : 'Overview'}</span>
+      <div className="flex items-center gap-3">
+        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="md:hidden text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><Menu size={20} /></button>
+        <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
+          <span className="font-medium text-[var(--text-primary)]">AI Interviews</span>
+          <span>/</span>
+          <span className="capitalize">{isSessions ? 'Sessions' : 'Overview'}</span>
+        </div>
       </div>
       
       <div className="flex items-center gap-2 relative">
