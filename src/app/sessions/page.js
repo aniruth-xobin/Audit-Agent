@@ -192,7 +192,7 @@ export default function SessionsPage() {
               </button>
               
               {isSortOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-lg shadow-xl z-20 py-2">
+                <div className="absolute top-full right-0 mt-2 w-48 bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-lg shadow-xl z-20 py-2">
                   <div className="px-3 py-1.5 text-[10px] font-semibold text-[var(--text-muted-dark)] uppercase tracking-wider">Sort By</div>
                   
                   {['Newest', 'Score: High to Low', 'Score: Low to High'].map(option => (

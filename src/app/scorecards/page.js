@@ -239,12 +239,12 @@ function ScorecardsContent() {
               <span>{activeSession.duration}</span>
             </div>
           </div>
-          <div className="text-right flex flex-col items-end mt-4 sm:mt-0 sm:ml-4 shrink-0">
+          <div className="flex flex-col items-end shrink-0 max-w-[160px] sm:max-w-none">
             <div className={`text-4xl font-bold tracking-tight ${activeSession.score >= 8 ? 'text-emerald-500' : activeSession.score >= 5 ? 'text-yellow-500' : 'text-rose-500'}`}>
               {activeSession.score}
             </div>
             <div className="text-[10px] text-[var(--text-muted-dark)] uppercase tracking-widest font-semibold mt-1 mb-3">Final Score</div>
-            <button onClick={() => router.push('/transcripts?id=' + activeSession.id)} className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/20 text-[var(--chart-cyan)] rounded-md text-xs font-semibold transition-colors border border-[var(--chart-cyan)]/20">
+            <button onClick={() => router.push('/transcripts?id=' + activeSession.id)} className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/20 text-[var(--chart-cyan)] rounded-md text-xs font-semibold transition-colors border border-[var(--chart-cyan)]/20 whitespace-nowrap">
               <FileText size={14} /> View Transcript
             </button>
           </div>
