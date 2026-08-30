@@ -1,0 +1,438 @@
+!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof global?global:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._posthogChunkIds=e._posthogChunkIds||{},e._posthogChunkIds[n]="01a0475f-1539-7211-b684-3c38143a09ff")}catch(e){}}();(globalThis.TURBOPACK||(globalThis.TURBOPACK=[])).push(["object"==typeof document?document.currentScript:void 0,561744,e=>{"use strict";var t=e.i(103678),r=e.i(293287),a=e.i(377873),i=e.i(173519),s=e.i(157228),o=e.i(99172),n=e.i(616594),l=e.i(139579),c=e.i(971727),d=e.i(822969),u=e.i(462149),m=e.i(732959),p=e.i(705424),h=e.i(319417),g=e.i(655532),x=e.i(208564),j=e.i(119609),y=e.i(215001),f=e.i(165339),b=e.i(288744),v=e.i(354654),w=e.i(891754),S=e.i(182025),k=e.i(656721),C=e.i(832356),_=e.i(274991),A=e.i(801172),D=e.i(45428),F=e.i(790875),I=e.i(999116),R=e.i(753084);let T="quotas-request-connection-limit-toast";function N(e){return(0,t.jsx)(e.TextareaField,{label:"Reason for change",placeholder:"Message"})}var q=e.i(610842),P=e.i(598439),E=e.i(996034),M=e.i(463105),L=e.i(797289),V=e.i(249931);let B="quotas-request-model-limit-toast";function U(e){return(0,t.jsx)(e.TextareaField,{label:"Reason for change",placeholder:"Message"})}function K(e){return e.values.desiredValue}function W(e){let{value:t}=e,r={};""===t.reason&&(r.reason="Please provide a reason for the change");let a=O(t.desiredValue);return(!Number.isFinite(a)||a<1)&&(r.desiredValue="Desired value must be at least 1"),0===Object.keys(r).length?void 0:{fields:r}}function Q(e){let a,i,s,o=(0,r.c)(9);o[0]!==e.overflow.ceiling?(a=(0,R.readableValueByUnit)(e.overflow.ceiling,_.AnalyticsUnit_Type.Quantity),o[0]=e.overflow.ceiling,o[1]=a):a=o[1];let n=a,l="build"===e.plan?"Build":"ship"===e.plan?"Ship":"Scale";o[2]!==e.overflow.upgrade||o[3]!==e.plan?(i=e.overflow.upgrade?`Upgrade to ${"ship"===e.overflow.upgrade.plan?"Ship":"Scale"} to request up to ${(0,R.readableValueByUnit)(e.overflow.upgrade.ceiling,_.AnalyticsUnit_Type.Quantity)}.`:"scale"===e.plan?"We'll review your request for anything higher.":"Contact sales to request a higher limit.",o[2]=e.overflow.upgrade,o[3]=e.plan,o[4]=i):i=o[4];let c=i;return o[5]!==n||o[6]!==l||o[7]!==c?(s=(0,t.jsxs)("p",{className:"text-fg2 bg-bg2 rounded-md px-3 py-2 text-xs",children:[n," is the maximum available for this model on the ",l," plan. ",c]}),o[5]=n,o[6]=l,o[7]=c,o[8]=s):s=o[8],s}function O(e){if("number"==typeof e)return e;let t=e.trim();return""===t?NaN:Number(t)}var z=e.i(877191),H=e.i(739710);let G={[H.QuotaCategory.MaxConcurrentParticipants]:e=>(0,s.create)(z.QuotaRequestSchema,{maxConcurrentParticipants:e}),[H.QuotaCategory.MaxConcurrentEgress]:e=>(0,s.create)(z.QuotaRequestSchema,{maxConcurrentEgress:e}),[H.QuotaCategory.MaxConcurrentIngress]:e=>(0,s.create)(z.QuotaRequestSchema,{maxConcurrentIngress:e})},$="quotas-set-project-connection-limit-toast";function Y(e){return{...e,errorMap:{...e.errorMap,onServer:"New limit exceeds the maximum allowed by this project's plan."}}}function J(e){return{...e,errorMap:{...e.errorMap,onServer:void 0}}}var Z=e.i(673514),X=e.i(189954),ee=e.i(508063),et=e.i(890462),er=e.i(686810),ea=e.i(537212),ei=e.i(970839),es=e.i(656338),eo=e.i(537081),en=e.i(563829),el=e.i(658679),ec=e.i(923481),ed=e.i(820566),eu=e.i(590460),em=e.i(435562);let ep=en.default.object({description:en.default.string().min(1),isServiceAccount:en.default.boolean(),apiKey:en.default.string().optional(),apiSecret:en.default.string().optional(),envVars:en.default.string().optional()}),eh={description:"",isServiceAccount:!1};function eg(e){return e.preventDefault()}function ex(e){return(0,t.jsx)(e.CheckboxField,{label:"Mark as service account key",tooltip:"This key will stay valid if you leave the project, and it won't be listed under your personal keys."})}function ej(e){return(0,t.jsx)(e.TextField,{label:"Key description",placeholder:"Key for iOS client",type:"text"})}let ey="api-secret",ef="env-vars",eb=C.z.object({name:C.z.string(),url:C.z.string().url(),signingKey:C.z.string()});function ev(e){return{value:e.apiKey,label:e.description||"(anonymous)",description:e.apiKey}}function ew(e){return(0,t.jsx)(e.TextField,{label:"URL",placeholder:"https://my.domain/webook",type:"text"})}function eS(e){return(0,t.jsx)(e.TextField,{label:"Name",placeholder:"My Webhook",type:"text"})}var ek=e.i(498498),eC=e.i(878261);function e_(e){S.toast.error("Failed to revoke key",{id:"delete-key-error",description:e.message})}function eA(e){S.toast.error("Unable to delete project",{description:e.message})}let eD=C.z.object({name:C.z.string(),url:C.z.string().url()});function eF(e){return(0,t.jsx)(e.TextField,{label:"URL",placeholder:"https://my.domain/webook",type:"text"})}function eI(e){return(0,t.jsx)(e.TextField,{label:"Name",placeholder:"My Webhook",type:"text"})}var eR=e.i(111941),eT=e.i(347841),eN=e=>{if(0===e.length)return[];let t=e.match(/^\[(.+?)\](.*)$/)||e.match(/^\.?([^\.\[\]]+)(.*)$/);if(t){let[e,r,a]=t;return[/^\d+$/.test(r)?Number(r):r,...eN(a)]}return[e]},eq=["__proto__","constructor","prototype"],eP=C,eE=e.i(480),eM=Object.defineProperty,eL={},eV={checkbox:()=>eO,file:()=>ez,formData:()=>eX,json:()=>eY,numeric:()=>eQ,preprocessFormData:()=>eZ,repeatable:()=>eH,repeatableOfType:()=>eG,text:()=>eW};for(var eB in eV)eM(eL,eB,{get:eV[eB],enumerable:!0});var eU=eP.z.literal("").transform(()=>void 0),eK=e=>t=>{let r=e.safeParse(t);return r.success?r.data:t},eW=(e=eP.z.string())=>eP.z.preprocess(eK(eU),e),eQ=(e=eP.z.number())=>eP.z.preprocess(eK(eP.z.union([eU,eP.z.string().transform(e=>Number(e)).refine(e=>!Number.isNaN(e))])),e),eO=({trueValue:e="on"}={})=>eP.z.union([eP.z.literal(e).transform(()=>!0),eP.z.literal(void 0).transform(()=>!1)]),ez=(e=eP.z.instanceof(File))=>eP.z.preprocess(e=>e instanceof File&&0===e.size?void 0:e,e),eH=(e=eP.z.array(eW()))=>eP.z.preprocess(e=>Array.isArray(e)?e:void 0===e?[]:[e],e),eG=e=>eH(eP.z.array(e)),e$=eP.z.array(eP.z.tuple([eP.z.string(),eP.z.any()])),eY=e=>eP.z.preprocess(eK(eP.z.union([eU,eP.z.string().transform(e=>(e=>{try{return JSON.parse(e)}catch{return e}})(e))])),e),eJ=eK(eP.z.any().refine(e=>Symbol.iterator in e).transform(e=>[...e]).refine(e=>e$.safeParse(e).success).transform(e=>{let t=new Map;for(let[r,a]of e)t.has(r)?t.get(r).push(a):t.set(r,[a]);return[...t.entries()].reduce((e,[t,r])=>(function(e,t,r){let a=Array.isArray(t)?t:eN(t),i=e;for(let e=0;e<a.length-1;e++){let t=a[e],r=a[e+1];if("string"==typeof t&&eq.includes(t))throw Error(`Attempted to set a forbidden key: ${t}`);void 0===i[t]&&("number"==typeof r?i[t]=[]:i[t]={}),i=i[t]}let s=a[a.length-1];if("string"==typeof s&&eq.includes(s))throw Error(`Attempted to set a forbidden key: ${s}`);return i[s]=r,e})(e,t,1===r.length?r[0]:r),{})})),eZ=eJ,eX=e=>eP.z.preprocess(eJ,e instanceof eE.ZodType?e:eP.z.object(e)),e0=e.i(533542);function e1(e){return e.preventDefault()}let e2="identity",e3="room-name",e4="ttl",e5="can-publish",e6="can-subscribe",e8="can-publish-data",e9="is-hidden",e7="token",te=eL.formData({[e2]:eL.text(),[e3]:eL.text(),[e4]:eL.numeric(C.z.number().min(1)),[e5]:eL.checkbox(),[e6]:eL.checkbox(),[e8]:eL.checkbox(),[e9]:eL.checkbox()});var tt=e.i(777800),tr=e.i(340705);function ta(e){let r,a;return(0,t.jsx)(tt.SelectItem,{value:e.id,description:(r=`${e.projectCount} ${1===e.projectCount?"project":"projects"}`,a=`${e.memberCount} ${1===e.memberCount?"member":"members"}`,`${r}, ${a}`),children:e.name},e.id)}function ti(e){S.toast.error("Unable to transfer ownership",{description:e.message})}let ts="request-new-limit-toast";function to(e){return(0,t.jsx)(e.TextareaField,{label:"Reason for increase",placeholder:"Message"})}function tn(e){S.toast.error("Error updating limit request",{id:ts,description:e.message})}function tl(e){S.toast.error("Error submitting new limit request",{id:ts,description:e.message})}function tc(e){S.toast.error("Error updating limit request",{id:ts,description:e.message})}function td(e){S.toast.error("Error submitting new limit request",{id:ts,description:e.message})}let tu="send-webhook-toast",tm=C.z.object({eventName:C.z.string()});function tp(e){return(0,t.jsx)(e.SelectField,{label:"Event name",placeholder:"Select...",options:Object.keys(tg).map(th)})}function th(e){return{value:e,label:e}}let tg={room_started:`{
+    "event": "room_started",
+    "room": {
+      "sid": "RM_hycBMAjmt6Ub",
+      "name": "Demo Room",
+      "emptyTimeout": 300,
+      "creationTime": "1692627281",
+      "turnPassword": "2Pvdj+/WV1xV4EkB8klJ9xkXDWY=",
+      "enabledCodecs": [
+        {
+          "mime": "audio/opus"
+        },
+        {
+          "mime": "video/H264"
+        },
+        {
+          "mime": "video/VP8"
+        },
+        {
+          "mime": "video/AV1"
+        },
+        {
+          "mime": "video/H264"
+        },
+        {
+          "mime": "audio/red"
+        },
+        {
+          "mime": "video/VP9"
+        }
+      ]
+    },
+    "id": "EV_eugWmGhovZmm",
+    "createdAt": "1692985556"
+  }`,room_finished:`{
+    "event": "room_finished",
+    "room": {
+      "sid": "RM_hycBMAjmt6Ub",
+      "name": "Demo Room",
+      "emptyTimeout": 300,
+      "creationTime": "1692627281",
+      "turnPassword": "2Pvdj+/WV1xV4EkB8klJ9xkXDWY=",
+      "enabledCodecs": [
+        {
+          "mime": "audio/opus"
+        },
+        {
+          "mime": "video/H264"
+        },
+        {
+          "mime": "video/VP8"
+        },
+        {
+          "mime": "video/AV1"
+        },
+        {
+          "mime": "video/H264"
+        },
+        {
+          "mime": "audio/red"
+        },
+        {
+          "mime": "video/VP9"
+        }
+      ]
+    },
+    "id": "EV_3DXLrqmZCLEF",
+  }`,participant_joined:`{
+    "event": "participant_joined",
+    "room": {
+      "sid": "RM_hycBMAjmt6Ub",
+      "name": "Demo Room",
+      "emptyTimeout": 300,
+      "creationTime": "1692627281",
+      "turnPassword": "2Pvdj+/WV1xV4EkB8klJ9xkXDWY=",
+      "enabledCodecs": [
+        {
+          "mime": "audio/opus"
+        },
+        {
+          "mime": "video/H264"
+        },
+        {
+          "mime": "video/VP8"
+        },
+        {
+          "mime": "video/AV1"
+        },
+        {
+          "mime": "video/H264"
+        },
+        {
+          "mime": "audio/red"
+        },
+        {
+          "mime": "video/VP9"
+        }
+      ],
+      "numParticipants": 2,
+      "numPublishers": 2
+    },
+    "participant": {
+      "sid": "PA_j5wJRSnmTV85",
+      "identity": "John Doe",
+      "state": "ACTIVE",
+      "joinedAt": "1692627327",
+      "version": 2,
+      "permission": {
+        "canSubscribe": true,
+        "canPublish": true
+      },
+      "region": "dfra1a"
+    },
+    "id": "EV_ZSRd8AoiQWds",
+  }`,participant_left:`{
+    "event": "participant_left",
+    "room": {
+      "sid": "RM_hycBMAjmt6Ub",
+      "name": "Demo Room",
+      "emptyTimeout": 300,
+      "creationTime": "1692627281",
+      "turnPassword": "2Pvdj+/WV1xV4EkB8klJ9xkXDWY=",
+      "enabledCodecs": [
+        {
+          "mime": "audio/opus"
+        },
+        {
+          "mime": "video/H264"
+        },
+        {
+          "mime": "video/VP8"
+        },
+        {
+          "mime": "video/AV1"
+        },
+        {
+          "mime": "video/H264"
+        },
+        {
+          "mime": "audio/red"
+        },
+        {
+          "mime": "video/VP9"
+        }
+      ],
+      "numParticipants": 1,
+      "numPublishers": 1
+    },
+    "participant": {
+      "sid": "PA_j5wJRSnmTV85",
+      "identity": "John Doe",
+      "state": "ACTIVE",
+      "joinedAt": "1692627327",
+      "version": 2,
+      "permission": {
+        "canSubscribe": true,
+        "canPublish": true
+      },
+      "region": "dfra1a"
+    },
+    "id": "EV_ZSRd8AoiQWds",
+  }`,track_published:`{
+    "event": "track_published",
+    "room": {
+      "sid": "RM_hycBMAjmt6Ub",
+      "name": "Test Room"
+    },
+    "participant": {
+      "sid": "PA_JTVZdWtsc6qa",
+      "identity": "Alicia Doe"
+    },
+    "track": {
+      "sid": "TR_VCPwtnzMnQcRjW",
+      "type": "VIDEO",
+      "name": "/home/runner/actions-runner/_work/trailer.h264",
+      "source": "CAMERA",
+      "layers": [
+        {
+          "quality": "HIGH"
+        }
+      ],
+      "mimeType": "video/H264",
+      "mid": "0",
+      "codecs": [
+        {
+          "mimeType": "video/H264",
+          "mid": "0",
+          "layers": [
+            {
+              "quality": "HIGH"
+            }
+          ]
+        }
+      ],
+      "stream": "camera"
+    },
+    "id": "EV_2ieYPyxBZ9c7",
+  }`,track_unpublished:`{
+    "event": "track_unpublished",
+    "room": {
+      "sid": "RM_5kfKsabtCaDY",
+      "name": "Test Room"
+    },
+    "participant": {
+      "sid": "PA_9kfwaJsfDLA5",
+      "identity": "Tracy Smith"
+    },
+    "track": {
+      "sid": "TR_VS8udzeGaFBLA5",
+      "type": "VIDEO",
+      "width": 1920,
+      "height": 1080,
+      "simulcast": true,
+      "source": "SCREEN_SHARE",
+      "layers": [
+        {
+          "width": 960,
+          "height": 540,
+          "bitrate": 150000
+        },
+        {
+          "quality": "MEDIUM",
+          "width": 1920,
+          "height": 1080,
+          "bitrate": 2500000
+        }
+      ],
+      "mimeType": "video/VP8",
+      "mid": "4",
+      "codecs": [
+        {
+          "mimeType": "video/VP8",
+          "mid": "4",
+          "cid": "d49aca74-166e-4fb1-8c2f-13277fef6cfd"
+        }
+      ],
+      "stream": "screen"
+    },
+    "id": "EV_UtugjrtiJq2P",
+  }`,egress_started:`{
+    "event": "egress_started",
+    "egressInfo": {
+      "egressId": "EG_L2cKnL7wNTDZ",
+      "roomId": "RM_hycBMAjmt6Ub",
+      "roomName": "Test Room",
+      "updatedAt": "1692627284952155740",
+      "trackComposite": {
+        "roomName": "Test Room",
+        "audioTrackId": "TR_AMPwShmymM3ENs",
+        "videoTrackId": "TR_VCPwtnzMnQcRjW",
+        "advanced": {
+          "width": 640,
+          "height": 480
+        },
+        "fileOutputs": [
+          {
+            "filepath": "egress-test/{time}.mp4",
+            "s3": {
+              "accessKey": "{access_key}",
+              "secret": "{secret}",
+              "region": "us-east-1",
+              "bucket": "egresses"
+            }
+          }
+        ]
+      },
+      "file": {
+        "filename": "egress-test/2023-08-21T141444.mp4"
+      },
+      "fileResults": [
+        {
+          "filename": "egress-test2023-08-21T141444.mp4"
+        }
+      ]
+    },
+    "id": "EV_Je7as3FVqyTh",
+  }`,egress_updated:`{
+    "event": "egress_updated",
+    "egressInfo": {
+      "egressId": "EG_5E4bitryqxMZ",
+      "roomId": "RM_hycBMAjmt6Ub",
+      "roomName": "Test Room",
+      "status": "EGRESS_ACTIVE",
+      "startedAt": "1692627327314954481",
+      "updatedAt": "1692627329613483227",
+      "roomComposite": {
+        "roomName": "Test Room",
+        "layout": "speaker-dark",
+        "advanced": {
+          "width": 640,
+          "height": 480
+        },
+        "fileOutputs": [
+          {
+            "filepath": "egress-test/{time}.mp4",
+            "s3": {
+              "accessKey": "{access_key}",
+              "secret": "{secret}",
+              "region": "us-east-1",
+              "bucket": "egresses"
+            }
+          }
+        ]
+      },
+      "file": {
+        "filename": "egress-test/2023-08-21T141526.mp4",
+        "startedAt": "1692627329613481848"
+      },
+      "fileResults": [
+        {
+          "filename": "egress-test/2023-08-21T141526.mp4",
+          "startedAt": "1692627329613481848"
+        }
+      ]
+    },
+    "id": "EV_VNbpM8pjLXbo",
+  }`,egress_ended:`{
+    "event": "egress_ended",
+    "egressInfo": {
+      "egressId": "EG_5E4bitryqxMZ",
+      "roomId": "RM_hycBMAjmt6Ub",
+      "roomName": "Test Room",
+      "status": "EGRESS_COMPLETE",
+      "startedAt": "1692627327314954481",
+      "endedAt": "1692627361394359203",
+      "updatedAt": "1692627361394359203",
+      "roomComposite": {
+        "roomName": "Test Room",
+        "layout": "speaker-dark",
+        "advanced": {
+          "width": 640,
+          "height": 480
+        },
+        "fileOutputs": [
+          {
+            "filepath": "egress-test/{time}.mp4",
+            "s3": {
+              "accessKey": "{access_key}",
+              "secret": "{secret}",
+              "region": "us-east-1",
+              "bucket": "egresses"
+            }
+          }
+        ]
+      },
+      "file": {
+        "filename": "egress-test/2023-08-21T141526.mp4",
+        "startedAt": "1692627329613481848",
+        "endedAt": "1692627357805052699",
+        "duration": "28191570851",
+        "size": "14502595",
+        "location": "https://egresses.s3.amazonaws.com/egress-test/2023-08-21T141526.mp4"
+      },
+      "fileResults": [
+        {
+          "filename": "egress-test/2023-08-21T141526.mp4",
+          "startedAt": "1692627329613481848",
+          "endedAt": "1692627357805052699",
+          "duration": "28191570851",
+          "size": "14502595",
+          "location": "https://egresses.s3.amazonaws.com/egress-test/2023-08-21T141526.mp4"
+        }
+      ]
+    },
+    "id": "EV_dh9yRrAvb7Cn",
+  }`,ingress_started:`{
+    "event": "ingress_started",
+    "ingressInfo": {
+      "ingressId": "IN_CGdjLd5fKoeD",
+      "name": "obs-stream",
+      "streamKey": "gwpRabcSMisE",
+      "url": "rtmps://ingress-demo.rtmp.livekit.cloud/x",
+      "audio": {
+        "source": "MICROPHONE",
+        "preset": "OPUS_STEREO_96KBPS"
+      },
+      "video": {
+        "source": "CAMERA",
+        "preset": "H264_1080P_30FPS_3_LAYERS"
+      },
+      "roomName": "Test Room",
+      "participantIdentity": "obs-stream",
+      "participantName": "OBS Stream",
+      "reusable": true,
+      "state": {
+        "status": "ENDPOINT_PUBLISHING",
+        "video": {
+          "mimeType": "video/H264",
+          "width": 1280,
+          "height": 720,
+          "framerate": 30
+        },
+        "roomId": "RM_Spyy2oDmo4VK",
+        "startedAt": "1692648540373363763",
+        "resourceId": "RT_H7WfDYpMCHYL"
+      }
+    },
+    "id": "EV_5R3eQZpxdeYg",
+  }`,ingress_ended:`{
+    "event": "ingress_ended",
+    "ingressInfo": {
+      "ingressId": "IN_CGdjLd5fKoeD",
+      "name": "obs-stream",
+      "streamKey": "gwpRabcSMisE",
+      "url": "rtmps://ingress-demo.rtmp.livekit.cloud/x",
+      "audio": {
+        "source": "MICROPHONE",
+        "preset": "OPUS_STEREO_96KBPS"
+      },
+      "video": {
+        "source": "CAMERA",
+        "preset": "H264_1080P_30FPS_3_LAYERS"
+      },
+      "roomName": "Test Room",
+      "participantIdentity": "obs-stream",
+      "participantName": "OBS Stream",
+      "reusable": true,
+      "state": {
+        "video": {
+          "mimeType": "video/H264",
+          "width": 1280,
+          "height": 720,
+          "framerate": 30
+        },
+        "audio": {
+          "mimeType": "audio/aac",
+          "channels": 2,
+          "sampleRate": 48000
+        },
+        "roomId": "RM_Spyy2oDmo4VK",
+        "startedAt": "1692648540373363763",
+        "resourceId": "RT_H7WfDYpMCHYL"
+      }
+    },
+    "id": "EV_nxkb8t3N24ZF",
+  }`},tx="••••••••••••••••••••••••••••••••";function tj(e){return e.preventDefault()}let ty="api-key",tf="api-secret",tb="env-vars";function tv(){return null}(0,y.register)("confirm",(0,Z.createEphemeralModal)(f.ConfirmDialog)),(0,y.register)("delete-project",(0,Z.createEphemeralModal)(function(e){let a,s,o,n,l,c,d,u,m,p,h,g,x,j=(0,r.c)(41),{project:y,open:f,onClose:k}=e,[C,_]=(0,X.useState)("express_initial_intention"),[A,D]=(0,X.useState)(""),F=A===y.name,I=(0,X.useId)(),R=(0,i.useRouter)(),T=(0,eo.useQueryClient)(),N=(0,et.useTransport)();j[0]!==N?(a=(0,ee.createConnectQueryKey)({schema:ec.listProjects,transport:N,input:{},cardinality:"finite"}),j[0]=N,j[1]=a):a=j[1];let q=a;j[2]!==q||j[3]!==k||j[4]!==T||j[5]!==R?(s={onSuccess:async()=>{await T.invalidateQueries({queryKey:q}),k(),S.toast.success("Project deleted"),R.replace("/")},onError:eA},j[2]=q,j[3]=k,j[4]=T,j[5]=R,j[6]=s):s=j[6];let E=(0,b.useMutation)(ec.deleteProject,s);j[7]!==E?(o=async e=>{await E.mutateAsync({projectId:e})},j[7]=E,j[8]=o):o=j[8];let M=o;j[9]!==k?(n=()=>{_("express_initial_intention"),D(""),k()},j[9]=k,j[10]=n):n=j[10];let L=n;return j[11]!==L?(l=e=>void(!e&&L()),j[11]=L,j[12]=l):l=j[12],j[13]!==y.name?(c=(0,t.jsxs)(w.DialogTitle,{children:["Delete ",y.name]}),j[13]=y.name,j[14]=c):c=j[14],j[15]===Symbol.for("react.memo_cache_sentinel")?(d=(0,t.jsx)(w.DialogDescription,{children:"This operation cannot be undone."}),j[15]=d):d=j[15],j[16]!==c?(u=(0,t.jsxs)(w.DialogHeader,{children:[c,d]}),j[16]=c,j[17]=u):u=j[17],j[18]!==C?(m="express_initial_intention"===C&&(0,t.jsx)(w.DialogFooter,{children:(0,t.jsx)(v.Button,{variant:"destructive",onClick:()=>_("understand_consequences"),children:"I want to delete this project"})}),j[18]=C,j[19]=m):m=j[19],j[20]!==y.name||j[21]!==C?(p="understand_consequences"===C&&(0,t.jsxs)(t.Fragment,{children:[(0,t.jsxs)("p",{className:"text-fg3 text-sm",children:["This will permanently delete the ",(0,t.jsx)("strong",{children:y.name})," project for you and all other project members. Active rooms and connections will be closed and all analytics data will be deleted."]}),(0,t.jsx)(w.DialogFooter,{children:(0,t.jsx)(v.Button,{variant:"destructive",onClick:()=>_("type_and_delete"),children:"I have read and understand these effects"})})]}),j[20]=y.name,j[21]=C,j[22]=p):p=j[22],j[23]!==I||j[24]!==E.isPending||j[25]!==F||j[26]!==A||j[27]!==M||j[28]!==y.id||j[29]!==y.name||j[30]!==C?(h="type_and_delete"===C&&(0,t.jsxs)(t.Fragment,{children:[(0,t.jsxs)(P.Label,{htmlFor:I,className:"text-fg3 text-sm",children:['To confirm, type "',y.name,'" in the box below.']}),(0,t.jsx)(ei.Input,{id:I,value:A,onChange:e=>D(e.target.value)}),(0,t.jsx)(w.DialogFooter,{children:(0,t.jsx)(eC.TaskButton,{variant:"destructive",disabled:!F||E.isPending,onClick:async()=>{if(F)return M(y.id)},isPending:E.isPending,children:"Delete this project"})})]}),j[23]=I,j[24]=E.isPending,j[25]=F,j[26]=A,j[27]=M,j[28]=y.id,j[29]=y.name,j[30]=C,j[31]=h):h=j[31],j[32]!==p||j[33]!==h||j[34]!==u||j[35]!==m?(g=(0,t.jsxs)(w.DialogContent,{className:"gap-1",children:[u,m,p,h]}),j[32]=p,j[33]=h,j[34]=u,j[35]=m,j[36]=g):g=j[36],j[37]!==f||j[38]!==g||j[39]!==l?(x=(0,t.jsx)(w.Dialog,{defaultOpen:!0,open:f,onOpenChange:l,children:g}),j[37]=f,j[38]=g,j[39]=l,j[40]=x):x=j[40],x})),(0,y.register)("transfer-ownership",(0,Z.createEphemeralModal)(function(e){let a,s,o,n,c,d,u,p,h,g,x,j,y,f,k,C,_,A,D,F,I,R,T,N,q,E,M,L,V=(0,r.c)(70),B=(0,i.useRouter)(),U=(0,et.useTransport)(),K=(0,eo.useQueryClient)(),[W,Q]=(0,X.useState)("");V[0]===Symbol.for("react.memo_cache_sentinel")?(a={},V[0]=a):a=V[0];let{data:O,isPending:z}=(0,l.useQuery)(m.listUserWorkspaces,a);if(O?.workspaces,V[1]!==O?.workspaces?(s=O?.workspaces??[],V[1]=O?.workspaces,V[2]=s):s=V[2],V[3]!==e.currentUserId||V[4]!==e.project.workspaceId||V[5]!==s){var H,G,$;H=s,G=e.currentUserId,$=e.project.workspaceId,o=H.flatMap(e=>{let t=e.workspace;return t&&t.creatorId===G&&t.id!==$&&(0,tr.isEnterprisePlan)(e.plan)?[{id:t.id,name:t.name,projectCount:e.projectCount,memberCount:e.memberCount}]:[]}).sort((e,t)=>e.name.localeCompare(t.name)),V[3]=e.currentUserId,V[4]=e.project.workspaceId,V[5]=s,V[6]=o}else o=V[6];let Y=o;V[7]!==W||V[8]!==Y?(n=()=>{0===Y.length?Q(""):Y.some(e=>e.id===W)||Q(Y[0]?.id??"")},c=[W,Y],V[7]=W,V[8]=Y,V[9]=n,V[10]=c):(n=V[9],c=V[10]),(0,X.useEffect)(n,c),V[11]!==e.project.id||V[12]!==U?(d=(0,ee.createConnectQueryKey)({schema:ec.getProject,transport:U,input:{projectId:e.project.id},cardinality:"finite"}),V[11]=e.project.id,V[12]=U,V[13]=d):d=V[13];let J=d;V[14]!==U?(u=(0,ee.createConnectQueryKey)({schema:ec.listProjects,transport:U,input:{},cardinality:"finite"}),V[14]=U,V[15]=u):u=V[15];let Z=u;V[16]!==U?(p=(0,ee.createConnectQueryKey)({schema:m.listUserWorkspaces,transport:U,input:{},cardinality:"finite"}),V[16]=U,V[17]=p):p=V[17];let er=p;V[18]!==Z||V[19]!==er||V[20]!==J||V[21]!==e||V[22]!==K||V[23]!==B?(h={onSuccess:async()=>{await Promise.all([K.invalidateQueries({queryKey:J}),K.invalidateQueries({queryKey:Z}),K.invalidateQueries({queryKey:er})]),e.onClose(),S.toast.success("Ownership transferred successfully"),B.refresh()},onError:ti},V[18]=Z,V[19]=er,V[20]=J,V[21]=e,V[22]=K,V[23]=B,V[24]=h):h=V[24];let ea=(0,b.useMutation)(m.moveProjectToWorkspace,h),ei=Y.length>0,es=z||!ei||!W||ea.isPending,en=e.open;V[25]!==e?(g=t=>{t||e.onClose()},V[25]=e,V[26]=g):g=V[26],V[27]===Symbol.for("react.memo_cache_sentinel")?(x=(0,t.jsx)(w.DialogTitle,{children:"Transfer ownership"}),V[27]=x):x=V[27],V[28]!==e.project.name?(j=(0,t.jsxs)(w.DialogHeader,{children:[x,(0,t.jsxs)(w.DialogDescription,{children:["Transfer ",(0,t.jsx)("strong",{children:e.project.name})," to another workspace you own."]})]}),V[28]=e.project.name,V[29]=j):j=V[29],V[30]===Symbol.for("react.memo_cache_sentinel")?(y=(0,t.jsx)("div",{className:"text-sm font-medium",children:"By transferring ownership, I understand:"}),V[30]=y):y=V[30],V[31]===Symbol.for("react.memo_cache_sentinel")?(f=(0,t.jsxs)("li",{className:"flex gap-1.5",children:[(0,t.jsx)("span",{className:"shrink-0",children:"•"}),(0,t.jsx)("span",{children:"Project members will be replaced by the destination workspace members."})]}),V[31]=f):f=V[31],V[32]===Symbol.for("react.memo_cache_sentinel")?(k=(0,t.jsx)(em.InfoBox,{type:"warning",children:(0,t.jsxs)("div",{className:"space-y-2",children:[y,(0,t.jsxs)("ul",{className:"-ml-2 space-y-1 text-sm",children:[f,(0,t.jsxs)("li",{className:"flex gap-1.5",children:[(0,t.jsx)("span",{className:"shrink-0",children:"•"}),(0,t.jsx)("span",{children:"Transferring the project may change its plan and can potentially cause service disruptions."})]})]})]})}),V[32]=k):k=V[32],V[33]===Symbol.for("react.memo_cache_sentinel")?(C=(0,t.jsx)(P.Label,{htmlFor:"workspace-id",children:"Destination workspace"}),V[33]=C):C=V[33];let el=!ei,ed=z?"Loading workspaces":"Select a workspace";return V[34]!==ed?(_=(0,t.jsx)(tt.SelectValue,{placeholder:ed}),V[34]=ed,V[35]=_):_=V[35],V[36]!==el||V[37]!==_?(A=(0,t.jsx)(tt.SelectTrigger,{id:"workspace-id",className:"w-full",disabled:el,children:_}),V[36]=el,V[37]=_,V[38]=A):A=V[38],V[39]!==Y?(D=Y.map(ta),V[39]=Y,V[40]=D):D=V[40],V[41]!==D?(F=(0,t.jsx)(tt.SelectContent,{children:D}),V[41]=D,V[42]=F):F=V[42],V[43]!==W||V[44]!==A||V[45]!==F?(I=(0,t.jsxs)("div",{className:"space-y-2",children:[C,(0,t.jsxs)(tt.Select,{value:W,onValueChange:Q,children:[A,F]})]}),V[43]=W,V[44]=A,V[45]=F,V[46]=I):I=V[46],V[47]!==ei||V[48]!==z?(R=!z&&!ei&&(0,t.jsx)("p",{className:"text-fg3 text-sm",children:"You do not have another workspace you own that this project can be transferred to."}),V[47]=ei,V[48]=z,V[49]=R):R=V[49],V[50]!==I||V[51]!==R?(T=(0,t.jsxs)("div",{className:"flex flex-col gap-4",children:[k,I,R]}),V[50]=I,V[51]=R,V[52]=T):T=V[52],V[53]===Symbol.for("react.memo_cache_sentinel")?(N=(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Cancel"})}),V[53]=N):N=V[53],V[54]!==ea||V[55]!==e.project.id||V[56]!==W?(q=async()=>{W&&await ea.mutateAsync({projectId:e.project.id,workspaceId:W})},V[54]=ea,V[55]=e.project.id,V[56]=W,V[57]=q):q=V[57],V[58]!==es||V[59]!==ea.isPending||V[60]!==q?(E=(0,t.jsxs)(w.DialogFooter,{children:[N,(0,t.jsx)(eC.TaskButton,{variant:"destructive",disabled:es,isPending:ea.isPending,onClick:q,children:"Transfer ownership"})]}),V[58]=es,V[59]=ea.isPending,V[60]=q,V[61]=E):E=V[61],V[62]!==j||V[63]!==T||V[64]!==E?(M=(0,t.jsxs)(w.DialogContent,{children:[j,T,E]}),V[62]=j,V[63]=T,V[64]=E,V[65]=M):M=V[65],V[66]!==e.open||V[67]!==g||V[68]!==M?(L=(0,t.jsx)(w.Dialog,{open:en,onOpenChange:g,children:M}),V[66]=e.open,V[67]=g,V[68]=M,V[69]=L):L=V[69],L})),(0,y.register)("request-new-limit",(0,Z.createEphemeralModal)(function(e){let a,i,o,n,l,c,d,u,m,p,h,g,x,j,y,f,F,T,N,q,P,E,M,L,V,B=(0,r.c)(75),U=void 0!==e.limitRequest;if(B[0]!==e.currentLimit){var K;K=e.currentLimit,a=C.z.object({desiredValue:C.z.coerce.number().min(1,"Desired value must be at least 1").refine(e=>e>K,{message:`Please provide a value greater than the current limit of ${(0,R.readableValueByUnit)(K,_.AnalyticsUnit_Type.Quantity)}`}),reason:C.z.string().min(1,"Please provide a reason for the increase")}),B[0]=e.currentLimit,B[1]=a}else a=B[1];let W=a,Q=(0,et.useTransport)(),O=(0,eo.useQueryClient)();B[2]!==e.target.projectId||B[3]!==e.target.type||B[4]!==e.target.workspaceId||B[5]!==Q?(i="workspace"===e.target.type?(0,ee.createConnectQueryKey)({schema:A.BillingService.method.getWorkspaceQuotas,transport:Q,input:{workspaceId:e.target.workspaceId},cardinality:"finite"}):(0,ee.createConnectQueryKey)({schema:A.BillingService.method.getProjectQuotas,transport:Q,input:{projectId:e.target.projectId},cardinality:"finite"}),B[2]=e.target.projectId,B[3]=e.target.type,B[4]=e.target.workspaceId,B[5]=Q,B[6]=i):i=B[6];let z=i;B[7]!==O||B[8]!==z?(o={onSuccess:async()=>{await O.invalidateQueries({queryKey:z}),S.toast.success("Request successfully submitted",{id:ts,description:"We will review your request and notify you via email."})},onError:td},B[7]=O,B[8]=z,B[9]=o):o=B[9];let H=(0,b.useMutation)(D.requestNewLimit,o);B[10]!==O||B[11]!==z?(n={onSuccess:async()=>{await O.invalidateQueries({queryKey:z}),S.toast.success("Request successfully updated",{id:ts,description:"We will review your request and notify you via email."})},onError:tc},B[10]=O,B[11]=z,B[12]=n):n=B[12];let G=(0,b.useMutation)(D.updateLimitRequest,n);B[13]!==O||B[14]!==z?(l={onSuccess:async()=>{await O.invalidateQueries({queryKey:z}),S.toast.success("Request successfully submitted",{id:ts,description:"We will review your request and notify you via email."})},onError:tl},B[13]=O,B[14]=z,B[15]=l):l=B[15];let $=(0,b.useMutation)(D.requestNewWorkspaceLimit,l);B[16]!==O||B[17]!==z?(c={onSuccess:async()=>{await O.invalidateQueries({queryKey:z}),S.toast.success("Request successfully updated",{id:ts,description:"We will review your request and notify you via email."})},onError:tn},B[16]=O,B[17]=z,B[18]=c):c=B[18];let Y=(0,b.useMutation)(D.updateWorkspaceLimitRequest,c),J=e.limitRequest?.value??2*e.currentLimit,Z=e.limitRequest?.reason??"";B[19]!==J||B[20]!==Z?(d={desiredValue:J,reason:Z},B[19]=J,B[20]=Z,B[21]=d):d=B[21];let X=d;B[22]!==W?(u={onSubmit:W},B[22]=W,B[23]=u):u=B[23],B[24]!==U||B[25]!==e||B[26]!==H||B[27]!==G||B[28]!==$||B[29]!==Y?(m=async t=>{let{value:r}=t;"workspace"===e.target.type?U&&e.limitRequest?.id?await Y.mutateAsync((0,s.create)(A.UpdateNewWorkspaceLimitRequestSchema,{workspaceId:e.target.workspaceId,limitRequestId:e.limitRequest.id,updatedRequest:(0,s.create)(A.RequestNewWorkspaceLimitRequestSchema,{workspaceId:e.target.workspaceId,category:e.category,value:r.desiredValue,reason:r.reason})})):await $.mutateAsync((0,s.create)(A.RequestNewWorkspaceLimitRequestSchema,{workspaceId:e.target.workspaceId,category:e.category,value:r.desiredValue,reason:r.reason})):U&&e.limitRequest?.id?await G.mutateAsync((0,s.create)(A.UpdateNewLimitRequestSchema,{projectId:e.target.projectId,limitRequestId:e.limitRequest.id,updatedRequest:(0,s.create)(A.RequestNewLimitRequestSchema,{projectId:e.target.projectId,workspaceId:e.target.workspaceId??"",category:e.category,value:r.desiredValue,reason:r.reason})})):await H.mutateAsync((0,s.create)(A.RequestNewLimitRequestSchema,{projectId:e.target.projectId,workspaceId:e.target.workspaceId??"",category:e.category,value:r.desiredValue,reason:r.reason})),e.onClose()},B[24]=U,B[25]=e,B[26]=H,B[27]=G,B[28]=$,B[29]=Y,B[30]=m):m=B[30],B[31]!==u||B[32]!==m||B[33]!==X?(p={defaultValues:X,validators:u,onSubmit:m},B[31]=u,B[32]=m,B[33]=X,B[34]=p):p=B[34];let er=(0,k.useAppForm)(p),ea=U?"Edit limit request":"Request a limit increase";B[35]!==e.category?(h=(0,I.getQuotaCategoryInfo)(e.category),B[35]=e.category,B[36]=h):h=B[36];let ei=h,es=U?`Editing your request to increase the limit on "${ei.label}".`:`Requesting to increase the limit on "${ei.label}".`,en=U?"Update request":"Request";return B[37]!==er||B[38]!==e?(g=t=>{!1===t&&(er.reset(),e.onClose())},B[37]=er,B[38]=e,B[39]=g):g=B[39],B[40]!==ea?(x=(0,t.jsx)(w.DialogTitle,{children:ea}),B[40]=ea,B[41]=x):x=B[41],B[42]!==es?(j=(0,t.jsx)(w.DialogDescription,{children:es}),B[42]=es,B[43]=j):j=B[43],B[44]!==x||B[45]!==j?(y=(0,t.jsxs)(w.DialogHeader,{children:[x,j]}),B[44]=x,B[45]=j,B[46]=y):y=B[46],B[47]!==er?(f=e=>{e.preventDefault(),e.stopPropagation(),er.handleSubmit()},B[47]=er,B[48]=f):f=B[48],B[49]!==e.currentLimit?(F=r=>(0,t.jsx)(r.TextField,{type:"number",label:"Desired value",description:`Current limit is ${(0,R.readableValueByUnit)(e.currentLimit,_.AnalyticsUnit_Type.Quantity)}. Enter a higher value.`}),B[49]=e.currentLimit,B[50]=F):F=B[50],B[51]!==er.AppField||B[52]!==F?(T=(0,t.jsx)(er.AppField,{name:"desiredValue",children:F}),B[51]=er.AppField,B[52]=F,B[53]=T):T=B[53],B[54]!==er.AppField?(N=(0,t.jsx)(er.AppField,{name:"reason",children:to}),B[54]=er.AppField,B[55]=N):N=B[55],B[56]!==f||B[57]!==T||B[58]!==N?(q=(0,t.jsxs)("form",{onSubmit:f,className:"flex flex-col gap-4",children:[T,N]}),B[56]=f,B[57]=T,B[58]=N,B[59]=q):q=B[59],B[60]===Symbol.for("react.memo_cache_sentinel")?(P=(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Cancel"})}),B[60]=P):P=B[60],B[61]!==en||B[62]!==er.SubmitButton?(E=(0,t.jsx)(er.SubmitButton,{label:en}),B[61]=en,B[62]=er.SubmitButton,B[63]=E):E=B[63],B[64]!==er.AppForm||B[65]!==E?(M=(0,t.jsxs)(w.DialogFooter,{children:[P,(0,t.jsx)(er.AppForm,{children:E})]}),B[64]=er.AppForm,B[65]=E,B[66]=M):M=B[66],B[67]!==y||B[68]!==q||B[69]!==M?(L=(0,t.jsxs)(w.DialogContent,{children:[y,q,M]}),B[67]=y,B[68]=q,B[69]=M,B[70]=L):L=B[70],B[71]!==e.open||B[72]!==g||B[73]!==L?(V=(0,t.jsx)(w.Dialog,{open:e.open,onOpenChange:g,children:L}),B[71]=e.open,B[72]=g,B[73]=L,B[74]=V):V=B[74],V})),(0,y.register)("quotas/request-connection-limit",(0,Z.createEphemeralModal)(function(e){let a,i,o,n,l,c,d,u,m,p,h,g,x,j,y,f,q,P,E,M,L,V,B=(0,r.c)(59),U=void 0!==e.limitRequest;B[0]===Symbol.for("react.memo_cache_sentinel")?(a=C.z.object({desiredValue:C.z.coerce.number().min(1,"Desired value must be at least 1"),reason:C.z.string().min(1,"Please provide a reason for the change")}),B[0]=a):a=B[0];let K=a,W="project"===e.target.type?e.target.projectId:"";B[1]!==W?(i={schema:D.getProjectQuotas,input:{projectId:W}},B[1]=W,B[2]=i):i=B[2];let Q=(0,F.useInvalidateQueries)(i),O="workspace"===e.target.type?e.target.workspaceId:"";B[3]!==O?(o={schema:D.getWorkspaceQuotas,input:{workspaceId:O}},B[3]=O,B[4]=o):o=B[4];let z=(0,F.useInvalidateQueries)(o),H=(0,b.useMutation)(D.requestNewLimit,{onSuccess:J,onError:Z("submit")}),G=(0,b.useMutation)(D.updateLimitRequest,{onSuccess:J,onError:Z("update")}),$=(0,b.useMutation)(D.requestNewWorkspaceLimit,{onSuccess:J,onError:Z("submit")}),Y=(0,b.useMutation)(D.updateWorkspaceLimitRequest,{onSuccess:J,onError:Z("update")});async function J(){await ("workspace"===e.target.type?z.invalidate():Q.invalidate()),S.toast.success("Request successfully submitted",{id:T,description:"We will review your request and notify you via email."})}function Z(e){return t=>{S.toast.error("update"===e?"Error updating limit request":"Error submitting new limit request",{id:T,description:t.message})}}let X=e.limitRequest?.value??e.currentLimit,ee=e.limitRequest?.reason??"";B[5]!==X||B[6]!==ee?(n={desiredValue:X,reason:ee},B[5]=X,B[6]=ee,B[7]=n):n=B[7];let et=n;B[8]===Symbol.for("react.memo_cache_sentinel")?(l={onSubmit:K},B[8]=l):l=B[8],B[9]!==U||B[10]!==H||B[11]!==G||B[12]!==e||B[13]!==$||B[14]!==Y?(c=async t=>{let{value:r}=t,a=e.limitRequest?.id;"workspace"===e.target.type?U&&void 0!==a?await Y.mutateAsync((0,s.create)(A.UpdateNewWorkspaceLimitRequestSchema,{workspaceId:e.target.workspaceId,limitRequestId:a,updatedRequest:(0,s.create)(A.RequestNewWorkspaceLimitRequestSchema,{workspaceId:e.target.workspaceId,category:e.category,value:r.desiredValue,reason:r.reason})})):await $.mutateAsync((0,s.create)(A.RequestNewWorkspaceLimitRequestSchema,{workspaceId:e.target.workspaceId,category:e.category,value:r.desiredValue,reason:r.reason})):U&&void 0!==a?await G.mutateAsync((0,s.create)(A.UpdateNewLimitRequestSchema,{projectId:e.target.projectId,limitRequestId:a,updatedRequest:(0,s.create)(A.RequestNewLimitRequestSchema,{projectId:e.target.projectId,category:e.category,value:r.desiredValue,reason:r.reason})})):await H.mutateAsync((0,s.create)(A.RequestNewLimitRequestSchema,{projectId:e.target.projectId,category:e.category,value:r.desiredValue,reason:r.reason})),e.onClose()},B[9]=U,B[10]=H,B[11]=G,B[12]=e,B[13]=$,B[14]=Y,B[15]=c):c=B[15],B[16]!==c||B[17]!==et?(d={defaultValues:et,validators:l,onSubmit:c},B[16]=c,B[17]=et,B[18]=d):d=B[18];let er=(0,k.useAppForm)(d);B[19]!==e.category?(u=(0,I.getQuotaCategoryInfo)(e.category),B[19]=e.category,B[20]=u):u=B[20];let ea=u;B[21]!==er||B[22]!==e?(m=t=>{!1===t&&(er.reset(),e.onClose())},B[21]=er,B[22]=e,B[23]=m):m=B[23];let ei=U?"Edit limit request":"Request limit change";B[24]!==ei?(p=(0,t.jsx)(w.DialogTitle,{children:ei}),B[24]=ei,B[25]=p):p=B[25];let es=U?`Editing your request to change the limit on "${ea.label}".`:`Requesting to change the limit on "${ea.label}".`;B[26]!==es?(h=(0,t.jsx)(w.DialogDescription,{children:es}),B[26]=es,B[27]=h):h=B[27],B[28]!==p||B[29]!==h?(g=(0,t.jsxs)(w.DialogHeader,{children:[p,h]}),B[28]=p,B[29]=h,B[30]=g):g=B[30],B[31]!==er?(x=e=>{e.preventDefault(),e.stopPropagation(),er.handleSubmit()},B[31]=er,B[32]=x):x=B[32],B[33]!==e.currentLimit?(j=r=>(0,t.jsx)(r.TextField,{type:"number",label:"Desired limit",description:`Current limit is ${(0,R.readableValueByUnit)(e.currentLimit,_.AnalyticsUnit_Type.Quantity)}.`}),B[33]=e.currentLimit,B[34]=j):j=B[34],B[35]!==er.AppField||B[36]!==j?(y=(0,t.jsx)(er.AppField,{name:"desiredValue",children:j}),B[35]=er.AppField,B[36]=j,B[37]=y):y=B[37],B[38]!==er.AppField?(f=(0,t.jsx)(er.AppField,{name:"reason",children:N}),B[38]=er.AppField,B[39]=f):f=B[39],B[40]!==x||B[41]!==y||B[42]!==f?(q=(0,t.jsxs)("form",{onSubmit:x,className:"flex flex-col gap-4",children:[y,f]}),B[40]=x,B[41]=y,B[42]=f,B[43]=q):q=B[43],B[44]===Symbol.for("react.memo_cache_sentinel")?(P=(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Cancel"})}),B[44]=P):P=B[44];let eo=U?"Update request":"Request";return B[45]!==er.SubmitButton||B[46]!==eo?(E=(0,t.jsx)(er.SubmitButton,{label:eo}),B[45]=er.SubmitButton,B[46]=eo,B[47]=E):E=B[47],B[48]!==er.AppForm||B[49]!==E?(M=(0,t.jsxs)(w.DialogFooter,{children:[P,(0,t.jsx)(er.AppForm,{children:E})]}),B[48]=er.AppForm,B[49]=E,B[50]=M):M=B[50],B[51]!==g||B[52]!==q||B[53]!==M?(L=(0,t.jsxs)(w.DialogContent,{children:[g,q,M]}),B[51]=g,B[52]=q,B[53]=M,B[54]=L):L=B[54],B[55]!==e.open||B[56]!==m||B[57]!==L?(V=(0,t.jsx)(w.Dialog,{open:e.open,onOpenChange:m,children:L}),B[55]=e.open,B[56]=m,B[57]=L,B[58]=V):V=B[58],V})),(0,y.register)("quotas/request-model-limit",(0,Z.createEphemeralModal)(function(e){var a,i,o;let n,l,c,d,u,m,p,g,x,j,y,f,C,T,N,z,H,G,$,Y,J,Z,X,ee,et,er,ea,ei,es,eo,en,el,ec,ed,eu,em=(0,r.c)(103),ep=void 0!==e.limitRequest,eh=e.inferenceModelName,{category:eg}=e,ex="project"===e.target.type?e.target.projectId:"";em[0]!==ex?(c={schema:D.getProjectQuotas,input:{projectId:ex}},em[0]=ex,em[1]=c):c=em[1];let ej=(0,F.useInvalidateQueries)(c),ey="workspace"===e.target.type?e.target.workspaceId:"";em[2]!==ey?(d={schema:D.getWorkspaceQuotas,input:{workspaceId:ey}},em[2]=ey,em[3]=d):d=em[3];let ef=(0,F.useInvalidateQueries)(d),eb=(0,b.useMutation)(D.requestNewLimit,{onSuccess:ek,onError:eC("submit")}),ev=(0,b.useMutation)(D.updateLimitRequest,{onSuccess:ek,onError:eC("update")}),ew=(0,b.useMutation)(D.requestNewWorkspaceLimit,{onSuccess:ek,onError:eC("submit")}),eS=(0,b.useMutation)(D.updateWorkspaceLimitRequest,{onSuccess:ek,onError:eC("update")});async function ek(){await ("workspace"===e.target.type?ef.invalidate():ej.invalidate()),S.toast.success(ep?"Request successfully updated":"Request successfully submitted",{id:B,description:"We will review your request and notify you via email."})}function eC(e){return t=>{S.toast.error("update"===e?"Error updating limit request":"Error submitting new limit request",{id:B,description:t.message})}}em[4]!==eg||em[5]!==eh||em[6]!==e.currentLimit||em[7]!==e.plan||em[8]!==e.usages?(u=0!==(l=(a={category:eg,modelId:eh,plan:e.plan,usages:e.usages,propsCurrentLimit:e.currentLimit}).propsCurrentLimit??(i=a.category,o=a.modelId,n=a.usages.find(e=>e.category===i&&(e.inferenceModelName??"")===o),n?.limit??0))?l:(0,V.resolveDefaultLimit)({modelId:a.modelId,category:a.category,plan:a.plan,usages:a.usages})??l,em[4]=eg,em[5]=eh,em[6]=e.currentLimit,em[7]=e.plan,em[8]=e.usages,em[9]=u):u=em[9];let e_=u,eA=e.limitRequest?.value??e_,eD=e.limitRequest?.reason??"";em[10]!==eA||em[11]!==eD?(m={desiredValue:eA,reason:eD},em[10]=eA,em[11]=eD,em[12]=m):m=em[12];let eF=m;em[13]!==eg||em[14]!==ep||em[15]!==eh||em[16]!==eb||em[17]!==ev||em[18]!==e||em[19]!==ew||em[20]!==eS?(p=async t=>{let{value:r}=t,a=O(r.desiredValue),i=e.limitRequest?.id;"workspace"===e.target.type?ep&&void 0!==i?await eS.mutateAsync((0,s.create)(A.UpdateNewWorkspaceLimitRequestSchema,{workspaceId:e.target.workspaceId,limitRequestId:i,updatedRequest:(0,s.create)(A.RequestNewWorkspaceLimitRequestSchema,{workspaceId:e.target.workspaceId,category:eg,value:a,reason:r.reason,inferenceModelName:eh})})):await ew.mutateAsync((0,s.create)(A.RequestNewWorkspaceLimitRequestSchema,{workspaceId:e.target.workspaceId,category:eg,value:a,reason:r.reason,inferenceModelName:eh})):ep&&void 0!==i?await ev.mutateAsync((0,s.create)(A.UpdateNewLimitRequestSchema,{projectId:e.target.projectId,limitRequestId:i,updatedRequest:(0,s.create)(A.RequestNewLimitRequestSchema,{projectId:e.target.projectId,category:eg,value:a,reason:r.reason,inferenceModelName:eh})})):await eb.mutateAsync((0,s.create)(A.RequestNewLimitRequestSchema,{projectId:e.target.projectId,category:eg,value:a,reason:r.reason,inferenceModelName:eh})),e.onClose()},em[13]=eg,em[14]=ep,em[15]=eh,em[16]=eb,em[17]=ev,em[18]=e,em[19]=ew,em[20]=eS,em[21]=p):p=em[21],em[22]===Symbol.for("react.memo_cache_sentinel")?(g={onSubmit:W},em[22]=g):g=em[22],em[23]!==eF||em[24]!==p?(x={defaultValues:eF,onSubmit:p,validators:g},em[23]=eF,em[24]=p,em[25]=x):x=em[25];let eI=(0,k.useAppForm)(x),eR=(0,E.useStore)(eI.store,K);em[26]!==eg?(j=(0,I.getQuotaCategoryInfo)(eg),em[26]=eg,em[27]=j):j=em[27];let eT=j;em[28]!==eg||em[29]!==eh||em[30]!==e.plan?(y=(0,V.getAutoApproveCeiling)({modelId:eh,category:eg,plan:e.plan}),em[28]=eg,em[29]=eh,em[30]=e.plan,em[31]=y):y=em[31];let eN=y;if(em[32]!==eN||em[33]!==eR){let e=O(eR);f=void 0!==eN&&Number.isFinite(e)&&e>eN,em[32]=eN,em[33]=eR,em[34]=f}else f=em[34];let eq=f;em[35]!==eg||em[36]!==eq||em[37]!==eh||em[38]!==e.plan?(C=eq?(0,V.getOverflowContext)({modelId:eh,category:eg,plan:e.plan}):void 0,em[35]=eg,em[36]=eq,em[37]=eh,em[38]=e.plan,em[39]=C):C=em[39];let eP=C;em[40]!==eh?(T=(0,M.findInferenceModel)(eh),em[40]=eh,em[41]=T):T=em[41];let eE=T;em[42]!==eq||em[43]!==e.plan||em[44]!==e.target.projectId||em[45]!==e.target.type?(N=eq&&"project"===e.target.type&&("build"===e.plan||"ship"===e.plan)?(0,t.jsx)(L.LinkButton,{href:(0,h.billingPath)(e.target.projectId,{showPlans:!0}),variant:"primary",size:"sm",children:"build"===e.plan?"Upgrade to Ship":"Upgrade to Scale"}):void 0,em[42]=eq,em[43]=e.plan,em[44]=e.target.projectId,em[45]=e.target.type,em[46]=N):N=em[46];let eM=N;em[47]!==eI||em[48]!==e?(z=t=>{!1===t&&(eI.reset(),e.onClose())},em[47]=eI,em[48]=e,em[49]=z):z=em[49];let eL=ep?"Edit limit request":"Request limit change";em[50]!==eL?(H=(0,t.jsx)(w.DialogTitle,{children:eL}),em[50]=eL,em[51]=H):H=em[51],em[52]===Symbol.for("react.memo_cache_sentinel")?(G=(0,t.jsx)(w.DialogDescription,{children:"Request a new quota for this inference model. Tell us the limit you need and why, and we'll review your request."}),em[52]=G):G=em[52],em[53]!==H?($=(0,t.jsxs)(w.DialogHeader,{children:[H,G]}),em[53]=H,em[54]=$):$=em[54],em[55]!==eI?(Y=e=>{e.preventDefault(),e.stopPropagation(),eI.handleSubmit()},em[55]=eI,em[56]=Y):Y=em[56],em[57]===Symbol.for("react.memo_cache_sentinel")?(J=(0,t.jsx)(P.Label,{children:"Model"}),em[57]=J):J=em[57],em[58]!==eE?(Z=void 0!==eE?(0,t.jsx)(q.InferencePartnerIcon,{partnerId:eE.model_creator_id,className:"size-4"}):null,em[58]=eE,em[59]=Z):Z=em[59];let eV=eE?.model_label??eh;return em[60]!==eV?(X=(0,t.jsx)("span",{children:eV}),em[60]=eV,em[61]=X):X=em[61],em[62]!==Z||em[63]!==X?(ee=(0,t.jsxs)("div",{className:"flex flex-col gap-1",children:[J,(0,t.jsxs)("span",{className:"text-fg1 inline-flex items-center gap-2 text-sm",children:[Z,X]})]}),em[62]=Z,em[63]=X,em[64]=ee):ee=em[64],em[65]!==eT.quotaSubLabel?(et=void 0!==eT.quotaSubLabel?(0,t.jsxs)("div",{className:"flex flex-col gap-1",children:[(0,t.jsx)(P.Label,{children:"Quota"}),(0,t.jsx)("p",{className:"text-fg3 text-sm",children:eT.quotaSubLabel})]}):null,em[65]=eT.quotaSubLabel,em[66]=et):et=em[66],em[67]!==eT.unitSuffix||em[68]!==eN||em[69]!==e_?(er=e=>{var r;let a,i;return(0,t.jsx)(e.TextField,{type:"number",label:"Desired limit",description:(a=void 0!==(r={currentLimit:e_,unitSuffix:eT.unitSuffix,ceiling:eN}).unitSuffix?` ${r.unitSuffix}`:"",i=`Current limit: ${(0,R.readableValueByUnit)(r.currentLimit,_.AnalyticsUnit_Type.Quantity)}${a}`,void 0===r.ceiling?i:`${i} (Plan maximum: ${(0,R.readableValueByUnit)(r.ceiling,_.AnalyticsUnit_Type.Quantity)})`)})},em[67]=eT.unitSuffix,em[68]=eN,em[69]=e_,em[70]=er):er=em[70],em[71]!==eI.AppField||em[72]!==er?(ea=(0,t.jsx)(eI.AppField,{name:"desiredValue",children:er}),em[71]=eI.AppField,em[72]=er,em[73]=ea):ea=em[73],em[74]!==eI.AppField?(ei=(0,t.jsx)(eI.AppField,{name:"reason",children:U}),em[74]=eI.AppField,em[75]=ei):ei=em[75],em[76]!==Y||em[77]!==ee||em[78]!==et||em[79]!==ea||em[80]!==ei?(es=(0,t.jsxs)("form",{onSubmit:Y,className:"flex flex-col gap-4",children:[ee,et,ea,ei]}),em[76]=Y,em[77]=ee,em[78]=et,em[79]=ea,em[80]=ei,em[81]=es):es=em[81],em[82]!==eq||em[83]!==eP||em[84]!==e.plan?(eo=eq&&void 0!==eP?(0,t.jsx)(Q,{plan:e.plan,overflow:eP}):null,em[82]=eq,em[83]=eP,em[84]=e.plan,em[85]=eo):eo=em[85],em[86]===Symbol.for("react.memo_cache_sentinel")?(en=(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Cancel"})}),em[86]=en):en=em[86],em[87]!==eI.AppForm||em[88]!==eI.SubmitButton||em[89]!==ep||em[90]!==eM?(el=eM??(0,t.jsx)(eI.AppForm,{children:(0,t.jsx)(eI.SubmitButton,{label:ep?"Update request":"Request"})}),em[87]=eI.AppForm,em[88]=eI.SubmitButton,em[89]=ep,em[90]=eM,em[91]=el):el=em[91],em[92]!==el?(ec=(0,t.jsxs)(w.DialogFooter,{children:[en,el]}),em[92]=el,em[93]=ec):ec=em[93],em[94]!==$||em[95]!==es||em[96]!==eo||em[97]!==ec?(ed=(0,t.jsxs)(w.DialogContent,{children:[$,es,eo,ec]}),em[94]=$,em[95]=es,em[96]=eo,em[97]=ec,em[98]=ed):ed=em[98],em[99]!==e.open||em[100]!==z||em[101]!==ed?(eu=(0,t.jsx)(w.Dialog,{open:e.open,onOpenChange:z,children:ed}),em[99]=e.open,em[100]=z,em[101]=ed,em[102]=eu):eu=em[102],eu})),(0,y.register)("quotas/set-project-connection-limit",(0,Z.createEphemeralModal)(function(e){let a,i,l,c,d,u,m,p,h,g,x,j,y,f,T,N,q,P,E=(0,r.c)(42);if(E[0]!==e.currentLimit){var M;M=e.currentLimit,a=C.z.object({desiredValue:C.z.coerce.number().int("Enter a whole number").min(1,"New limit must be at least 1").max(M-1,`New limit must be lower than the current limit of ${M}`)}),E[0]=e.currentLimit,E[1]=a}else a=E[1];let L=a;E[2]!==e.projectId?(i={schema:D.getProjectQuotas,input:{projectId:e.projectId}},E[2]=e.projectId,E[3]=i):i=E[3];let V=(0,F.useInvalidateQueries)(i);E[4]!==V?(l={onSuccess:async()=>{await V.invalidate(),S.toast.success("Limit updated",{id:$})}},E[4]=V,E[5]=l):l=E[5];let B=(0,b.useMutation)(D.setProjectQuotas,l),U=Math.max(1,e.currentLimit-1);E[6]!==U?(c={desiredValue:U},E[6]=U,E[7]=c):c=E[7],E[8]!==L?(d={onSubmit:L},E[8]=L,E[9]=d):d=E[9];let K=(0,k.useAppForm)({defaultValues:c,validators:d,onSubmit:async t=>{var r,a;let{value:i}=t,l=(r=e.category,a=i.desiredValue,G[r]?.(a));if(void 0!==l){K.setFieldMeta("desiredValue",J);try{await B.mutateAsync((0,s.create)(A.SetProjectQuotasRequestSchema,{projectId:e.projectId,quotas:l}))}catch(e){if(e instanceof n.ConnectError&&e.code===o.Code.InvalidArgument)return void K.setFieldMeta("desiredValue",Y);S.toast.error("Error updating limit",{id:$,description:e instanceof Error?e.message:String(e)});return}e.onClose()}}});E[10]!==e.category?(u=(0,I.getQuotaCategoryInfo)(e.category),E[10]=e.category,E[11]=u):u=E[11];let W=u;E[12]!==K||E[13]!==e?(m=t=>{!1===t&&(K.reset(),e.onClose())},E[12]=K,E[13]=e,E[14]=m):m=E[14],E[15]===Symbol.for("react.memo_cache_sentinel")?(p=(0,t.jsx)(w.DialogTitle,{children:"Set limit"}),E[15]=p):p=E[15];let Q=`Lower the limit on "${W.label}". The change applies immediately.`;return E[16]!==Q?(h=(0,t.jsxs)(w.DialogHeader,{children:[p,(0,t.jsx)(w.DialogDescription,{children:Q})]}),E[16]=Q,E[17]=h):h=E[17],E[18]!==K?(g=e=>{e.preventDefault(),e.stopPropagation(),K.handleSubmit()},E[18]=K,E[19]=g):g=E[19],E[20]!==e.currentLimit?(x=r=>(0,t.jsx)(r.TextField,{type:"number",label:"New limit",description:`Current limit is ${(0,R.readableValueByUnit)(e.currentLimit,_.AnalyticsUnit_Type.Quantity)}. To raise a limit, request a change.`}),E[20]=e.currentLimit,E[21]=x):x=E[21],E[22]!==K.AppField||E[23]!==x?(j=(0,t.jsx)(K.AppField,{name:"desiredValue",children:x}),E[22]=K.AppField,E[23]=x,E[24]=j):j=E[24],E[25]!==g||E[26]!==j?(y=(0,t.jsx)("form",{onSubmit:g,className:"flex flex-col gap-4",children:j}),E[25]=g,E[26]=j,E[27]=y):y=E[27],E[28]===Symbol.for("react.memo_cache_sentinel")?(f=(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Cancel"})}),E[28]=f):f=E[28],E[29]!==K.SubmitButton?(T=(0,t.jsx)(K.SubmitButton,{label:"Set limit"}),E[29]=K.SubmitButton,E[30]=T):T=E[30],E[31]!==K.AppForm||E[32]!==T?(N=(0,t.jsxs)(w.DialogFooter,{children:[f,(0,t.jsx)(K.AppForm,{children:T})]}),E[31]=K.AppForm,E[32]=T,E[33]=N):N=E[33],E[34]!==h||E[35]!==y||E[36]!==N?(q=(0,t.jsxs)(w.DialogContent,{children:[h,y,N]}),E[34]=h,E[35]=y,E[36]=N,E[37]=q):q=E[37],E[38]!==e.open||E[39]!==q||E[40]!==m?(P=(0,t.jsx)(w.Dialog,{open:e.open,onOpenChange:m,children:q}),E[38]=e.open,E[39]=q,E[40]=m,E[41]=P):P=E[41],P})),(0,y.register)("add-key",(0,Z.createEphemeralModal)(function(e){let a,i,o,n,l,c,d,u=(0,r.c)(23),[m,p]=(0,X.useState)(void 0),h=(0,et.useTransport)(),g=(0,eo.useQueryClient)();u[0]!==e.projectId||u[1]!==g||u[2]!==h?(a={onSuccess:()=>{let t=(0,ee.createConnectQueryKey)({schema:el.ProjectService.method.listScopedKeys,transport:h,input:{projectId:e.projectId},cardinality:"finite"});g.invalidateQueries({queryKey:t})}},u[0]=e.projectId,u[1]=g,u[2]=h,u[3]=a):a=u[3];let x=(0,b.useMutation)(ec.generateKey,a);u[4]===Symbol.for("react.memo_cache_sentinel")?(i={onSubmit:ep},u[4]=i):i=u[4],u[5]!==x||u[6]!==e.projectId?(o={defaultValues:eh,validators:i,onSubmit:async t=>{let{value:r}=t;r.description&&p(await x.mutateAsync((0,s.create)(el.GenerateKeyRequestSchema,{projectId:e.projectId,description:r.description,isServiceAccount:r.isServiceAccount})))}},u[5]=x,u[6]=e.projectId,u[7]=o):o=u[7];let j=(0,k.useAppForm)(o);u[8]!==e?(n=t=>{!1===t&&(setTimeout(()=>{p(void 0)},200),e.onClose())},u[8]=e,u[9]=n):n=u[9];let y=n,f=m?.apiKey??"",S=m?.secret;u[10]!==e.wssUrl||u[11]!==f||u[12]!==S?(l=(0,eu.constructEnvVarsStr)(e.wssUrl,f,S),u[10]=e.wssUrl,u[11]=f,u[12]=S,u[13]=l):l=u[13];let C=l;return u[14]!==C||u[15]!==j||u[16]!==m||u[17]!==e.wssUrl?(c=void 0===m?(0,t.jsxs)(w.DialogContent,{children:[(0,t.jsxs)(w.DialogHeader,{children:[(0,t.jsxs)(w.DialogTitle,{children:["Create new ",ed.wording.projectApiKey]}),(0,t.jsx)(w.DialogDescription,{children:"Add a description to your key. This will help you identify it later."})]}),(0,t.jsxs)("form",{onSubmit:async e=>{e.preventDefault(),e.stopPropagation(),await j.handleSubmit()},className:"flex shrink flex-col gap-4",children:[(0,t.jsx)(j.AppField,{name:"description",children:ej}),(0,t.jsx)(j.AppField,{name:"isServiceAccount",children:ex})]}),(0,t.jsxs)(w.DialogFooter,{children:[(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Cancel"})}),(0,t.jsx)(j.AppForm,{children:(0,t.jsx)(j.SubmitButton,{label:"Generate key"})})]})]}):(0,t.jsxs)(w.DialogContent,{children:[(0,t.jsx)(w.DialogHeader,{children:(0,t.jsxs)(w.DialogTitle,{children:["Generated ",ed.wording.projectApiKey]})}),(0,t.jsxs)(ea.Form,{onSubmit:eg,className:"ph-no-capture",children:[(0,t.jsxs)(ea.FormField,{name:"wss-url",children:[(0,t.jsx)(ea.FormLabel,{children:ed.wording.projectWssUrl}),(0,t.jsxs)("div",{className:"flex items-center gap-2",children:[(0,t.jsx)(ei.Input,{readOnly:!0,defaultValue:e.wssUrl}),(0,t.jsx)(er.CopyToClipboard,{textToCopy:e.wssUrl})]})]}),(0,t.jsxs)(ea.FormField,{name:"apiKey",children:[(0,t.jsx)(ea.FormLabel,{children:ed.wording.projectApiKey}),(0,t.jsxs)("div",{className:"flex items-center gap-2",children:[(0,t.jsx)(ei.Input,{readOnly:!0,defaultValue:m.apiKey}),(0,t.jsx)(er.CopyToClipboard,{textToCopy:m.apiKey})]})]}),(0,t.jsxs)(ea.FormField,{name:ey,children:[(0,t.jsx)(ea.FormLabel,{children:ed.wording.projectApiSecret}),(0,t.jsxs)("div",{className:"flex items-center gap-2",children:[(0,t.jsx)(ei.Input,{readOnly:!0,defaultValue:m.secret}),(0,t.jsx)(er.CopyToClipboard,{textToCopy:m.secret})]})]}),(0,t.jsxs)(ea.FormField,{name:ef,children:[(0,t.jsx)(ea.FormLabel,{children:ed.wording.projectEnvVars}),(0,t.jsxs)("div",{className:"flex items-center gap-2",children:[(0,t.jsx)(es.Textarea,{readOnly:!0,className:"min-h-fit resize-none overflow-hidden font-mono text-sm",defaultValue:C,rows:5},C),(0,t.jsx)(er.CopyToClipboard,{textToCopy:C})]})]}),(0,t.jsxs)(em.InfoBox,{type:"warning",children:["Copy the ",ed.wording.projectApiSecret," now. It’s only shown here, at creation — you won’t be able to view it again after closing this dialog."]})]}),(0,t.jsx)(w.DialogFooter,{children:(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Close"})})})]}),u[14]=C,u[15]=j,u[16]=m,u[17]=e.wssUrl,u[18]=c):c=u[18],u[19]!==y||u[20]!==e.open||u[21]!==c?(d=(0,t.jsx)(w.Dialog,{open:e.open,onOpenChange:y,children:c}),u[19]=y,u[20]=e.open,u[21]=c,u[22]=d):d=u[22],d})),(0,y.register)("view-key",(0,Z.createEphemeralModal)(function(e){let a,i,s,o,n,l,c,d,u,m,p,h,g,x,j,y,f=(0,r.c)(31);f[0]!==e?(a=t=>{!1===t&&e.onClose()},f[0]=e,f[1]=a):a=f[1];let b=a;f[2]!==e.apiKey||f[3]!==e.wssUrl?(i=(0,eu.constructEnvVarsStr)(e.wssUrl,e.apiKey,tx),f[2]=e.apiKey,f[3]=e.wssUrl,f[4]=i):i=f[4];let S=i;return f[5]!==e.children?(s=e.children&&(0,t.jsx)(w.DialogTrigger,{asChild:!0,children:e.children}),f[5]=e.children,f[6]=s):s=f[6],f[7]===Symbol.for("react.memo_cache_sentinel")?(o=(0,t.jsxs)(w.DialogHeader,{children:[(0,t.jsx)(w.DialogTitle,{children:ed.wording.projectApiKey}),(0,t.jsx)(w.DialogDescription,{children:"Connection details for this API key."})]}),f[7]=o):o=f[7],f[8]===Symbol.for("react.memo_cache_sentinel")?(n=(0,t.jsx)(ea.FormLabel,{children:ed.wording.projectWssUrl}),f[8]=n):n=f[8],f[9]!==e.wssUrl?(l=(0,t.jsxs)(ea.FormField,{name:"wss-url",children:[n,(0,t.jsxs)("div",{className:"flex items-center gap-2",children:[(0,t.jsx)(ei.Input,{readOnly:!0,defaultValue:e.wssUrl}),(0,t.jsx)(er.CopyToClipboard,{textToCopy:e.wssUrl})]})]}),f[9]=e.wssUrl,f[10]=l):l=f[10],f[11]===Symbol.for("react.memo_cache_sentinel")?(c=(0,t.jsx)(ea.FormLabel,{children:ed.wording.projectApiKey}),f[11]=c):c=f[11],f[12]!==e.apiKey?(d=(0,t.jsxs)(ea.FormField,{name:ty,children:[c,(0,t.jsxs)("div",{className:"flex cursor-help items-center gap-2",children:[(0,t.jsx)(ei.Input,{readOnly:!0,defaultValue:e.apiKey}),(0,t.jsx)(er.CopyToClipboard,{textToCopy:e.apiKey})]})]}),f[12]=e.apiKey,f[13]=d):d=f[13],f[14]===Symbol.for("react.memo_cache_sentinel")?(u=(0,t.jsxs)(ea.FormField,{name:tf,children:[(0,t.jsx)(ea.FormLabel,{children:ed.wording.projectApiSecret}),(0,t.jsx)(ei.Input,{readOnly:!0,defaultValue:tx})]}),f[14]=u):u=f[14],f[15]===Symbol.for("react.memo_cache_sentinel")?(m=(0,t.jsx)(ea.FormLabel,{children:ed.wording.projectEnvVars}),f[15]=m):m=f[15],f[16]!==S?(p=(0,t.jsxs)(ea.FormField,{name:tb,children:[m,(0,t.jsx)(es.Textarea,{readOnly:!0,className:"h-fit resize-none font-mono text-sm",defaultValue:S,rows:5})]}),f[16]=S,f[17]=p):p=f[17],f[18]===Symbol.for("react.memo_cache_sentinel")?(h=(0,t.jsxs)(em.InfoBox,{type:"info",children:["The ",ed.wording.projectApiSecret," is only shown once, when the key is created. It can’t be retrieved later. If you’ve lost it, revoke this key and create a new one."]}),f[18]=h):h=f[18],f[19]!==p||f[20]!==l||f[21]!==d?(g=(0,t.jsxs)(ea.Form,{onSubmit:tj,className:"ph-no-capture",children:[l,d,u,p,h]}),f[19]=p,f[20]=l,f[21]=d,f[22]=g):g=f[22],f[23]===Symbol.for("react.memo_cache_sentinel")?(x=(0,t.jsx)(w.DialogFooter,{children:(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{children:"Close"})})}),f[23]=x):x=f[23],f[24]!==g?(j=(0,t.jsxs)(w.DialogContent,{children:[o,g,x]}),f[24]=g,f[25]=j):j=f[25],f[26]!==b||f[27]!==e.open||f[28]!==j||f[29]!==s?(y=(0,t.jsxs)(w.Dialog,{open:e.open,onOpenChange:b,children:[s,j]}),f[26]=b,f[27]=e.open,f[28]=j,f[29]=s,f[30]=y):y=f[30],y})),(0,y.register)("delete-key",(0,Z.createEphemeralModal)(function(e){let a,i,o,n,l,c,d,u,m,p,h,g=(0,r.c)(27),x=(0,et.useTransport)(),j=(0,eo.useQueryClient)();g[0]!==e.projectId||g[1]!==x?(a=(0,ee.createConnectQueryKey)({schema:el.ProjectService.method.listScopedKeys,transport:x,input:{projectId:e.projectId},cardinality:"finite"}),g[0]=e.projectId,g[1]=x,g[2]=a):a=g[2];let y=a;g[3]!==j||g[4]!==y?(i={onMutate:async e=>{await j.cancelQueries({queryKey:y});let t=j.getQueryData(y);return j.setQueryData(y,t=>{if(void 0!==t)return(0,s.create)(el.ListScopedKeysResponseSchema,{personalKeys:t.personalKeys.filter(t=>t.apiKey!==e.apiKey),otherKeys:t.otherKeys.filter(t=>t.apiKey!==e.apiKey)})}),{previousData:t}},onSuccess:async()=>await j.invalidateQueries({queryKey:y}),onError:e_},g[3]=j,g[4]=y,g[5]=i):i=g[5];let f=(0,b.useMutation)(ec.deleteKey,i);g[6]!==f||g[7]!==e?(o=async()=>{await f.mutateAsync((0,s.create)(el.DeleteKeyRequestSchema,{projectId:e.projectId,apiKey:e.apiKey})),S.toast.success(`${ed.wording.projectApiKey} (${e.apiKey}) has been successfully removed.`,{id:"remove-key-toast"}),e.onClose()},g[6]=f,g[7]=e,g[8]=o):o=g[8];let w=o;g[9]!==e?(n=t=>{!1===t&&e.onClose()},g[9]=e,g[10]=n):n=g[10];let k=n;return g[11]!==e.children?(l=e.children&&(0,t.jsx)(ek.AlertDialogTrigger,{asChild:!0,children:e.children}),g[11]=e.children,g[12]=l):l=g[12],g[13]===Symbol.for("react.memo_cache_sentinel")?(c=(0,t.jsx)(ek.AlertDialogTitle,{children:"Confirm key deletion"}),g[13]=c):c=g[13],g[14]!==e.apiKey?(d=(0,t.jsxs)(ek.AlertDialogDescription,{children:["Are you sure you want to delete this key"," ",(0,t.jsxs)("span",{className:"ph-no-capture text-fg0 whitespace-nowrap",children:["(",e.apiKey,")"]}),"? Any clients using it will no longer work!"]}),g[14]=e.apiKey,g[15]=d):d=g[15],g[16]===Symbol.for("react.memo_cache_sentinel")?(u=(0,t.jsx)(ek.AlertDialogCancel,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Cancel"})}),g[16]=u):u=g[16],g[17]!==w?(m=(0,t.jsxs)("div",{className:"flex justify-end gap-2",children:[u,(0,t.jsx)(ek.AlertDialogAction,{asChild:!0,children:(0,t.jsx)(eC.TaskButton,{variant:"destructive",onClick:w,children:"Yes, remove"})})]}),g[17]=w,g[18]=m):m=g[18],g[19]!==d||g[20]!==m?(p=(0,t.jsxs)(ek.AlertDialogContent,{children:[c,d,m]}),g[19]=d,g[20]=m,g[21]=p):p=g[21],g[22]!==k||g[23]!==e.open||g[24]!==l||g[25]!==p?(h=(0,t.jsxs)(ek.AlertDialog,{open:e.open,onOpenChange:k,children:[l,p]}),g[22]=k,g[23]=e.open,g[24]=l,g[25]=p,g[26]=h):h=g[26],h})),(0,y.register)("generate-token",(0,Z.createEphemeralModal)(function(e){let a,i,o,n,l,c=(0,r.c)(19),[d,u]=(0,X.useState)(900);c[0]!==e?(a=t=>{!1===t&&(e.onClose(),u(900))},c[0]=e,c[1]=a):a=c[1];let m=a,[p,h]=(0,X.useState)(void 0),g=(0,b.useMutation)(ec.generateToken);c[2]!==g||c[3]!==e.apiKey||c[4]!==e.projectId?(i=async t=>{t.preventDefault();let r=new FormData(t.currentTarget),a=await te.safeParseAsync(r);if(!1===a.success)throw Error(a.error.errors.join(", "));if(a.success){let t=a.data;h(await g.mutateAsync((0,s.create)(el.GenerateTokenRequestSchema,{projectId:e.projectId,apiKey:e.apiKey,identity:t[e2],roomName:t[e3],validFor:BigInt(t[e4]),canPublish:t[e5],canPublishData:t[e8],canSubscribe:t[e6],isHidden:t[e9]})))}},c[2]=g,c[3]=e.apiKey,c[4]=e.projectId,c[5]=i):i=c[5];let x=i;return c[6]!==e.children?(o=e.children&&(0,t.jsx)(w.DialogTrigger,{asChild:!0,children:e.children}),c[6]=e.children,c[7]=o):o=c[7],c[8]!==g||c[9]!==x||c[10]!==e.wssUrl||c[11]!==p||c[12]!==d?(n=void 0===p?(0,t.jsxs)(w.DialogContent,{children:[(0,t.jsxs)(w.DialogHeader,{children:[(0,t.jsx)(w.DialogTitle,{children:"Generate token"}),(0,t.jsx)(w.DialogDescription,{children:"Generate a token for a client to authenticate to a room."})]}),(0,t.jsxs)(ea.Form,{onSubmit:x,children:[(0,t.jsxs)(ea.FormField,{name:e2,children:[(0,t.jsx)(ea.FormLabel,{children:"Participant identity"}),(0,t.jsx)(ea.FormControl,{asChild:!0,children:(0,t.jsx)(ei.Input,{required:!0,placeholder:"max",type:"text"})})]}),(0,t.jsxs)(ea.FormField,{name:e3,children:[(0,t.jsx)(ea.FormLabel,{children:"Room name"}),(0,t.jsx)(ea.FormControl,{asChild:!0,children:(0,t.jsx)(ei.Input,{required:!0,type:"text"})})]}),(0,t.jsxs)(ea.FormField,{name:e4,children:[(0,t.jsxs)(ea.FormLabel,{className:"flex items-center gap-1",children:[(0,t.jsx)("span",{className:"normal-case",children:"TTL (in seconds)"}),(0,t.jsx)(eT.ToggleTip,{children:"Time to Life (TTL) is the number of seconds the token is valid."}),(0,t.jsx)("span",{className:"grow"}),(0,t.jsxs)("span",{className:"text-fg4 normal-case",children:["(",(0,R.readableDuration)((0,e0.durationInMs)({seconds:d})),")"]})]}),(0,t.jsx)(ea.FormMessage,{match:"valueMissing"}),(0,t.jsx)(ea.FormMessage,{match:"rangeOverflow"}),(0,t.jsx)(ea.FormMessage,{match:"rangeUnderflow"}),(0,t.jsx)(ea.FormControl,{asChild:!0,children:(0,t.jsx)(ei.Input,{required:!0,type:"number",min:1,max:31536e3,defaultValue:900,onChange:e=>{u(Number(e.target.value))}})})]}),(0,t.jsxs)(ea.FormField,{className:"flex flex-row",name:e5,children:[(0,t.jsx)(ea.FormControl,{defaultChecked:!0,asChild:!0,children:(0,t.jsx)(eR.Checkbox,{})}),(0,t.jsx)(ea.FormLabel,{className:"",children:"Can this participant publish tracks?"})]}),(0,t.jsxs)(ea.FormField,{className:"flex flex-row",name:e6,children:[(0,t.jsx)(ea.FormControl,{defaultChecked:!0,asChild:!0,children:(0,t.jsx)(eR.Checkbox,{})}),(0,t.jsx)(ea.FormLabel,{children:"Can this participant subscribe to tracks?"})]}),(0,t.jsxs)(ea.FormField,{defaultChecked:!0,className:"flex flex-row",name:e8,children:[(0,t.jsx)(ea.FormControl,{defaultChecked:!0,asChild:!0,children:(0,t.jsx)(eR.Checkbox,{})}),(0,t.jsx)(ea.FormLabel,{children:"Can this participant publish to data channel?"})]}),(0,t.jsxs)(ea.FormField,{defaultChecked:!1,className:"flex flex-row",name:e9,children:[(0,t.jsx)(ea.FormControl,{asChild:!0,children:(0,t.jsx)(eR.Checkbox,{})}),(0,t.jsx)(ea.FormLabel,{children:"Is this a hidden/invisible participant?"})]}),(0,t.jsxs)(w.DialogFooter,{className:"px-0",children:[(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Cancel"})}),(0,t.jsx)(ea.FormSubmit,{asChild:!0,children:(0,t.jsx)(eC.TaskButton,{isPending:g.isPending,variant:"primary",children:"Generate token"})})]})]})]}):(0,t.jsxs)(w.DialogContent,{children:[(0,t.jsxs)(w.DialogHeader,{children:[(0,t.jsx)(w.DialogTitle,{children:"Token generated"}),(0,t.jsx)(w.DialogDescription,{children:"The generated token is only visible this one time and is not recoverable. If you lose this token you will have to generate a new one."})]}),(0,t.jsxs)(ea.Form,{onSubmit:e1,className:"ph-no-capture",children:[(0,t.jsxs)(ea.FormField,{name:"wss-url",children:[(0,t.jsx)(ea.FormLabel,{children:ed.wording.projectWssUrl}),(0,t.jsxs)("div",{className:"flex items-center gap-2",children:[(0,t.jsx)(ei.Input,{readOnly:!0,defaultValue:e.wssUrl}),(0,t.jsx)(er.CopyToClipboard,{textToCopy:e.wssUrl})]})]}),(0,t.jsxs)(ea.FormField,{name:e7,children:[(0,t.jsx)(ea.FormLabel,{children:"Token"}),(0,t.jsxs)("div",{className:"flex gap-2",children:[(0,t.jsx)(es.Textarea,{readOnly:!0,className:"min-h-40 resize-none",defaultValue:p.token,rows:6}),(0,t.jsx)(er.CopyToClipboard,{textToCopy:p.token})]})]})]}),(0,t.jsx)(w.DialogFooter,{children:(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{variant:"secondary",children:"Close"})})})]}),c[8]=g,c[9]=x,c[10]=e.wssUrl,c[11]=p,c[12]=d,c[13]=n):n=c[13],c[14]!==m||c[15]!==e.open||c[16]!==o||c[17]!==n?(l=(0,t.jsxs)(w.Dialog,{open:e.open,onOpenChange:m,children:[o,n]}),c[14]=m,c[15]=e.open,c[16]=o,c[17]=n,c[18]=l):l=c[18],l})),(0,y.register)("add-webhook",(0,Z.createEphemeralModal)(function(e){let a,i,s,o,n,l,c,d,u,m,p,h,g,x,j,y=(0,r.c)(32),{keys:f,projectId:C,refetch:_,open:A,onClose:D}=e,F=(0,b.useMutation)(ec.addWebhook);y[0]===Symbol.for("react.memo_cache_sentinel")?(a={},y[0]=a):a=y[0],y[1]===Symbol.for("react.memo_cache_sentinel")?(i={onSubmit:eb},y[1]=i):i=y[1];let I=(0,k.useAppForm)({defaultValues:a,validators:i,onSubmit:async e=>{let{value:t}=e;try{await F.mutateAsync({projectId:C,name:t.name,url:t.url,signingKey:t.signingKey}),await _(),S.toast.success("Webhook created"),R(!1)}catch(e){console.error(e),S.toast.error("Failed to create webhook")}}}),R=async e=>{if(!e)return I.reset(),D()};return y[2]===Symbol.for("react.memo_cache_sentinel")?(s=(0,t.jsx)(w.DialogTitle,{children:"New webhook endpoint"}),y[2]=s):s=y[2],y[3]===Symbol.for("react.memo_cache_sentinel")?(o=(0,t.jsxs)(w.DialogHeader,{children:[s,(0,t.jsxs)(w.DialogDescription,{children:["Webhooks are triggered after certain events take place. See"," ",(0,t.jsx)("a",{className:"hover:text-fgAccentPrimary1 underline",href:"https://docs.livekit.io/intro/basics/rooms-participants-tracks/webhooks-events/",target:"_blank",rel:"noopener noreferrer",children:"webhook docs"})," ","for a list of events and details on how to configure your receiver."]})]}),y[3]=o):o=y[3],y[4]!==I?(n=async e=>{e.preventDefault(),e.stopPropagation(),await I.handleSubmit()},y[4]=I,y[5]=n):n=y[5],y[6]!==I.AppField?(l=(0,t.jsx)(I.AppField,{name:"name",children:eS}),c=(0,t.jsx)(I.AppField,{name:"url",children:ew}),y[6]=I.AppField,y[7]=l,y[8]=c):(l=y[7],c=y[8]),y[9]!==f?(d=e=>(0,t.jsx)(e.SelectField,{label:"Signing API key",description:(0,t.jsxs)(t.Fragment,{children:["Webhook requests are signed with your key so you know they come from LiveKit."," ",(0,t.jsx)("a",{href:"https://docs.livekit.io/home/server/webhooks/#receiving-webhooks",className:"hover:text-fgAccentPrimary1 underline",children:"Learn more"}),"."]}),placeholder:"Select...",options:f.map(ev)}),y[9]=f,y[10]=d):d=y[10],y[11]!==I.AppField||y[12]!==d?(u=(0,t.jsx)(I.AppField,{name:"signingKey",children:d}),y[11]=I.AppField,y[12]=d,y[13]=u):u=y[13],y[14]!==u||y[15]!==n||y[16]!==l||y[17]!==c?(m=(0,t.jsxs)("form",{className:"space-y-3",onSubmit:n,children:[l,c,u]}),y[14]=u,y[15]=n,y[16]=l,y[17]=c,y[18]=m):m=y[18],y[19]===Symbol.for("react.memo_cache_sentinel")?(p=(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{type:"button",children:"Cancel"})}),y[19]=p):p=y[19],y[20]!==I.SubmitButton?(h=(0,t.jsx)(I.SubmitButton,{label:"Create"}),y[20]=I.SubmitButton,y[21]=h):h=y[21],y[22]!==I.AppForm||y[23]!==h?(g=(0,t.jsxs)(w.DialogFooter,{children:[p,(0,t.jsx)(I.AppForm,{children:h})]}),y[22]=I.AppForm,y[23]=h,y[24]=g):g=y[24],y[25]!==m||y[26]!==g?(x=(0,t.jsxs)(w.DialogContent,{className:"gap-1",children:[o,m,g]}),y[25]=m,y[26]=g,y[27]=x):x=y[27],y[28]!==R||y[29]!==A||y[30]!==x?(j=(0,t.jsx)(w.Dialog,{open:A,onOpenChange:R,children:x}),y[28]=R,y[29]=A,y[30]=x,y[31]=j):j=y[31],j})),(0,y.register)("edit-webhook",(0,Z.createEphemeralModal)(function(e){let a,i,s,o,n,l,c,d,u,m,p,h,g=(0,r.c)(27),{projectId:x,webhook:j,refetch:y,open:f,onClose:C}=e,_=(0,b.useMutation)(ec.editWebhook);g[0]!==j.name||g[1]!==j.url?(a={name:j.name,url:j.url},g[0]=j.name,g[1]=j.url,g[2]=a):a=g[2],g[3]===Symbol.for("react.memo_cache_sentinel")?(i={onSubmit:eD},g[3]=i):i=g[3];let A=(0,k.useAppForm)({defaultValues:a,validators:i,onSubmit:async e=>{let{value:t}=e;try{await _.mutateAsync({projectId:x,webhookId:j.id,name:t.name,url:t.url}),S.toast.success("Webhook updated successfully"),y(),D(!1)}catch(e){console.error(e),S.toast.error("Failed to update webhook")}}}),D=async e=>{if(!e)return A.reset(),C()};return g[4]===Symbol.for("react.memo_cache_sentinel")?(s=(0,t.jsxs)(w.DialogHeader,{children:[(0,t.jsx)(w.DialogTitle,{children:"Edit webhook endpoint"}),(0,t.jsx)(w.DialogDescription,{children:"Update the name and URL of this webhook endpoint. The signing key cannot be changed."})]}),g[4]=s):s=g[4],g[5]!==A?(o=async e=>{e.preventDefault(),e.stopPropagation(),await A.handleSubmit()},g[5]=A,g[6]=o):o=g[6],g[7]!==A.AppField?(n=(0,t.jsx)(A.AppField,{name:"name",children:eI}),l=(0,t.jsx)(A.AppField,{name:"url",children:eF}),g[7]=A.AppField,g[8]=n,g[9]=l):(n=g[8],l=g[9]),g[10]!==o||g[11]!==n||g[12]!==l?(c=(0,t.jsxs)("form",{className:"space-y-3",onSubmit:o,children:[n,l]}),g[10]=o,g[11]=n,g[12]=l,g[13]=c):c=g[13],g[14]===Symbol.for("react.memo_cache_sentinel")?(d=(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{type:"button",children:"Cancel"})}),g[14]=d):d=g[14],g[15]!==A.SubmitButton?(u=(0,t.jsx)(A.SubmitButton,{label:"Update"}),g[15]=A.SubmitButton,g[16]=u):u=g[16],g[17]!==A.AppForm||g[18]!==u?(m=(0,t.jsxs)(w.DialogFooter,{children:[d,(0,t.jsx)(A.AppForm,{children:u})]}),g[17]=A.AppForm,g[18]=u,g[19]=m):m=g[19],g[20]!==m||g[21]!==c?(p=(0,t.jsxs)(w.DialogContent,{className:"gap-1",children:[s,c,m]}),g[20]=m,g[21]=c,g[22]=p):p=g[22],g[23]!==D||g[24]!==f||g[25]!==p?(h=(0,t.jsx)(w.Dialog,{open:f,onOpenChange:D,children:p}),g[23]=D,g[24]=f,g[25]=p,g[26]=h):h=g[26],h})),(0,y.register)("send-webhook-test",(0,Z.createEphemeralModal)(function(e){let a,i,s,o,n,l,c,d,u,m,p,h,g=(0,r.c)(26),{projectId:x,webhook:j,open:y,onClose:f}=e,C=(0,b.useMutation)(ec.sendTestWebhook);g[0]===Symbol.for("react.memo_cache_sentinel")?(a={eventName:Object.keys(tg)[0]},g[0]=a):a=g[0],g[1]===Symbol.for("react.memo_cache_sentinel")?(i={onSubmit:tm},g[1]=i):i=g[1];let _=(0,k.useAppForm)({defaultValues:a,validators:i,onSubmit:async e=>{let{value:t}=e;try{await C.mutateAsync({projectId:x,webhookId:j.id,eventName:t.eventName}),S.toast.success("Test webhook event sent",{id:tu}),A(!1)}catch(e){console.error(e),S.toast.error("Failed to send test webhook event",{id:tu})}}}),A=async e=>{if(!e)return _.reset(),f()};return g[2]===Symbol.for("react.memo_cache_sentinel")?(s=(0,t.jsx)(w.DialogTitle,{children:"Send test event"}),g[2]=s):s=g[2],g[3]!==j.name?(o=(0,t.jsxs)(w.DialogHeader,{children:[s,(0,t.jsxs)(w.DialogDescription,{children:["Fire a test event at webhook ",(0,t.jsx)("span",{className:"font-bold",children:j.name}),"'s endpoint."]})]}),g[3]=j.name,g[4]=o):o=g[4],g[5]!==_?(n=async e=>{e.preventDefault(),e.stopPropagation(),await _.handleSubmit()},g[5]=_,g[6]=n):n=g[6],g[7]!==_.AppField?(l=(0,t.jsx)(_.AppField,{name:"eventName",children:tp}),g[7]=_.AppField,g[8]=l):l=g[8],g[9]!==n||g[10]!==l?(c=(0,t.jsx)("form",{className:"space-y-3",onSubmit:n,children:l}),g[9]=n,g[10]=l,g[11]=c):c=g[11],g[12]===Symbol.for("react.memo_cache_sentinel")?(d=(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{type:"button",children:"Cancel"})}),g[12]=d):d=g[12],g[13]!==_.SubmitButton?(u=(0,t.jsx)(_.SubmitButton,{label:"Create"}),g[13]=_.SubmitButton,g[14]=u):u=g[14],g[15]!==_.AppForm||g[16]!==u?(m=(0,t.jsxs)(w.DialogFooter,{children:[d,(0,t.jsx)(_.AppForm,{children:u})]}),g[15]=_.AppForm,g[16]=u,g[17]=m):m=g[17],g[18]!==m||g[19]!==o||g[20]!==c?(p=(0,t.jsxs)(w.DialogContent,{className:"gap-1",children:[o,c,m]}),g[18]=m,g[19]=o,g[20]=c,g[21]=p):p=g[21],g[22]!==A||g[23]!==y||g[24]!==p?(h=(0,t.jsx)(w.Dialog,{open:y,onOpenChange:A,children:p}),g[22]=A,g[23]=y,g[24]=p,g[25]=h):h=g[25],h})),(0,y.register)("delete-webhook",(0,Z.createEphemeralModal)(function(e){let a,i,s,o,n,l,c,d,u=(0,r.c)(22),{projectId:m,webhook:p,refetch:h,open:g,onClose:x}=e,j=(0,b.useMutation)(ec.deleteWebhook);u[0]!==x?(a=async e=>{if(!e)return x()},u[0]=x,u[1]=a):a=u[1];let y=a;u[2]!==j||u[3]!==y||u[4]!==m||u[5]!==h||u[6]!==p.id?(i=async()=>{try{await j.mutateAsync({projectId:m,webhookId:p.id}),S.toast.success("Webhook deleted successfully"),h(),y(!1)}catch(e){console.error(e),S.toast.error("Failed to delete webhook")}},u[2]=j,u[3]=y,u[4]=m,u[5]=h,u[6]=p.id,u[7]=i):i=u[7];let f=i;return u[8]===Symbol.for("react.memo_cache_sentinel")?(s=(0,t.jsx)(w.DialogTitle,{children:"Delete webhook endpoint"}),u[8]=s):s=u[8],u[9]!==p.name?(o=(0,t.jsxs)(w.DialogHeader,{children:[s,(0,t.jsxs)(w.DialogDescription,{children:["Are you sure you want to delete ",(0,t.jsx)("span",{className:"font-bold",children:p.name}),"? This action cannot be undone."]})]}),u[9]=p.name,u[10]=o):o=u[10],u[11]===Symbol.for("react.memo_cache_sentinel")?(n=(0,t.jsx)(w.DialogClose,{asChild:!0,children:(0,t.jsx)(v.Button,{type:"button",children:"Cancel"})}),u[11]=n):n=u[11],u[12]!==j.isPending||u[13]!==f?(l=(0,t.jsxs)(w.DialogFooter,{children:[n,(0,t.jsx)(eC.TaskButton,{variant:"destructive",onClick:f,isPending:j.isPending,disabled:j.isPending,children:"Delete"})]}),u[12]=j.isPending,u[13]=f,u[14]=l):l=u[14],u[15]!==o||u[16]!==l?(c=(0,t.jsxs)(w.DialogContent,{className:"gap-1",children:[o,l]}),u[15]=o,u[16]=l,u[17]=c):c=u[17],u[18]!==y||u[19]!==g||u[20]!==c?(d=(0,t.jsx)(w.Dialog,{open:g,onOpenChange:y,children:c}),u[18]=y,u[19]=g,u[20]=c,u[21]=d):d=u[21],d}));let tw=(0,a.default)(()=>e.A(696257).then(e=>e.EditWorkspaceMemberDialog),{loadableGenerated:{modules:[185447]},ssr:!1}),tS=(0,a.default)(()=>e.A(439126).then(e=>e.InviteWorkspaceMemberDialog),{loadableGenerated:{modules:[895739]},ssr:!1}),tk=(0,a.default)(()=>e.A(147092).then(e=>e.RemoveWorkspaceInviteDialog),{loadableGenerated:{modules:[952320]},ssr:!1}),tC=(0,a.default)(()=>e.A(552002).then(e=>e.RemoveWorkspaceMemberDialog),{loadableGenerated:{modules:[350021]},ssr:!1});function t_(){return null}(0,y.register)("edit-workspace-member",(0,Z.createEphemeralModal)(tw)),(0,y.register)("invite-workspace-member",(0,Z.createEphemeralModal)(tS)),(0,y.register)("remove-workspace-invite",(0,Z.createEphemeralModal)(tk)),(0,y.register)("remove-workspace-member",(0,Z.createEphemeralModal)(tC));var tA=e.i(411480),tD=e.i(175859),tF=e.i(36554),tI=e.i(164017),tR=e.i(583445),tT=e.i(274303),tN=e.i(227993),tq=e.i(14601);function tP(e){let a,s,o,n,c,d,u,p,g,x,j,y,f,b=(0,r.c)(32),{canViewWorkspaceBilling:v}=e,{projectId:w}=(0,i.useParams)(),S=(0,i.usePathname)(),k=(0,tN.useEnterpriseWorkspacesUi)(),C=(0,tq.useHydratedFeatureFlag)(tD.FeatureFlags.enableUserSettingsSessions),_=(0,tq.useHydratedFeatureFlag)(tD.FeatureFlags.enableNewObservabilityProjectSettings),{projectRes:A}=(0,tF.useProjectContext)(),{project:D}=A;b[0]===Symbol.for("react.memo_cache_sentinel")?(a={},b[0]=a):a=b[0];let{data:F}=(0,l.useQuery)(ec.listProjects,a);b[1]===Symbol.for("react.memo_cache_sentinel")?(s={},b[1]=s):s=b[1];let{data:I}=(0,l.useQuery)(m.listUserWorkspaces,s);if(b[2]!==v||b[3]!==C||b[4]!==k||b[5]!==S||b[6]!==w||b[7]!==_){let e=[{label:"General",href:(0,h.projectSettingsWorkspaceGeneralPath)(w)},{label:"Team members",href:(0,h.projectSettingsWorkspaceTeamMembersPath)(w)},...v?[{label:"Billing",href:(0,h.projectSettingsWorkspaceBillingPath)(w)}]:[]],r=[{label:"General",href:(0,h.projectSettingsUserPath)(w)},...C?[{label:"Sessions",href:(0,h.projectSettingsUserSessionsPath)(w)}]:[]],a=[{label:"General",href:(0,h.projectSettingsPath)(w)},..._?[{label:"Observability",href:(0,h.projectSettingsObservabilityPath)(w)}]:[],{label:k?"Access control":"Team members",href:(0,h.projectSettingsMembersPath)(w)},...k?[]:[{label:"Billing",href:(0,h.projectSettingsBillingPath)(w)}],{label:"API keys",href:(0,h.projectSettingsKeysPath)(w)},{label:"Webhooks",href:(0,h.projectSettingsWebhooksPath)(w)},{label:"Sandbox",href:(0,h.projectSettingsSandboxPath)(w)}],i=[...k?[{title:"Workspace",items:e}]:[],{title:"Project",items:a},{title:"User",items:r}],s=(0,h.projectSettingsSandboxPath)(w),l=(0,h.projectSettingsUserPath)(w);o=tT.SidebarProvider,p=!0,g="h-full min-h-0 flex-none",u="flex h-full w-(--sidebar-width) shrink-0 flex-col",n="Settings",c="ph-unmask flex min-h-0 flex-1 flex-col space-y-6 overflow-y-auto px-2 py-3",d=i.map(e=>(0,t.jsxs)("div",{className:"flex flex-col",children:[(0,t.jsx)(tT.SidebarMenuLabel,{children:e.title}),(0,t.jsx)(tT.SidebarMenu,{children:e.items.map(e=>{let r=!!e.href&&(S===e.href||e.href===s&&(S===s||S.startsWith(`${s}/`))||e.href===l&&S===l);return e.disabled||!e.href?(0,t.jsx)(tT.SidebarMenuItem,{children:(0,t.jsx)(tT.SidebarMenuButton,{active:!1,disabled:!0,"aria-disabled":"true",children:(0,t.jsx)("span",{children:e.label})})},e.label):(0,t.jsx)(tT.SidebarMenuItem,{children:(0,t.jsx)(tT.SidebarMenuButton,{asChild:!0,active:r,"aria-current":r?"page":void 0,children:(0,t.jsx)(tA.default,{href:e.href,children:(0,t.jsx)("span",{children:e.label})})})},e.label)})})]},e.title)),b[2]=v,b[3]=C,b[4]=k,b[5]=S,b[6]=w,b[7]=_,b[8]=o,b[9]=n,b[10]=c,b[11]=d,b[12]=u,b[13]=p,b[14]=g}else o=b[8],n=b[9],c=b[10],d=b[11],u=b[12],p=b[13],g=b[14];return b[15]!==n||b[16]!==c||b[17]!==d?(x=(0,t.jsx)("nav",{"aria-label":n,className:c,children:d}),b[15]=n,b[16]=c,b[17]=d,b[18]=x):x=b[18],b[19]!==D||b[20]!==F?.projects||b[21]!==I?.workspaces?(j=D&&(0,t.jsxs)("div",{className:"flex w-full flex-col gap-3 px-2 py-3",children:[(0,t.jsx)("hr",{className:"border-t-separator1 border-t"}),(0,t.jsxs)("div",{className:"flex w-full items-center gap-2",children:[(0,t.jsx)(tR.ProjectSwitcher,{project:D,projects:F?.projects??[],workspaceSummaries:I?.workspaces}),(0,t.jsx)(tI.AccountSettings,{})]})]}),b[19]=D,b[20]=F?.projects,b[21]=I?.workspaces,b[22]=j):j=b[22],b[23]!==x||b[24]!==j||b[25]!==u?(y=(0,t.jsxs)("aside",{className:u,children:[x,j]}),b[23]=x,b[24]=j,b[25]=u,b[26]=y):y=b[26],b[27]!==o||b[28]!==y||b[29]!==p||b[30]!==g?(f=(0,t.jsx)(o,{defaultExpanded:p,className:g,children:y}),b[27]=o,b[28]=y,b[29]=p,b[30]=g,b[31]=f):f=b[31],f}var tE=e.i(828);let tM=(0,a.default)(()=>e.A(542535).then(e=>e.AppShell),{loadableGenerated:{modules:[723668]}}),tL=(0,a.default)(()=>e.A(65201).then(e=>e.Impersonation),{loadableGenerated:{modules:[483669]},ssr:!1});e.s(["SettingsPortalLayout",0,function(e){let a,y,f,b,v,w,S,k,C,_,A,D,F,I,R,T,N,q,P,E,M,L=(0,r.c)(62),{children:V,dashboardIaEnabled:B}=e,{projectId:U}=(0,i.useParams)(),K=(0,i.usePathname)(),{projectRes:W,memberRes:Q}=(0,tF.useProjectContext)(),O=W.project,{data:z}=(0,u.useSession)(),H=O?.workspaceId??"",G=z?.user.id??"";L[0]!==G||L[1]!==H?(a=(0,s.create)(p.GetWorkspaceMemberRequestSchema,{workspaceId:H,userId:G}),L[0]=G,L[1]=H,L[2]=a):a=L[2];let $=""!==H&&z?.user.id!==void 0;L[3]!==$?(y={enabled:$},L[3]=$,L[4]=y):y=L[4];let Y=(0,l.useQuery)(m.getWorkspaceMember,a,y),J=Y.data?.role,Z=z?.user.email;L[5]!==J||L[6]!==Z?(f=(0,x.canViewWorkspaceBilling)(J,Z),L[5]=J,L[6]=Z,L[7]=f):f=L[7];let X=f,ee=z?.user.email??"";L[8]!==ee?(b=(0,g.isLiveKitEmail)(ee),L[8]=ee,L[9]=b):b=L[9];let et=b;if(L[10]!==K||L[11]!==U){let e;L[13]!==U?(e=(0,h.projectSettingsPath)(U),L[13]=U,L[14]=e):e=L[14],v=K.startsWith(`${e}/workspace`),L[10]=K,L[11]=U,L[12]=v}else v=L[12];let er=v;L[15]!==K||L[16]!==U?(w=K.startsWith((0,h.projectSettingsUserPath)(U)),L[15]=K,L[16]=U,L[17]=w):w=L[17];let ea=w,ei=Y.data?.workspaceId===""||Y.error instanceof n.ConnectError&&Y.error.code===o.Code.NotFound,es=Q?.projectId==="";L[18]!==et||L[19]!==ei||L[20]!==er||L[21]!==H?(S=et&&er&&ei&&""!==H&&(0,t.jsx)(tL,{resource:"workspace",resourceId:H}),L[18]=et,L[19]=ei,L[20]=er,L[21]=H,L[22]=S):S=L[22],L[23]!==et||L[24]!==es||L[25]!==ea||L[26]!==er||L[27]!==U?(k=et&&!er&&!ea&&es&&(0,t.jsx)(tL,{resource:"project",resourceId:U}),L[23]=et,L[24]=es,L[25]=ea,L[26]=er,L[27]=U,L[28]=k):k=L[28],L[29]!==S||L[30]!==k?(C=(0,t.jsxs)(t.Fragment,{children:[S,k]}),L[29]=S,L[30]=k,L[31]=C):C=L[31];let eo=C;if(B){let e,r,a,i,s;return L[32]===Symbol.for("react.memo_cache_sentinel")?(e=(0,t.jsx)(tv,{}),r=(0,t.jsx)(t_,{}),L[32]=e,L[33]=r):(e=L[32],r=L[33]),L[34]===Symbol.for("react.memo_cache_sentinel")?(a=(0,t.jsx)("header",{className:"border-separator1 bg-bg1/95 sticky top-0 z-30 border-b backdrop-blur",children:(0,t.jsxs)("div",{className:"flex h-15 w-full items-center gap-4 px-4",children:[(0,t.jsx)("div",{className:"text-fg3 flex flex-1 items-center gap-1 text-sm",children:(0,t.jsx)("div",{id:j.PAGE_HEADER_BREADCRUMB_PORTAL_ID,className:"flex items-center"})}),(0,t.jsx)("div",{id:j.PAGE_HEADER_PORTAL_ID,className:"flex items-center gap-2"})]})}),L[34]=a):a=L[34],L[35]!==V?(i=(0,t.jsx)("main",{id:"main-content",className:"@container flex min-h-0 flex-1 flex-col px-6 py-6",children:(0,t.jsx)("div",{className:"mx-auto h-full w-full max-w-5xl",children:V})}),L[35]=V,L[36]=i):i=L[36],L[37]!==eo||L[38]!==i?(s=(0,t.jsx)(tE.DashboardIaProvider,{enabled:!0,children:(0,t.jsxs)(tM,{canCollapseSidebar:!1,children:[e,r,a,i,eo]})}),L[37]=eo,L[38]=i,L[39]=s):s=L[39],s}return L[40]===Symbol.for("react.memo_cache_sentinel")?(_=(0,t.jsx)(tv,{}),A=(0,t.jsx)(t_,{}),L[40]=_,L[41]=A):(_=L[40],A=L[41]),L[42]!==U?(D=U?(0,h.projectPath)(U):"/",L[42]=U,L[43]=D):D=L[43],L[44]===Symbol.for("react.memo_cache_sentinel")?(F=(0,t.jsx)(c.ArrowLeftIcon,{className:"size-3","aria-hidden":!0}),L[44]=F):F=L[44],L[45]!==D?(I=(0,t.jsx)(d.LinkButton,{href:D,variant:"secondary",size:"sm",leftIcon:F,children:"Go back"}),L[45]=D,L[46]=I):I=L[46],L[47]===Symbol.for("react.memo_cache_sentinel")?(R=(0,t.jsx)("div",{className:"text-fg3 flex flex-1 items-center gap-1 text-sm",children:(0,t.jsx)("div",{id:j.PAGE_HEADER_BREADCRUMB_PORTAL_ID,className:"flex items-center"})}),T=(0,t.jsx)("div",{id:j.PAGE_HEADER_PORTAL_ID,className:"flex items-center gap-2"}),L[47]=R,L[48]=T):(R=L[47],T=L[48]),L[49]!==I?(N=(0,t.jsx)("header",{className:"border-separator1 bg-bg1/95 sticky top-0 z-30 border-b backdrop-blur",children:(0,t.jsxs)("div",{className:"flex h-15 w-full items-center gap-4 px-4",children:[I,R,T]})}),L[49]=I,L[50]=N):N=L[50],L[51]!==X?(q=(0,t.jsx)("div",{className:"border-separator1 sticky top-16 h-[calc(100vh-4rem)] shrink-0 border-r",children:(0,t.jsx)(tP,{canViewWorkspaceBilling:X})}),L[51]=X,L[52]=q):q=L[52],L[53]!==V?(P=(0,t.jsx)("main",{id:"main-content",className:"@container flex min-h-0 flex-1 flex-col px-6 py-6",children:(0,t.jsx)("div",{className:"mx-auto h-full w-full max-w-5xl overflow-y-auto pr-4",children:V})}),L[53]=V,L[54]=P):P=L[54],L[55]!==q||L[56]!==P?(E=(0,t.jsxs)("div",{className:"flex min-h-0 flex-1",children:[q,P]}),L[55]=q,L[56]=P,L[57]=E):E=L[57],L[58]!==eo||L[59]!==N||L[60]!==E?(M=(0,t.jsxs)("div",{className:"bg-bg1 text-fg1 flex min-h-screen flex-col",children:[_,A,N,E,eo]}),L[58]=eo,L[59]=N,L[60]=E,L[61]=M):M=L[61],M}],561744)}]);
+
+//# chunkId=01a0475f-1539-7211-b684-3c38143a09ff

@@ -1,4 +1,4 @@
-
+﻿
 "use client";
 import { useState } from 'react';
 import { 
@@ -9,28 +9,35 @@ import {
 } from 'lucide-react';
 
 // --- MOCK DATA ---
-const auditVolumeData = [
-  { date: 'Aug 01', audits: 420, cost: 16.80 },
-  { date: 'Aug 05', audits: 510, cost: 20.40 },
-  { date: 'Aug 10', audits: 390, cost: 15.60 },
-  { date: 'Aug 15', audits: 605, cost: 24.20 },
-  { date: 'Aug 20', audits: 850, cost: 34.00 },
-  { date: 'Aug 25', audits: 1020, cost: 40.80 },
-  { date: 'Aug 30', audits: 1250, cost: 50.00 }
-];
+const auditVolumeData = Array.from({ length: 120 }).map((_, i) => {
+  const day = Math.floor(i / 4) + 1;
+  const isSpike = Math.random() > 0.85;
+  const isZero = Math.random() > 0.7; // Lots of zero gaps!
+  
+  let audits = 0;
+  if (!isZero) {
+     let baseAudits = 100 + (day * 10);
+     const multiplier = isSpike ? (Math.random() * 2 + 1) : (Math.random() * 0.5 + 0.5);
+     audits = Math.floor(baseAudits * multiplier);
+  }
+  
+  return { 
+    date: `Aug ${day.toString().padStart(2, '0')}`, 
+    audits: audits, 
+    cost: Number((audits * 0.04).toFixed(2)) 
+  };
+});
 
 const tokenDistribution = [
-  { name: 'Transcript Ingestion', value: 24.0, color: '#00d8ff' }, // Prompt
-  { name: 'Insight Generation', value: 12.0, color: '#a855f7' }, // Completion
-  { name: 'System Context/Rules', value: 6.5, color: '#f97316' }  // System
+  { name: 'Transcript Ingestion', value: 55, color: '#00d8ff' }, 
+  { name: 'Insight Generation', value: 30, color: '#a855f7' }, 
+  { name: 'System Context/Rules', value: 15, color: '#f97316' }  
 ];
 
 const rubricFailures = [
-  { subject: 'Latency', fails: 850 },
-  { subject: 'Guardrails', fails: 620 },
-  { subject: 'Context', fails: 410 },
-  { subject: 'Flow', fails: 290 },
-  { subject: 'Interruption', fails: 180 }
+  { name: 'Latency', value: 45, color: '#ef4444' },
+  { name: 'Guardrails', value: 35, color: '#f97316' },
+  { name: 'Context', value: 20, color: '#00d8ff' },
 ];
 
 const latencyData = [
@@ -58,11 +65,31 @@ function CardTitle({ title }) {
   );
 }
 
+
+const CustomBar = (props) => {
+  const { x, y, width, height } = props;
+  const capY = height > 0 ? y : y - 1.5;
+  return (
+    <g>
+      {height > 0 && <rect x={x} y={y} width={width} height={height} fill="url(#matrixPattern)" />}
+      <rect x={x} y={capY} width={width} height={1.5} fill="#00d8ff" />
+    </g>
+  );
+};
+
+
+const formatXAxis = (tickItem) => {
+  if (['Aug 01', 'Aug 05', 'Aug 10', 'Aug 15', 'Aug 20', 'Aug 25', 'Aug 30'].includes(tickItem)) {
+    return tickItem;
+  }
+  return '';
+};
+
 // --- CUSTOM TOOLTIPS ---
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#111113] border border-[#27272a] p-3 rounded shadow-xl text-xs">
+      <div className="bg-[#111113] border border-[#27272a] p-3 rounded shadow-xl text-xs z-50">
         <p className="text-[#a1a1aa] mb-2 font-semibold">{label}</p>
         {payload.map((entry, index) => (
           <div key={index} className="flex items-center gap-2 mb-1">
@@ -98,10 +125,19 @@ export default function UsagePage() {
       {/* SVG Patterns for Consistency with Overview */}
       <svg width="0" height="0" className="absolute">
         <defs>
-          <pattern id="patPat" width="4" height="4" patternUnits="userSpaceOnUse">
-            <rect width="4" height="4" fill="none" />
-            <circle cx="2" cy="2" r="1" fill="currentColor" />
-          </pattern>
+          <pattern id="matrixPattern" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse">
+  <rect x="0" y="0" width="2" height="1" fill="#00d8ff" opacity="0.7" />
+</pattern>
+          {tokenDistribution.map((d, i) => (
+            <pattern key={`patTok-${i}`} id={`patTok-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
+            </pattern>
+          ))}
+          {rubricFailures.map((d, i) => (
+            <pattern key={`patRub-${i}`} id={`patRub-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+              <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
+            </pattern>
+          ))}
         </defs>
       </svg>
 
@@ -179,87 +215,96 @@ export default function UsagePage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Large Chart: Volume vs Cost */}
-        <div className="lg:col-span-6 rounded-lg border border-[#1f1f22] bg-[#0a0a0a] flex flex-col h-[350px]">
+        <div className="lg:col-span-8 rounded-lg border border-[#1f1f22] bg-[#0a0a0a] flex flex-col h-[400px]">
           <div className="px-5 pt-5 pb-3">
              <CardTitle title="Audit Volume vs Evaluation Cost" />
           </div>
           <div className="flex-1 w-full pb-4">
             <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={auditVolumeData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+              <ComposedChart data={auditVolumeData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }} barCategoryGap={0} barGap={0}>
                 <defs>
                   <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#00d8ff" stopOpacity={0.3}/>
                     <stop offset="95%" stopColor="#00d8ff" stopOpacity={0}/>
                   </linearGradient>
+                  <linearGradient id="colorAudits" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#a855f7" stopOpacity={0.5}/>
+                    <stop offset="95%" stopColor="#a855f7" stopOpacity={0.05}/>
+                  </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f1f22" vertical={false} />
-                <XAxis dataKey="date" stroke="#52525b" tick={{fill: '#52525b', fontSize: 10}} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="left" stroke="#52525b" tick={{fill: '#52525b', fontSize: 10}} axisLine={false} tickLine={false} />
-                <YAxis yAxisId="right" orientation="right" stroke="#52525b" tick={{fill: '#52525b', fontSize: 10}} axisLine={false} tickLine={false} />
+                <CartesianGrid stroke="#1f1f22" vertical={false} horizontal={true} />
+                <XAxis dataKey="date" stroke="#52525b" tick={{fill: '#52525b', fontSize: 10}} axisLine={false} tickLine={{stroke: '#1f1f22'}} interval={19} tickMargin={12} />
+                <YAxis stroke="#52525b" tick={{fill: '#52525b', fontSize: 10}} axisLine={false} tickLine={false} ticks={[0, 200, 400, 600, 800, 1000, 1200, 1400]} />
+                
                 <RechartsTooltip content={<CustomTooltip />} cursor={{fill: '#1f1f22', opacity: 0.4}} />
-                <Bar yAxisId="left" dataKey="audits" name="Audits" fill="#27272a" radius={[4, 4, 0, 0]} />
-                <Area yAxisId="right" type="monotone" dataKey="cost" name="Est Cost" stroke="#00d8ff" strokeWidth={2} fillOpacity={1} fill="url(#colorCost)" />
+                <Bar dataKey="audits" name="Audits" shape={<CustomBar />}  />
+                
               </ComposedChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Medium Chart: Token Breakdown */}
-        <div className="lg:col-span-3 rounded-lg border border-[#1f1f22] bg-[#0a0a0a] flex flex-col h-[350px]">
-          <div className="px-5 pt-5 pb-3">
-             <CardTitle title="Token Distribution (Millions)" />
-          </div>
-          <div className="flex-1 w-full relative flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={tokenDistribution} cx="50%" cy="50%" innerRadius={50} outerRadius={70} paddingAngle={4} dataKey="value" stroke="none"
-                >
-                  {tokenDistribution.map((entry, index) => (
-                     <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} strokeWidth={1} />
-                  ))}
-                </Pie>
-                <RechartsTooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none flex-col">
-              <span className="text-xl font-bold text-white font-mono">42.5M</span>
-              <span className="text-[9px] text-[#52525b] uppercase tracking-wider">Total</span>
+        {/* Right Column Stack for Donuts */}
+        <div className="lg:col-span-4 flex flex-col gap-4 h-[400px]">
+          
+          {/* Token Distribution (Donut - Overview Style) */}
+          <div className="rounded-lg border border-[#1f1f22] bg-[#0a0a0a] p-5 flex flex-col flex-1">
+            <CardTitle title="Token Distribution" />
+            <div className="flex-1 flex items-center justify-center relative">
+              <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={tokenDistribution} innerRadius={42} outerRadius={55} paddingAngle={4} dataKey="value" stroke="none" isAnimationActive={false}>
+                      {tokenDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={`url(#patTok-${index})`} stroke={entry.color} strokeWidth={1.5} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col gap-2 text-[11px] w-full pl-[130px]">
+                {tokenDistribution.map(item => (
+                  <div key={item.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }}></div>
+                      <span className="text-[#a1a1aa]">{item.name}</span>
+                    </div>
+                    <span className="text-[#ededed] font-mono">{item.value}%</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-          <div className="px-5 pb-5 flex flex-col gap-2">
-            {tokenDistribution.map(item => (
-              <div key={item.name} className="flex items-center justify-between text-[11px]">
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }} />
-                  <span className="text-[#a1a1aa]">{item.name}</span>
-                </div>
-                <span className="font-mono text-[#ededed]">{item.value.toFixed(1)}M</span>
-              </div>
-            ))}
-          </div>
-        </div>
 
-        {/* Medium Chart: Rubric Failures */}
-        <div className="lg:col-span-3 rounded-lg border border-[#1f1f22] bg-[#0a0a0a] flex flex-col h-[350px]">
-          <div className="px-5 pt-5 pb-3">
-             <CardTitle title="Rubric Failure Distribution" />
+          {/* Rubric Failures (Donut - Overview Style) */}
+          <div className="rounded-lg border border-[#1f1f22] bg-[#0a0a0a] p-5 flex flex-col flex-1">
+            <CardTitle title="Rubric Failure Distribution" />
+            <div className="flex-1 flex items-center justify-center relative">
+              <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={rubricFailures} innerRadius={42} outerRadius={55} paddingAngle={4} dataKey="value" stroke="none" isAnimationActive={false}>
+                      {rubricFailures.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={`url(#patRub-${index})`} stroke={entry.color} strokeWidth={1.5} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex flex-col gap-2 text-[11px] w-full pl-[130px]">
+                {rubricFailures.map(item => (
+                  <div key={item.name} className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }}></div>
+                      <span className="text-[#a1a1aa]">{item.name}</span>
+                    </div>
+                    <span className="text-[#ededed] font-mono">{item.value}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="flex-1 w-full pb-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={rubricFailures} layout="vertical" margin={{ top: 0, right: 20, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f1f22" horizontal={true} vertical={false} />
-                <XAxis type="number" stroke="#52525b" tick={{fill: '#52525b', fontSize: 10}} axisLine={false} tickLine={false} />
-                <YAxis dataKey="subject" type="category" stroke="#a1a1aa" tick={{fill: '#a1a1aa', fontSize: 10}} axisLine={false} tickLine={false} />
-                <RechartsTooltip content={<CustomTooltip />} cursor={{fill: '#1f1f22', opacity: 0.4}} />
-                <Bar dataKey="fails" name="Failed Sessions" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={14}>
-                  {rubricFailures.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={index === 0 ? '#ef4444' : index === 1 ? '#f97316' : '#27272a'} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+
         </div>
 
       </div>
@@ -280,7 +325,7 @@ export default function UsagePage() {
           <div className="flex-1 w-full pb-4">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={latencyData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f1f22" vertical={false} />
+                <CartesianGrid stroke="#1f1f22" vertical={false} horizontal={true} />
                 <XAxis dataKey="time" stroke="#52525b" tick={{fill: '#52525b', fontSize: 10}} axisLine={false} tickLine={false} />
                 <YAxis stroke="#52525b" tick={{fill: '#52525b', fontSize: 10}} axisLine={false} tickLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} />
@@ -343,3 +388,5 @@ export default function UsagePage() {
     </div>
   );
 }
+
+
