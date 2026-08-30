@@ -1,7 +1,7 @@
 ﻿"use client";
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, List, Settings, AlignLeft, BarChart2, Activity, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSettings } from '../context/SettingsContext';
@@ -17,7 +17,7 @@ export default function Sidebar() {
       <aside className={`absolute md:relative z-50 left-0 top-0 h-full ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ${collapsed ? 'w-20' : 'w-64'} bg-[var(--bg-card-hover)] border-r border-[var(--border-color)] flex flex-col shrink-0 transition-all`}>
         <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--border-color)]">
           <div className="flex items-center gap-2 overflow-hidden whitespace-nowrap">
-            <Image src="/favicon.png" alt="Xobin" width={28} height={28} className="rounded object-contain shrink-0" />
+            <img src="/favicon.png" alt="Xobin" width={28} height={28} className="rounded object-contain shrink-0" />
             {!collapsed && <span className="font-semibold text-[15px] tracking-tight">Xobin Audit</span>}
           </div>
         </div>
