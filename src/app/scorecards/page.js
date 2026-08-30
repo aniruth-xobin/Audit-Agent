@@ -239,7 +239,7 @@ function ScorecardsContent() {
               <span>{activeSession.duration}</span>
             </div>
           </div>
-          <div className="text-right flex flex-col items-end">
+          <div className="text-right flex flex-col items-end mt-4 sm:mt-0 sm:ml-4 shrink-0">
             <div className={`text-4xl font-bold tracking-tight ${activeSession.score >= 8 ? 'text-emerald-500' : activeSession.score >= 5 ? 'text-yellow-500' : 'text-rose-500'}`}>
               {activeSession.score}
             </div>

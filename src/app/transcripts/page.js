@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Search, Play, Pause, SkipBack, SkipForward, BarChart2, Volume2, Maximize2 } from 'lucide-react';
+import { Search, Play, Pause, SkipBack, SkipForward, BarChart2, Volume2, Maximize2, ChevronLeft } from 'lucide-react';
 
 const mockSessions = [
   { id: 'audit_1f8a6a', candidate: 'Aniruth R', mode: 'Roleplay', score: 8.5, duration: '12 mins' },
@@ -36,7 +36,8 @@ function TranscriptsContent() {
   const router = useRouter();
   const idParam = searchParams.get('id');
   
-  const [activeSession, setActiveSession] = useState(() => {
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
+    const [activeSession, setActiveSession] = useState(() => {
     return mockSessions.find(s => s.id === idParam) || mockSessions[0];
   });
   
@@ -74,7 +75,7 @@ function TranscriptsContent() {
           {mockSessions.map(session => (
             <div 
               key={session.id} 
-              onClick={() => setActiveSession(session)}
+              onClick={() => { setActiveSession(session); setShowMobileDetail(true); }}
               className={`p-4 border-b border-[var(--border-color)] cursor-pointer transition-colors ${activeSession.id === session.id ? 'bg-[var(--bg-secondary)]/60 border-l-2 border-l-[var(--chart-cyan)]' : 'hover:bg-[var(--bg-secondary)]/30 border-l-2 border-l-transparent'}`}
             >
               <div className="flex justify-between items-start mb-1">
