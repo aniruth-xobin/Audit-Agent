@@ -125,7 +125,7 @@ function ScorecardsContent() {
     <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-8rem)] font-sans relative">
       
       {/* Left Pane - Session List */}
-      <div className="w-1/3 flex flex-col border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm overflow-hidden min-w-[320px]">
+      <div className={`w-full lg:w-1/3 flex-col border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm lg:min-w-[320px] ${showMobileDetail ? "hidden lg:flex" : "flex"}`}>
         <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-card)] flex flex-col gap-3">
           <h2 className="text-sm font-semibold text-[var(--text-primary)]">Audit Inbox</h2>
           
@@ -226,7 +226,7 @@ function ScorecardsContent() {
       </div>
 
       {/* Right Pane - Detail View */}
-      <div className="flex-1 border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm overflow-hidden flex flex-col">
+      <div className={`flex-1 border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm flex-col ${showMobileDetail ? "flex" : "hidden lg:flex"}`}>
         {/* Detail Header */}
         <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-card)]">
           <div>
