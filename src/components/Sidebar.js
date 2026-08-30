@@ -59,7 +59,7 @@ export default function Sidebar() {
               <AlignLeft size={18} className="shrink-0" />
               {!collapsed && <span>Transcripts</span>}
             </Link>
-            <Link href="#" className="flex items-center gap-3 px-3 py-2 rounded-md text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed] text-sm font-medium transition-colors" title="Usage">
+            <Link href="/usage" className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${pathname === '/usage' ? 'bg-[#1f1f22] text-[#ededed]' : 'text-[#a1a1aa] hover:bg-[#1f1f22] hover:text-[#ededed]'}`} title="Usage">
               <Activity size={18} className="shrink-0" />
               {!collapsed && <span>Usage</span>}
             </Link>
