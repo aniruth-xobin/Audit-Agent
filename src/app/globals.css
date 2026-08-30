@@ -3,16 +3,90 @@
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  --color-bg-main: var(--bg-main);
+  --color-bg-card: var(--bg-card);
+  --color-bg-card-hover: var(--bg-card-hover);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-active: var(--bg-active);
+  
+  --color-border-color: var(--border-color);
+  --color-border-strong: var(--border-strong);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-muted: var(--text-muted);
+  --color-text-muted-dark: var(--text-muted-dark);
+  
+  --color-chart-cyan: var(--chart-cyan);
+  --color-chart-purple: var(--chart-purple);
+  --color-chart-orange: var(--chart-orange);
+  --color-chart-green: var(--chart-green);
+  --color-chart-red: var(--chart-red);
 }
 
 :root {
-  --background: #09090b;
-  --foreground: #ededed;
+  /* Default Dark + Colorful */
+  --bg-main: #09090b;
+  --bg-card: #0a0a0a;
+  --bg-card-hover: #111113;
+  --bg-secondary: #1f1f22;
+  --bg-active: #27272a;
+  
+  --border-color: #1f1f22;
+  --border-strong: #27272a;
+  
+  --text-primary: #ededed;
+  --text-muted: #a1a1aa;
+  --text-muted-dark: #52525b;
+  
+  --chart-cyan: #00d8ff;
+  --chart-purple: #a855f7;
+  --chart-orange: #f97316;
+  --chart-green: #22c55e;
+  --chart-red: #ef4444;
+}
+
+:root[data-theme='light'] {
+  --bg-main: #fafafa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f4f4f5;
+  --bg-secondary: #f4f4f5;
+  --bg-active: #e4e4e7;
+  
+  --border-color: #e4e4e7;
+  --border-strong: #d4d4d8;
+  
+  --text-primary: #09090b;
+  --text-muted: #71717a;
+  --text-muted-dark: #a1a1aa;
+  
+  --chart-cyan: #0891b2;
+  --chart-purple: #9333ea;
+  --chart-orange: #ea580c;
+  --chart-green: #16a34a;
+  --chart-red: #dc2626;
+}
+
+/* Monochromatic Mode - Grayscale */
+:root[data-colormode='mono'][data-theme='dark'] {
+  --chart-cyan: #ffffff;
+  --chart-purple: #e4e4e7;
+  --chart-orange: #a1a1aa;
+  --chart-green: #71717a;
+  --chart-red: #3f3f46;
+}
+
+:root[data-colormode='mono'][data-theme='light'] {
+  --chart-cyan: #09090b;
+  --chart-purple: #3f3f46;
+  --chart-orange: #71717a;
+  --chart-green: #a1a1aa;
+  --chart-red: #d4d4d8;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--text-primary);
+  background: var(--bg-main);
 }
 
 /* Custom Sleek Scrollbar */
@@ -26,13 +100,6 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
+  background: var(--text-muted-dark);
   border-radius: 9999px;
 }
-
-::-webkit-scrollbar-thumb:hover {
-  background: #52525b;
-}
-
-.scrollbar-hide::-webkit-scrollbar { display: none; }
-.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

@@ -57,15 +57,15 @@ function TranscriptsContent() {
     <div className="flex gap-6 h-[calc(100vh-8rem)] font-sans">
       
       {/* Left Pane - Session List */}
-      <div className="w-1/3 flex flex-col border border-[#1f1f22] bg-[#0a0a0a] rounded-lg shadow-sm overflow-hidden min-w-[320px]">
-        <div className="p-4 border-b border-[#1f1f22] bg-[#0a0a0a]">
-          <h2 className="text-sm font-semibold text-[#ededed] mb-3">Audit Inbox</h2>
+      <div className="w-1/3 flex flex-col border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm overflow-hidden min-w-[320px]">
+        <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-card)]">
+          <h2 className="text-sm font-semibold text-[var(--text-primary)] mb-3">Audit Inbox</h2>
           <div className="relative flex items-center">
-            <Search size={14} className="absolute left-2.5 text-[#a1a1aa]" />
+            <Search size={14} className="absolute left-2.5 text-[var(--text-muted)]" />
             <input 
               type="text" 
               placeholder="Search sessions..." 
-              className="w-full bg-[#111113] border border-[#1f1f22] rounded pl-8 pr-3 py-1.5 text-xs text-[#ededed] placeholder:text-[#52525b] focus:outline-none focus:border-[#27272a] transition-colors" 
+              className="w-full bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded pl-8 pr-3 py-1.5 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted-dark)] focus:outline-none focus:border-[var(--border-strong)] transition-colors" 
             />
           </div>
         </div>
@@ -75,14 +75,14 @@ function TranscriptsContent() {
             <div 
               key={session.id} 
               onClick={() => setActiveSession(session)}
-              className={`p-4 border-b border-[#1f1f22] cursor-pointer transition-colors ${activeSession.id === session.id ? 'bg-[#1f1f22]/60 border-l-2 border-l-[#00d8ff]' : 'hover:bg-[#1f1f22]/30 border-l-2 border-l-transparent'}`}
+              className={`p-4 border-b border-[var(--border-color)] cursor-pointer transition-colors ${activeSession.id === session.id ? 'bg-[var(--bg-secondary)]/60 border-l-2 border-l-[var(--chart-cyan)]' : 'hover:bg-[var(--bg-secondary)]/30 border-l-2 border-l-transparent'}`}
             >
               <div className="flex justify-between items-start mb-1">
-                <span className="font-semibold text-sm text-[#ededed]">{session.candidate}</span>
+                <span className="font-semibold text-sm text-[var(--text-primary)]">{session.candidate}</span>
                 <span className={`text-[11px] font-bold ${session.score >= 8 ? 'text-emerald-500' : session.score >= 5 ? 'text-yellow-500' : 'text-rose-500'}`}>{session.score} / 10</span>
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-[#a1a1aa] mb-2">
-                <span className="text-[#00d8ff]">{session.mode}</span>
+              <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted)] mb-2">
+                <span className="text-[var(--chart-cyan)]">{session.mode}</span>
                 <span>.</span>
                 <span>{session.duration}</span>
               </div>
@@ -92,20 +92,20 @@ function TranscriptsContent() {
       </div>
 
       {/* Right Pane - Transcript View */}
-      <div className="flex-1 border border-[#1f1f22] bg-[#0a0a0a] rounded-lg shadow-sm flex flex-col relative overflow-hidden">
+      <div className="flex-1 border border-[var(--border-color)] bg-[var(--bg-card)] rounded-lg shadow-sm flex flex-col relative overflow-hidden">
         
         {/* Header */}
-        <div className="p-6 border-b border-[#1f1f22] flex items-center justify-between bg-[#0a0a0a] z-10 relative">
+        <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-card)] z-10 relative">
           <div>
-            <h1 className="text-xl font-bold text-[#ededed] mb-1">{activeSession.candidate}</h1>
-            <div className="flex items-center gap-3 text-xs text-[#a1a1aa]">
-              <span className="font-mono text-[#52525b]">{activeSession.id}</span>
+            <h1 className="text-xl font-bold text-[var(--text-primary)] mb-1">{activeSession.candidate}</h1>
+            <div className="flex items-center gap-3 text-xs text-[var(--text-muted)]">
+              <span className="font-mono text-[var(--text-muted-dark)]">{activeSession.id}</span>
               <span>.</span>
-              <span className="text-[#00d8ff]">{activeSession.mode}</span>
+              <span className="text-[var(--chart-cyan)]">{activeSession.mode}</span>
             </div>
           </div>
           <div>
-            <button onClick={() => router.push('/scorecards?id=' + activeSession.id)} className="flex items-center gap-2 px-4 py-2 bg-[#111113] border border-[#27272a] hover:bg-[#1f1f22] text-[#ededed] rounded-md text-xs font-semibold transition-colors">
+            <button onClick={() => router.push('/scorecards?id=' + activeSession.id)} className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-card-hover)] border border-[var(--border-strong)] hover:bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-md text-xs font-semibold transition-colors">
               <BarChart2 size={14} /> Back to Scorecard
             </button>
           </div>
@@ -117,22 +117,22 @@ function TranscriptsContent() {
             <div key={idx} className={`flex gap-4 max-w-[85%] ${msg.role === 'human' ? 'self-end flex-row-reverse' : msg.role === 'system' ? 'self-center w-full max-w-full justify-center' : 'self-start'}`}>
               
               {msg.role !== 'system' && (
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${msg.role === 'ai' ? 'bg-[#00d8ff]/20 text-[#00d8ff]' : 'bg-[#27272a] text-[#ededed]'}`}>
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${msg.role === 'ai' ? 'bg-[var(--chart-cyan)]/20 text-[var(--chart-cyan)]' : 'bg-[var(--bg-active)] text-[var(--text-primary)]'}`}>
                   {msg.role === 'ai' ? 'AI' : 'US'}
                 </div>
               )}
               
               {msg.role === 'system' ? (
-                <div className="px-4 py-2 bg-[#f97316]/10 border border-[#f97316]/30 text-[#f97316] text-xs font-medium rounded-lg flex items-center gap-2">
+                <div className="px-4 py-2 bg-[var(--chart-orange)]/10 border border-[var(--chart-orange)]/30 text-[var(--chart-orange)] text-xs font-medium rounded-lg flex items-center gap-2">
                   <span className="font-mono">{msg.time}</span> {msg.text}
                 </div>
               ) : (
                 <div className={`flex flex-col gap-1 ${msg.role === 'human' ? 'items-end' : 'items-start'}`}>
-                  <div className="flex items-center gap-2 text-[11px] text-[#52525b]">
-                    <span className="font-semibold text-[#a1a1aa]">{msg.speaker}</span>
+                  <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted-dark)]">
+                    <span className="font-semibold text-[var(--text-muted)]">{msg.speaker}</span>
                     <span className="font-mono">{msg.time}</span>
                   </div>
-                  <div className={`p-4 rounded-xl text-sm leading-relaxed ${msg.role === 'human' ? 'bg-[#27272a] text-[#ededed] rounded-tr-none' : 'bg-[#111113] border border-[#1f1f22] text-[#ededed] rounded-tl-none'}`}>
+                  <div className={`p-4 rounded-xl text-sm leading-relaxed ${msg.role === 'human' ? 'bg-[var(--bg-active)] text-[var(--text-primary)] rounded-tr-none' : 'bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-none'}`}>
                     {msg.text}
                   </div>
                 </div>
@@ -143,26 +143,26 @@ function TranscriptsContent() {
         </div>
 
         {/* Bottom Audio Player Dock */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-[#0a0a0a]/95 backdrop-blur-md border-t border-[#1f1f22] flex items-center gap-6 z-20">
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-[var(--bg-card)]/95 backdrop-blur-md border-t border-[var(--border-color)] flex items-center gap-6 z-20">
           <div className="flex items-center gap-4 shrink-0">
-            <button className="text-[#a1a1aa] hover:text-white transition-colors"><SkipBack size={18} fill="currentColor" /></button>
-            <button onClick={() => setIsPlaying(!isPlaying)} className="w-10 h-10 rounded-full bg-[#00d8ff] text-black flex items-center justify-center hover:bg-[#00b0d0] transition-colors shadow-[0_0_15px_rgba(0,216,255,0.3)]">
+            <button className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><SkipBack size={18} fill="currentColor" /></button>
+            <button onClick={() => setIsPlaying(!isPlaying)} className="w-10 h-10 rounded-full bg-[var(--chart-cyan)] text-bg-main flex items-center justify-center hover:opacity-80 transition-colors shadow-lg shadow-[var(--chart-cyan)]/30">
               {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
             </button>
-            <button className="text-[#a1a1aa] hover:text-white transition-colors"><SkipForward size={18} fill="currentColor" /></button>
+            <button className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><SkipForward size={18} fill="currentColor" /></button>
           </div>
           
           <div className="flex-1 flex items-center gap-3">
-            <span className="text-[10px] font-mono text-[#a1a1aa]">00:15</span>
-            <div className="flex-1 h-1.5 bg-[#1f1f22] rounded-full overflow-hidden relative cursor-pointer">
-              <div className="absolute top-0 left-0 h-full bg-[#00d8ff] w-[15%]"></div>
+            <span className="text-[10px] font-mono text-[var(--text-muted)]">00:15</span>
+            <div className="flex-1 h-1.5 bg-[var(--bg-secondary)] rounded-full overflow-hidden relative cursor-pointer">
+              <div className="absolute top-0 left-0 h-full bg-[var(--chart-cyan)] w-[15%]"></div>
             </div>
-            <span className="text-[10px] font-mono text-[#a1a1aa]">{activeSession.duration}</span>
+            <span className="text-[10px] font-mono text-[var(--text-muted)]">{activeSession.duration}</span>
           </div>
           
-          <div className="flex items-center gap-4 shrink-0 text-[#a1a1aa]">
-            <Volume2 size={16} className="cursor-pointer hover:text-white" />
-            <Maximize2 size={16} className="cursor-pointer hover:text-white" />
+          <div className="flex items-center gap-4 shrink-0 text-[var(--text-muted)]">
+            <Volume2 size={16} className="cursor-pointer hover:text-[var(--text-primary)]" />
+            <Maximize2 size={16} className="cursor-pointer hover:text-[var(--text-primary)]" />
           </div>
         </div>
 
@@ -174,7 +174,7 @@ function TranscriptsContent() {
 
 export default function TranscriptsPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-[#ededed]">Loading Transcripts...</div>}>
+    <Suspense fallback={<div className="p-8 text-[var(--text-primary)]">Loading Transcripts...</div>}>
       <TranscriptsContent />
     </Suspense>
   );
