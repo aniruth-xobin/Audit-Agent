@@ -1,7 +1,8 @@
 ﻿"use client";
+import React from "react";
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Search, FileText, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check, ChevronLeft } from 'lucide-react';
+import { Search, FileText, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check, ChevronLeft, ChevronDown, ChevronUp, Wrench } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 
 function ScorecardsContent() {
@@ -13,6 +14,12 @@ function ScorecardsContent() {
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSession, setActiveSession] = useState(null);
+  const [turnMetrics, setTurnMetrics] = useState([]);
+  const [toolCalls, setToolCalls] = useState([]);
+  const [loadingMetrics, setLoadingMetrics] = useState(false);
+  const [showTurns, setShowTurns] = useState(true);
+  const [showTools, setShowTools] = useState(true);
+  const [expandedTool, setExpandedTool] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   
@@ -55,6 +62,20 @@ function ScorecardsContent() {
         setLoading(false);
       });
   }, [sortOption, activeMode, idParam]);
+
+  useEffect(() => {
+    if (!activeSession) return;
+    setLoadingMetrics(true);
+    setTurnMetrics([]);
+    setToolCalls([]);
+    Promise.all([
+      fetch('/api/scorecards/turns?sessionId=' + activeSession.id).then(r => r.json()),
+      fetch('/api/scorecards/tools?sessionId=' + activeSession.id).then(r => r.json()),
+    ]).then(([turnsData, toolsData]) => {
+      setTurnMetrics(turnsData.data || []);
+      setToolCalls(toolsData.data || []);
+    }).catch(console.error).finally(() => setLoadingMetrics(false));
+  }, [activeSession?.id]);
 
   const filteredSessions = sessions.filter(session => {
     return (session.candidate_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -321,6 +342,114 @@ function ScorecardsContent() {
             )}
           </div>
 
+          {/* Section A: Turn-by-Turn Metrics */}
+          <div className="bg-[var(--bg-card-hover)] rounded-lg border border-[var(--border-color)] mt-2">
+            <button onClick={() => setShowTurns(v => !v)} className="w-full flex items-center justify-between p-4 border-b border-[var(--border-color)] text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider hover:bg-[var(--bg-active)] transition-colors">
+              <span className="flex items-center gap-2"><Clock size={14} /> Turn-by-Turn Metrics ({turnMetrics.length} turns)</span>
+              {showTurns ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+            {showTurns && (
+              <div className="overflow-x-auto">
+                {loadingMetrics ? (
+                  <div className="text-xs text-[var(--text-muted)] p-6 text-center">Loading metrics...</div>
+                ) : turnMetrics.length === 0 ? (
+                  <div className="text-xs text-[var(--text-muted-dark)] p-6 text-center">No turn metrics for this session.</div>
+                ) : (
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-color)]">
+                        <th className="text-left py-2 px-3">Turn</th>
+                        <th className="text-right py-2 px-3">STT (ms)</th>
+                        <th className="text-right py-2 px-3">LLM TTFT (ms)</th>
+                        <th className="text-right py-2 px-3">TTS (ms)</th>
+                        <th className="text-right py-2 px-3">Total (ms)</th>
+                        <th className="text-center py-2 px-3">Barge-in</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {turnMetrics.map((t, i) => {
+                        const tot = (t.stt_latency_ms ?? 0) + (t.llm_ttft_ms ?? 0) + (t.tts_latency_ms ?? 0);
+                        const tc = (ms) => {
+                          if (ms == null) return 'text-[var(--text-muted)]';
+                          if (ms > 2000) return 'text-rose-400';
+                          if (ms > 1000) return 'text-yellow-400';
+                          return 'text-emerald-400';
+                        };
+                        const totc = tot > 2000 ? 'text-rose-400' : tot > 1000 ? 'text-yellow-400' : 'text-emerald-400';
+                        return (
+                          <tr key={i} className={t.barge_in ? 'border-b border-[var(--border-color)]/50 bg-orange-500/5' : 'border-b border-[var(--border-color)]/50 hover:bg-[var(--bg-active)] transition-colors'}>
+                            <td className="py-2 px-3 font-mono text-[var(--text-primary)] font-medium">{t.turn_index}</td>
+                            <td className={['py-2 px-3 text-right font-mono', tc(t.stt_latency_ms)].join(' ')}>{t.stt_latency_ms ?? '—'}</td>
+                            <td className={['py-2 px-3 text-right font-mono', tc(t.llm_ttft_ms)].join(' ')}>{t.llm_ttft_ms ?? '—'}</td>
+                            <td className={['py-2 px-3 text-right font-mono', tc(t.tts_latency_ms)].join(' ')}>{t.tts_latency_ms ?? '—'}</td>
+                            <td className={['py-2 px-3 text-right font-mono font-semibold', totc].join(' ')}>{tot || '—'}</td>
+                            <td className="py-2 px-3 text-center">{t.barge_in ? <span className="text-orange-400 font-bold">✓</span> : <span className="text-[var(--text-muted)]">—</span>}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Section B: Tool Call Timeline */}
+          <div className="bg-[var(--bg-card-hover)] rounded-lg border border-[var(--border-color)] mt-2 mb-6">
+            <button onClick={() => setShowTools(v => !v)} className="w-full flex items-center justify-between p-4 border-b border-[var(--border-color)] text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider hover:bg-[var(--bg-active)] transition-colors">
+              <span className="flex items-center gap-2"><Wrench size={14} /> Tool Call Timeline ({toolCalls.length} calls)</span>
+              {showTools ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+            {showTools && (
+              <div className="overflow-x-auto">
+                {loadingMetrics ? (
+                  <div className="text-xs text-[var(--text-muted)] p-6 text-center">Loading tool calls...</div>
+                ) : toolCalls.length === 0 ? (
+                  <div className="text-xs text-[var(--text-muted-dark)] p-6 text-center">No tool calls recorded for this session.</div>
+                ) : (
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-color)]">
+                        <th className="text-left py-2 px-3">Turn</th>
+                        <th className="text-left py-2 px-3">Tool</th>
+                        <th className="text-left py-2 px-3">Arguments</th>
+                        <th className="text-left py-2 px-3">Result Preview</th>
+                        <th className="py-2 px-3"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {toolCalls.map((t, i) => {
+                        const isExp = expandedTool === i;
+                        const argsStr = typeof t.arguments === 'object' ? JSON.stringify(t.arguments) : String(t.arguments ?? '{}');
+                        return (
+                          <React.Fragment key={i}>
+                            <tr onClick={() => setExpandedTool(isExp ? null : i)} className="border-b border-[var(--border-color)]/50 hover:bg-[var(--bg-active)] cursor-pointer transition-colors">
+                              <td className="py-2 px-3 font-mono text-[var(--text-primary)]">{t.turn_index}</td>
+                              <td className="py-2 px-3"><code className="bg-[var(--chart-cyan)]/10 text-[var(--chart-cyan)] px-1.5 py-0.5 rounded text-[10px] font-mono">{t.tool_name}</code></td>
+                              <td className="py-2 px-3 font-mono text-[var(--text-muted)] max-w-[140px] truncate">{argsStr.slice(0, 50)}{argsStr.length > 50 ? '…' : ''}</td>
+                              <td className="py-2 px-3 text-[var(--text-muted)] max-w-[160px] truncate">{String(t.result ?? '—').slice(0, 70)}</td>
+                              <td className="py-2 px-3 text-center text-[var(--text-muted)]">{isExp ? <ChevronUp size={12} /> : <ChevronDown size={12} />}</td>
+                            </tr>
+                            {isExp && (
+                              <tr className="border-b border-[var(--border-color)]">
+                                <td colSpan={5} className="p-4 bg-[var(--bg-secondary)]/40">
+                                  <div className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">Full Arguments</div>
+                                  <pre className="text-xs text-[var(--text-primary)] bg-[var(--bg-card)] rounded p-3 overflow-x-auto mb-3 font-mono">{argsStr}</pre>
+                                  <div className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">Full Result</div>
+                                  <pre className="text-xs text-[var(--text-primary)] bg-[var(--bg-card)] rounded p-3 overflow-x-auto font-mono">{String(t.result ?? 'No result')}</pre>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </div>
+
         </div>
         </>
         ) : (
@@ -341,3 +470,6 @@ export default function ScorecardsPage() {
     </Suspense>
   );
 }
+
+
+

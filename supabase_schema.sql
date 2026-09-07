@@ -70,3 +70,22 @@ CREATE TABLE dashboard_users (
   created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE dashboard_users ENABLE ROW LEVEL SECURITY;
+
+-- ── tool_calls table ─────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS tool_calls (
+  id            BIGSERIAL PRIMARY KEY,
+  session_id    TEXT REFERENCES sessions(id) ON DELETE CASCADE,
+  turn_index    INT NOT NULL,
+  timestamp_ms  BIGINT NOT NULL,
+  tool_name     TEXT NOT NULL,
+  arguments     JSONB DEFAULT '{}',
+  result        TEXT,
+  created_at    TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_tool_calls_session ON tool_calls(session_id);
+
+ALTER TABLE tool_calls ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY IF NOT EXISTS "service_role_all_tool_calls" ON tool_calls
+  FOR ALL USING (true);
