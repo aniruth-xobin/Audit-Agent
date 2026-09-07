@@ -106,7 +106,7 @@ async function runGroqEvaluation(payload) {
     "Rules: bargeIns > 3 lowers Interruption. Any turn total > 2000ms adds a deduction. Empty deductions=[] if no issues.";
 
   const completion = await getGroq().chat.completions.create({
-    model: "meta-llama/llama-4-maverick-17b-128e-instruct",
+    model: "gemma2-9b-it",
     temperature: 0.2,
     max_tokens: 2048,
     response_format: { type: "json_object" },
@@ -167,4 +167,5 @@ export async function POST(req) {
     return Response.json({ ok: false, error: err.message }, { status: 500 });
   }
 }
+
 
