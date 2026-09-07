@@ -1,8 +1,9 @@
-"use client";
+﻿"use client";
+import React, { useEffect, useState } from "react";
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { HelpCircle, Brain, Users } from 'lucide-react';
+import { useSettings } from '@/context/SettingsContext';
 
-// Generate flat data with occasional sharp spikes
 const generateSpikyData = (base, count, spikeFrequency, negative = false) => {
   return Array.from({ length: count }).map(() => {
     const isSpike = Math.random() < spikeFrequency;
@@ -20,34 +21,6 @@ const minutesData = generateSpikyData(3746, 20, 0.02);
 const hallucinationData = generateSpikyData(0.2, 40, 0.1, true); 
 const interruptionData = generateSpikyData(3.4, 40, 0.15, true); 
 
-const outcomesData = [
-  { name: 'Completed', value: 41.7, color: 'var(--chart-cyan)' },
-  { name: 'Flagged', value: 34.5, color: 'var(--chart-purple)' },
-  { name: 'Dropped', value: 12.6, color: 'var(--chart-orange)' },
-  { name: 'Other', value: 11.2, color: 'var(--chart-green)' },
-];
-
-const scoresData = [
-  { name: 'Guided', value: 65, color: 'var(--chart-cyan)' },
-  { name: 'Freeflow', value: 25, color: 'var(--chart-purple)' },
-  { name: 'Roleplay', value: 10, color: 'var(--chart-orange)' },
-];
-
-const failuresData = [
-  { name: 'Off-topic', value: 45, color: 'var(--chart-green)' },
-  { name: 'Silence', value: 35, color: 'var(--chart-cyan)' },
-  { name: 'Audio Issue', value: 20, color: 'var(--chart-orange)' },
-];
-
-const topCandidates = [
-  { id: '1', name: 'sess_9xq...', score: '10 / 10' },
-  { id: '2', name: 'sess_4ya...', score: '9 / 10' },
-  { id: '3', name: 'sess_8po...', score: '9 / 10' },
-  { id: '4', name: 'sess_5tt...', score: '8 / 10' },
-  { id: '5', name: 'sess_3zz...', score: '8 / 10' },
-  { id: '6', name: 'sess_1bc...', score: '7 / 10' },
-  { id: '7', name: 'sess_2cc...', score: '7 / 10' },
-];
 
 function CardTitle({ title }) {
   return (
@@ -58,10 +31,69 @@ function CardTitle({ title }) {
   );
 }
 
-import { useSettings } from '@/context/SettingsContext';
-
 export default function Home() { 
   const { chartStyle } = useSettings();
+  
+  const [data, setData] = useState({
+    systemHealth: "0.0",
+    avgLatency: "0.00",
+    avgBargeIn: 0,
+    auditMinutes: 0,
+    avgTurns: 0,
+    sessionOutcomesData: [{ name: 'No Data', value: 1 }],
+    minutesByTypeData: [{ name: 'No Data', value: 1 }],
+    topCandidates: [],
+    totalSessions: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/dashboard/overview')
+      .then(res => res.json())
+      .then(json => {
+        if (!json.error) setData(json);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  const outcomeColors = {
+    'Clean': 'var(--chart-cyan)',
+    'Hallucination': 'var(--chart-orange)',
+    'Silence': 'var(--chart-purple)',
+    'Interruption Failure': '#ef4444',
+    'No Data': '#52525b'
+  };
+
+  const outcomesData = data.sessionOutcomesData.map(d => ({
+    ...d,
+    color: outcomeColors[d.name] || 'var(--chart-cyan)'
+  }));
+
+  const modeColors = {
+    'guided': 'var(--chart-cyan)',
+    'freeflow': 'var(--chart-purple)',
+    'roleplay': 'var(--chart-orange)',
+    'No Data': '#52525b'
+  };
+
+  const scoresData = data.minutesByTypeData.map(d => ({
+    ...d,
+    color: modeColors[d.name] || 'var(--chart-cyan)'
+  }));
+
+  const failureColors = ['var(--chart-green)', 'var(--chart-cyan)', 'var(--chart-orange)', 'var(--chart-purple)'];
+  const dynamicFailuresData = (data.failuresData || []).map((d, i) => ({ ...d, color: failureColors[i % failureColors.length] }));
+
+  const { topCandidates, systemHealth, avgLatency, avgBargeIn, auditMinutes, avgTurns, hallucinationRate, failuresData } = data;
+
+  if (loading) {
+    return <div className="p-8 text-[var(--text-muted)] animate-pulse flex h-[80vh] items-center justify-center text-xl font-mono">Loading enterprise telemetry...</div>;
+  }
+
   return (
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto pb-12 font-mono sm:font-sans">
       <div className="flex flex-col gap-1 mb-2">
@@ -96,7 +128,7 @@ export default function Home() {
               <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
             </pattern>
           ))}
-          {failuresData.map((d, i) => (
+          {dynamicFailuresData.map((d, i) => (
             <pattern key={`patFail-${i}`} id={`patFail-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
               <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
             </pattern>
@@ -111,7 +143,7 @@ export default function Home() {
         <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] p-5 flex flex-col h-[220px]">
           <CardTitle title="System Health" />
           <div className="flex-1 flex flex-col items-center justify-center relative">
-            <span className="text-[40px] font-medium text-[var(--chart-cyan)] tracking-tight mb-4">99.1%</span>
+            <span className="text-[40px] font-medium text-[var(--chart-cyan)] tracking-tight mb-4">{systemHealth}%</span>
             <div className="absolute bottom-0 w-full h-12">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={healthData}>
@@ -129,7 +161,7 @@ export default function Home() {
           <CardTitle title="End-to-End Latency" />
           <div className="flex-1 flex flex-col items-center justify-center relative">
             <div className="flex items-baseline gap-1 text-[var(--chart-purple)] mb-4">
-              <span className="text-[40px] font-medium tracking-tight">1.2</span>
+              <span className="text-[40px] font-medium tracking-tight">{avgLatency}</span>
               <span className="text-lg">s</span>
             </div>
             <div className="absolute bottom-0 w-full h-12">
@@ -185,11 +217,11 @@ export default function Home() {
           <div className="flex-1 overflow-y-auto px-5 pb-2">
             <table className="w-full text-xs text-left">
               <tbody className="text-[var(--text-muted)]">
-                {topCandidates.map((c, i) => (
+                {topCandidates.length === 0 ? (<tr><td colSpan="3" className="text-center py-4">No candidates yet</td></tr>) : topCandidates.map((c, i) => (
                   <tr key={c.id} className="border-b border-[var(--border-color)]/50 last:border-0 h-10">
                     <td className="w-8">{c.id}</td>
-                    <td className="text-[var(--text-primary)]">{c.name}</td>
-                    <td className="text-right font-mono text-[var(--chart-cyan)] w-16 whitespace-nowrap">{c.score}</td>
+                    <td className="text-[var(--text-primary)]">{c.candidate_name || "Unknown"}</td>
+                    <td className="text-right font-mono text-[var(--chart-cyan)] w-16 whitespace-nowrap">{c.overall_score ? c.overall_score.toFixed(1) + " / 10" : "N/A"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -210,7 +242,7 @@ export default function Home() {
           <CardTitle title="AI Hallucination Rate" />
           <div className="flex-1 flex flex-col items-center justify-center relative">
             <div className="flex items-baseline gap-1 text-[var(--chart-orange)] mb-4">
-              <span className="text-[32px] font-medium tracking-tight">0.2</span>
+              <span className="text-[32px] font-medium tracking-tight">{hallucinationRate || "0.0"}</span>
               <span className="text-sm">%</span>
             </div>
             <div className="absolute bottom-0 w-full h-10">
@@ -229,7 +261,7 @@ export default function Home() {
           <CardTitle title="Avg Interruptions" />
           <div className="flex-1 flex flex-col items-center justify-center relative">
             <div className="flex items-baseline gap-1 text-[var(--chart-orange)] mb-4">
-              <span className="text-[32px] font-medium tracking-tight">3.4</span>
+              <span className="text-[32px] font-medium tracking-tight">{avgBargeIn}</span>
               <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider ml-1">Per Session</span>
             </div>
             <div className="absolute bottom-0 w-full h-10">
@@ -248,7 +280,7 @@ export default function Home() {
           <CardTitle title="Avg Conversation Turns" />
           <div className="flex-1 flex items-center justify-center">
              <div className="flex flex-col items-center">
-                <span className="text-[40px] font-medium text-[var(--text-primary)] tracking-tight">42</span>
+                <span className="text-[40px] font-medium text-[var(--text-primary)] tracking-tight">{avgTurns}</span>
                 <span className="text-xs text-[var(--text-muted)] uppercase tracking-wider mt-1">Dialogue Exchanges</span>
              </div>
           </div>
@@ -261,8 +293,8 @@ export default function Home() {
             <div className="w-[90px] h-[90px] shrink-0 absolute left-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={failuresData} innerRadius={30} outerRadius={40} paddingAngle={4} dataKey="value" stroke="none" isAnimationActive={false}>
-                    {failuresData.map((entry, index) => (
+                  <Pie data={dynamicFailuresData} innerRadius={30} outerRadius={40} paddingAngle={4} dataKey="value" stroke="none" isAnimationActive={false}>
+                    {dynamicFailuresData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={chartStyle === 'matrix' ? `url(#patFail-${index})` : entry.color} stroke={entry.color} strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} />
                     ))}
                   </Pie>
@@ -270,7 +302,7 @@ export default function Home() {
               </ResponsiveContainer>
             </div>
             <div className="flex flex-col gap-1.5 text-[10px] w-full pl-[100px]">
-              {failuresData.map((item) => (
+              {dynamicFailuresData.map((item) => (
                 <div key={item.name} className="flex items-center justify-between">
                   <span className="text-[var(--text-muted)] flex items-center gap-1.5"><div className="w-2 h-2 rounded-sm" style={{backgroundColor: item.color}}></div> {item.name}</span>
                   <span className="text-[var(--text-primary)] font-mono">{item.value}%</span>
@@ -293,7 +325,7 @@ export default function Home() {
           <CardTitle title="Audit Minutes" />
           <div className="flex-1 flex flex-col items-center justify-center relative">
             <div className="flex items-baseline gap-1 text-[var(--chart-cyan)] mb-4">
-              <span className="text-[50px] font-medium tracking-tight">3,746</span>
+              <span className="text-[50px] font-medium tracking-tight">{auditMinutes}</span>
               <span className="text-xl opacity-80">mins</span>
             </div>
             <div className="absolute bottom-0 w-full h-16">
@@ -329,7 +361,7 @@ export default function Home() {
                     <div className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.color }}></div>
                     <span className="text-[var(--text-muted)]">{item.name} audits</span>
                   </div>
-                  <span className="text-[var(--text-primary)] font-mono">{Math.floor(item.value * 37.46)} mins</span>
+                  <span className="text-[var(--text-primary)] font-mono">{item.value.toFixed(1)} mins</span>
                 </div>
               ))}
             </div>
@@ -339,3 +371,5 @@ export default function Home() {
     </div>
   );
 }
+
+

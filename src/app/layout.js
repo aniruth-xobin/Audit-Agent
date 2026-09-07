@@ -3,6 +3,7 @@ import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
 import { SettingsProvider } from "@/context/SettingsContext";
+import AuthProvider from "@/components/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,6 +33,7 @@ export default function RootLayout({ children }) {
       data-chartstyle="matrix"
     >
       <body className="h-screen w-full flex overflow-hidden selection:bg-emerald-500/30">
+        <AuthProvider>
         <SettingsProvider>
           <Sidebar />
           <div className="flex flex-col flex-1 h-screen overflow-hidden bg-[var(--bg-main)] text-[var(--text-primary)]">
@@ -41,7 +43,9 @@ export default function RootLayout({ children }) {
             </main>
           </div>
         </SettingsProvider>
+        </AuthProvider>
       </body>
     </html>
   );
 }
+
