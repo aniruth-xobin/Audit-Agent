@@ -89,3 +89,9 @@ ALTER TABLE tool_calls ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY IF NOT EXISTS "service_role_all_tool_calls" ON tool_calls
   FOR ALL USING (true);
+
+-- ── ADD MISSING SCORECARD COLUMNS TO sessions ────────────────────────────────
+-- Run these in Supabase SQL Editor if not already present
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS overall_insight TEXT;
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS radar_data      JSONB;
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS deductions      JSONB;

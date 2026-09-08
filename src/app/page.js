@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useEffect, useState } from "react";
 import { AreaChart, Area, PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { HelpCircle, Brain, Users } from 'lucide-react';
@@ -65,6 +65,9 @@ export default function Home() {
     'Hallucination': 'var(--chart-orange)',
     'Silence': 'var(--chart-purple)',
     'Interruption Failure': '#ef4444',
+      'Latency System Failure': '#eab308',
+      'Transcription Failure': '#ec4899',
+      'Tool Call Crash': '#8b5cf6',
     'No Data': '#52525b'
   };
 
@@ -191,15 +194,7 @@ export default function Home() {
               </ResponsiveContainer>
             </div>
             <div className="flex flex-col gap-2 text-[11px] w-full pl-[130px]">
-              {outcomesData.map(item => (
-                <div key={item.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }}></div>
-                    <span className="text-[var(--text-muted)]">{item.name}</span>
-                  </div>
-                  <span className="text-[var(--text-primary)] font-mono">{item.value}%</span>
-                </div>
-              ))}
+              {outcomesData.map(item => { const pct = data.totalSessions > 0 ? Math.round((item.value / data.totalSessions) * 100) : (item.name === "No Data" ? 100 : 0); return (<div key={item.name} className="flex items-center justify-between"><div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }}></div><span className="text-[var(--text-muted)]">{item.name}</span></div><span className="text-[var(--text-primary)] font-mono">{pct}%</span></div>) })}
             </div>
           </div>
         </div>
@@ -215,12 +210,11 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1 overflow-y-auto px-5 pb-2">
-            <table className="w-full text-xs text-left">
+            <table className="w-full text-xs text-left" style={{ tableLayout: "fixed" }}>
               <tbody className="text-[var(--text-muted)]">
-                {topCandidates.length === 0 ? (<tr><td colSpan="3" className="text-center py-4">No candidates yet</td></tr>) : topCandidates.map((c, i) => (
+                {topCandidates.length === 0 ? (<tr><td colSpan="3" className="text-center py-4">No candidates yet</td></tr>) : topCandidates.slice(0, 5).map((c, i) => (
                   <tr key={c.id} className="border-b border-[var(--border-color)]/50 last:border-0 h-10">
-                    <td className="w-8">{c.id}</td>
-                    <td className="text-[var(--text-primary)]">{c.candidate_name || "Unknown"}</td>
+                    <td className="w-8">{i + 1}</td><td className="text-[var(--text-primary)] truncate overflow-hidden whitespace-nowrap" style={{ maxWidth: "120px" }}>{c.candidate_name || "Unknown"}</td>
                     <td className="text-right font-mono text-[var(--chart-cyan)] w-16 whitespace-nowrap">{c.overall_score ? c.overall_score.toFixed(1) + " / 10" : "N/A"}</td>
                   </tr>
                 ))}

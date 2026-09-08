@@ -12,7 +12,7 @@ export async function GET(request) {
       .from("transcripts")
       .select("*")
       .eq('session_id', sessionId)
-      .order('turn_number', { ascending: true });
+      .order('id', { ascending: true });
 
     if (error) throw error;
 
@@ -22,3 +22,4 @@ export async function GET(request) {
     return Response.json({ error: error.message }, { status: 500 });
   }
 }
+

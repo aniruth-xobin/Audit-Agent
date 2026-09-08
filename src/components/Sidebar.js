@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { LayoutDashboard, List, Settings, AlignLeft, BarChart2, Activity, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSettings } from '../context/SettingsContext';
 
@@ -10,6 +11,10 @@ export default function Sidebar() {
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useSettings();
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const userName = session?.user?.name || "Guest User";
+  const userEmail = session?.user?.email || "";
+  const initials = userName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <>
@@ -86,12 +91,12 @@ export default function Sidebar() {
         <div className="p-4 border-t border-[var(--border-color)] overflow-hidden mt-auto">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-emerald-500 to-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">
-              AR
+              {initials}
             </div>
             {!collapsed && (
               <div className="flex flex-col min-w-0">
-                <span className="text-sm font-medium truncate">Aniruth R</span>
-                <span className="text-xs text-[var(--text-muted)] truncate">aniruth.r@xobin.com</span>
+                <span className="text-sm font-medium truncate">{userName}</span>
+                <span className="text-xs text-[var(--text-muted)] truncate">{userEmail}</span>
               </div>
             )}
           </div>
@@ -100,3 +105,5 @@ export default function Sidebar() {
     </>
   );
 }
+
+

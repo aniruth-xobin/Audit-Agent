@@ -1,12 +1,13 @@
-﻿import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const [sessionsRes, turnsRes] = await Promise.all([
+    const [sessionsRes, turnsRes, bargeInRes] = await Promise.all([
       supabaseAdmin.from("sessions").select("flag, interview_mode, overall_score, duration_secs, barge_in_count, total_turns, candidate_name, id, created_at").order('created_at', { ascending: false }),
-      supabaseAdmin.from("turn_metrics").select("total_latency_ms")
+      supabaseAdmin.from("turn_metrics").select("total_latency_ms"),
+      supabaseAdmin.from("turn_metrics").select("session_id").eq("barge_in", true)
     ]);
 
     if (sessionsRes.error) throw sessionsRes.error;
@@ -14,6 +15,13 @@ export async function GET() {
 
     const sessions = sessionsRes.data || [];
     const turns = turnsRes.data || [];
+
+    // Build a per-session barge-in count from actual turn_metrics rows
+    // This is the authoritative source — works even if sessions.barge_in_count was never written
+    const bargeInBySession = {};
+    (bargeInRes.data || []).forEach(row => {
+      bargeInBySession[row.session_id] = (bargeInBySession[row.session_id] || 0) + 1;
+    });
 
     // Calculations
     const cleanSessions = sessions.filter(s => s.flag === 'Clean').length;
@@ -25,7 +33,13 @@ export async function GET() {
     const totalLatency = turns.reduce((acc, curr) => acc + (curr.total_latency_ms || 0), 0);
     const avgLatencyMs = turns.length > 0 ? totalLatency / turns.length : 0;
     
-    const totalBargeIn = sessions.reduce((acc, curr) => acc + (curr.barge_in_count || 0), 0);
+    // Use the authoritative barge-in count from turn_metrics first,
+    // fall back to what is stored in sessions.barge_in_count
+    const totalBargeIn = sessions.reduce((acc, s) => {
+      const fromTurns = bargeInBySession[s.id] || 0;
+      const fromSession = s.barge_in_count || 0;
+      return acc + Math.max(fromTurns, fromSession);
+    }, 0);
     const avgBargeIn = sessions.length > 0 ? totalBargeIn / sessions.length : 0;
     
     const totalDurationSecs = sessions.reduce((acc, curr) => acc + (curr.duration_secs || 0), 0);
@@ -75,9 +89,9 @@ export async function GET() {
       systemHealth: systemHealth.toFixed(1),
       hallucinationRate: hallucinationRate.toFixed(1),
       avgLatency: (avgLatencyMs / 1000).toFixed(2),
-      avgBargeIn: Math.round(avgBargeIn),
+      avgBargeIn: avgBargeIn.toFixed(1),
       auditMinutes: Math.round(auditMinutes),
-      avgTurns: Math.round(avgTurns),
+      avgTurns: avgTurns.toFixed(1),
       sessionOutcomesData: sessionOutcomesData.length > 0 ? sessionOutcomesData : [{ name: 'No Data', value: 1 }],
       minutesByTypeData: minutesByTypeData.length > 0 ? minutesByTypeData : [{ name: 'No Data', value: 1 }],
       failuresData: failuresData.length > 0 ? failuresData : [{ name: 'No Data', value: 1 }],

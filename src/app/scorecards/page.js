@@ -1,9 +1,20 @@
-﻿"use client";
+"use client";
 import React from "react";
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, FileText, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check, ChevronLeft, ChevronDown, ChevronUp, Wrench } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+
+const CustomTick = ({ payload, x, y, textAnchor, stroke, radius }) => {
+  const words = payload.value.split(' ');
+  return (
+    <g className="recharts-layer recharts-polar-angle-axis-tick">
+      <text radius={radius} stroke={stroke} x={x} y={y} className="recharts-text recharts-polar-angle-axis-tick-value" textAnchor={textAnchor} fill="var(--text-muted)" fontSize={11}>
+        {words.map((w, i) => <tspan x={x} dy={i === 0 ? 0 : 14} key={i}>{w}</tspan>)}
+      </text>
+    </g>
+  );
+};
 
 function ScorecardsContent() {
   const searchParams = useSearchParams();
@@ -260,25 +271,21 @@ function ScorecardsContent() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-auto lg:h-[400px]">
-            <div className="bg-[var(--bg-card-hover)] rounded-lg border border-[var(--border-color)] flex flex-col h-full">
-              <div className="p-4 border-b border-[var(--border-color)] text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-2">
-                <Activity size={14} /> Evaluation Matrix
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4"><div className="bg-[var(--bg-card-hover)] rounded-lg border border-[var(--border-color)] flex flex-col h-full"><div className="p-4 border-b border-[var(--border-color)] text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-2 shrink-0"><Activity size={14} /> Evaluation Matrix
               </div>
-              <div className="flex-1 min-h-[300px]">
+              <div className="w-full h-[440px]">
                 <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={getRadarData(activeSession)}>
+                  <RadarChart cx="50%" cy="50%" outerRadius="78%" margin={{ top: 35, right: 55, bottom: 35, left: 55 }} data={getRadarData(activeSession)}>
                     <PolarGrid stroke="var(--border-strong)" />
-                    <PolarAngleAxis dataKey="subject" tick={{ fill: 'var(--text-muted)', fontSize: 10 }} />
+                    <PolarAngleAxis dataKey="subject" tick={<CustomTick />} />
                     <PolarRadiusAxis angle={30} domain={[0, 10]} tick={false} axisLine={false} />
-                    <Radar name="Score" dataKey="A" stroke="var(--chart-cyan)" fill="var(--chart-cyan)" fillOpacity={0.2} strokeWidth={2} />
+                    <Radar name="Score" dataKey="A" stroke="var(--chart-cyan)" fill="var(--chart-cyan)" fillOpacity={0.25} strokeWidth={2.5} dot={{ r: 4, fill: "var(--chart-cyan)" }} />
                   </RadarChart>
                 </ResponsiveContainer>
               </div>
             </div>
             
-            <div className="flex flex-col gap-3 overflow-y-auto pr-2 custom-scrollbar">
-              <div className="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">Full Rubric Breakdown</div>
+            <div className="bg-[var(--bg-card-hover)] rounded-lg border border-[var(--border-color)] flex flex-col h-[480px]"><div className="p-4 border-b border-[var(--border-color)] text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-2 shrink-0"><SlidersHorizontal size={14} /> Full Rubric Breakdown</div><div className="flex-1 p-4 flex flex-col gap-3 overflow-y-auto custom-scrollbar">
               
               {getRadarData(activeSession).map((r, i) => (
                 <div key={i} className="bg-[var(--bg-card-hover)] rounded border border-[var(--border-color)] p-3 flex items-center justify-between shrink-0">
@@ -300,6 +307,7 @@ function ScorecardsContent() {
             </div>
           </div>
 
+          </div>
           <div className="bg-[var(--bg-card-hover)] rounded-lg border border-[var(--border-color)] p-6 mt-4">
             <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-4 flex items-center gap-2">
               <AlertTriangle size={16} className="text-yellow-500" /> Flagged Issues & Insights
@@ -311,7 +319,17 @@ function ScorecardsContent() {
                   <div key={i} className="flex flex-col gap-3 p-4 bg-[var(--bg-secondary)]/40 border border-[var(--border-strong)] rounded-lg">
                     <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border-strong)] pb-2">
                       <div className="flex items-center gap-3">
-                        <span className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 px-2.5 py-1 rounded-md">{deduction.time}</span>
+                        {deduction.turn_number ? (
+                          <button
+                            onClick={() => router.push(`/transcripts?id=${activeSession.id}&turn=${deduction.turn_number}`)}
+                            className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline"
+                            title="Jump to transcript"
+                          >
+                            Turn {deduction.turn_number} ->
+                          </button>
+                        ) : (
+                          <span className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 px-2.5 py-1 rounded-md">{deduction.time || "General"}</span>
+                        )}
                         <span className="text-sm font-semibold text-[var(--text-primary)]">{deduction.type}</span>
                       </div>
                       {deduction.metric && (
@@ -366,24 +384,38 @@ function ScorecardsContent() {
                         <th className="text-center py-2 px-3">Barge-in</th>
                       </tr>
                     </thead>
-                    <tbody>
+                                        <tbody>
                       {turnMetrics.map((t, i) => {
                         const tot = (t.stt_latency_ms ?? 0) + (t.llm_ttft_ms ?? 0) + (t.tts_latency_ms ?? 0);
-                        const tc = (ms) => {
-                          if (ms == null) return 'text-[var(--text-muted)]';
-                          if (ms > 2000) return 'text-rose-400';
-                          if (ms > 1000) return 'text-yellow-400';
-                          return 'text-emerald-400';
-                        };
-                        const totc = tot > 2000 ? 'text-rose-400' : tot > 1000 ? 'text-yellow-400' : 'text-emerald-400';
+                        const baseStyle = "py-3 px-3 text-right font-mono text-[var(--text-muted)]";
+                        const getBarColor = (ms) => ms > 3000 ? 'bg-rose-500' : ms > 2000 ? 'bg-yellow-500' : 'bg-[var(--chart-cyan)]';
+                        const barWidth = Math.min((tot / 4000) * 100, 100);
+                        
                         return (
                           <tr key={i} className={t.barge_in ? 'border-b border-[var(--border-color)]/50 bg-orange-500/5' : 'border-b border-[var(--border-color)]/50 hover:bg-[var(--bg-active)] transition-colors'}>
-                            <td className="py-2 px-3 font-mono text-[var(--text-primary)] font-medium">{t.turn_index}</td>
-                            <td className={['py-2 px-3 text-right font-mono', tc(t.stt_latency_ms)].join(' ')}>{t.stt_latency_ms ?? '—'}</td>
-                            <td className={['py-2 px-3 text-right font-mono', tc(t.llm_ttft_ms)].join(' ')}>{t.llm_ttft_ms ?? '—'}</td>
-                            <td className={['py-2 px-3 text-right font-mono', tc(t.tts_latency_ms)].join(' ')}>{t.tts_latency_ms ?? '—'}</td>
-                            <td className={['py-2 px-3 text-right font-mono font-semibold', totc].join(' ')}>{tot || '—'}</td>
-                            <td className="py-2 px-3 text-center">{t.barge_in ? <span className="text-orange-400 font-bold">✓</span> : <span className="text-[var(--text-muted)]">—</span>}</td>
+                            <td className="py-3 px-3 font-mono text-[var(--text-primary)] font-medium">
+                                <button
+                                  onClick={() => router.push(`/transcripts?id=${activeSession.id}&turn=${t.turn_index}`)}
+                                  className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline"
+                                  title="Jump to transcript"
+                                >
+                                  {t.turn_index} ↗
+                                </button>
+                              </td>
+                            <td className={baseStyle}>{t.stt_latency_ms ?? '-'}</td>
+                            <td className={baseStyle}>{t.llm_ttft_ms ?? '-'}</td>
+                            <td className={baseStyle}>{t.tts_latency_ms ?? '-'}</td>
+                            <td className="py-3 px-3">
+                              <div className="flex flex-col items-end gap-1.5 w-full">
+                                <span className="font-mono font-medium text-[var(--text-primary)] leading-none">{tot || '-'}</span>
+                                {tot > 0 && (
+                                  <div className="w-[70px] h-1.5 bg-[var(--bg-card)] rounded-full overflow-hidden border border-[var(--border-color)]">
+                                    <div className={`h-full rounded-full opacity-90 ${getBarColor(tot)}`} style={{ width: `${barWidth}%` }} />
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-3 px-3 text-center">{t.barge_in ? <span className="text-orange-400 font-bold">Yes</span> : <span className="text-[var(--text-muted)]">-</span>}</td>
                           </tr>
                         );
                       })}
@@ -412,38 +444,40 @@ function ScorecardsContent() {
                       <tr className="text-[10px] text-[var(--text-muted)] uppercase tracking-wider border-b border-[var(--border-color)]">
                         <th className="text-left py-2 px-3">Turn</th>
                         <th className="text-left py-2 px-3">Tool</th>
-                        <th className="text-left py-2 px-3">Arguments</th>
-                        <th className="text-left py-2 px-3">Result Preview</th>
-                        <th className="py-2 px-3"></th>
+                        <th className="text-left py-2 px-3 w-3/5">Result Preview</th>
+                        
                       </tr>
                     </thead>
                     <tbody>
                       {toolCalls.map((t, i) => {
-                        const isExp = expandedTool === i;
-                        const argsStr = typeof t.arguments === 'object' ? JSON.stringify(t.arguments) : String(t.arguments ?? '{}');
-                        return (
-                          <React.Fragment key={i}>
-                            <tr onClick={() => setExpandedTool(isExp ? null : i)} className="border-b border-[var(--border-color)]/50 hover:bg-[var(--bg-active)] cursor-pointer transition-colors">
-                              <td className="py-2 px-3 font-mono text-[var(--text-primary)]">{t.turn_index}</td>
-                              <td className="py-2 px-3"><code className="bg-[var(--chart-cyan)]/10 text-[var(--chart-cyan)] px-1.5 py-0.5 rounded text-[10px] font-mono">{t.tool_name}</code></td>
-                              <td className="py-2 px-3 font-mono text-[var(--text-muted)] max-w-[140px] truncate">{argsStr.slice(0, 50)}{argsStr.length > 50 ? '…' : ''}</td>
-                              <td className="py-2 px-3 text-[var(--text-muted)] max-w-[160px] truncate">{String(t.result ?? '—').slice(0, 70)}</td>
-                              <td className="py-2 px-3 text-center text-[var(--text-muted)]">{isExp ? <ChevronUp size={12} /> : <ChevronDown size={12} />}</td>
-                            </tr>
-                            {isExp && (
-                              <tr className="border-b border-[var(--border-color)]">
-                                <td colSpan={5} className="p-4 bg-[var(--bg-secondary)]/40">
-                                  <div className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">Full Arguments</div>
-                                  <pre className="text-xs text-[var(--text-primary)] bg-[var(--bg-card)] rounded p-3 overflow-x-auto mb-3 font-mono">{argsStr}</pre>
-                                  <div className="text-[10px] font-semibold text-[var(--text-muted)] uppercase tracking-wider mb-1">Full Result</div>
-                                  <pre className="text-xs text-[var(--text-primary)] bg-[var(--bg-card)] rounded p-3 overflow-x-auto font-mono">{String(t.result ?? 'No result')}</pre>
+                                                  let resultStr = String(t.result ?? '-');
+                          // Clean up Python tuple/array stringification and internal tags
+                          resultStr = resultStr.replace(/^\[.*?,\s*['"]/, '').replace(/['"]\]$/, '');
+                          resultStr = resultStr.replace(/\[INTERNAL\]/g, '').replace(/\[Skill \d+ of \d+\]/g, '');
+                          resultStr = resultStr.replace(/\\n/g, ' ').replace(/\n/g, ' ').trim();
+                          if (resultStr.includes(' (')) {
+                            resultStr = resultStr.split(' (')[0].trim();
+                          }
+                          
+                          return (
+                            <React.Fragment key={i}>
+                              <tr className="border-b border-[var(--border-color)]/50 hover:bg-[var(--bg-active)] transition-colors">
+                                <td className="py-3 px-3 font-mono text-[var(--text-primary)]">
+                                  <button
+                                    onClick={() => router.push(`/transcripts?id=${activeSession.id}&turn=${t.turn_index}`)}
+                                    className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline"
+                                    title="Jump to transcript"
+                                  >
+                                    {t.turn_index} ↗
+                                  </button>
                                 </td>
+                                <td className="py-3 px-3 truncate"><code className="bg-[var(--chart-cyan)]/10 text-[var(--chart-cyan)] px-2 py-1.5 rounded-md text-[11px] font-mono">{t.tool_name}</code></td>
+                                <td className="py-3 px-3 text-[var(--text-muted)] truncate font-mono text-[11px]">{resultStr}</td>
                               </tr>
-                            )}
-                          </React.Fragment>
-                        );
-                      })}
-                    </tbody>
+                            </React.Fragment>
+                          );
+                        })}
+                      </tbody>
                   </table>
                 )}
               </div>
@@ -470,6 +504,8 @@ export default function ScorecardsPage() {
     </Suspense>
   );
 }
+
+
 
 
 

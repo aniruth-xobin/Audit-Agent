@@ -1,5 +1,5 @@
-﻿"use client";
-import { useState, useEffect, Suspense } from 'react';
+"use client";
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, Play, Pause, SkipBack, SkipForward, BarChart2, Volume2, Maximize2, ChevronLeft } from 'lucide-react';
 
@@ -7,6 +7,9 @@ function TranscriptsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const idParam = searchParams.get('id');
+  const turnParam = searchParams.get('turn') ? parseInt(searchParams.get('turn'), 10) : null;
+  const [highlightedIdx, setHighlightedIdx] = useState(null);
+  const highlightRefs = useRef({});
   
   const [sessions, setSessions] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,6 +62,20 @@ function TranscriptsContent() {
         setLoadingTranscript(false);
       });
   }, [activeSession]);
+
+  // Scroll to highlighted turn when transcript loads
+  useEffect(() => {
+    if (!turnParam || transcript.length === 0) return;
+    const agentMessages = transcript.map((m, i) => ({ ...m, idx: i })).filter(m => m.role === 'ai');
+    const target = agentMessages[turnParam - 1];
+    if (target) {
+      setHighlightedIdx(target.idx);
+      setTimeout(() => {
+        const el = highlightRefs.current[target.idx];
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  }, [transcript, turnParam]);
 
   const filteredSessions = sessions.filter(s => 
     s.candidate_name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -141,32 +158,35 @@ function TranscriptsContent() {
             </div>
 
             {/* Chat Body */}
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 custom-scrollbar pb-32">
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 custom-scrollbar">
               {loadingTranscript ? (
                 <div className="flex-1 flex items-center justify-center text-xs font-mono text-[var(--text-muted)] animate-pulse">Loading transcript...</div>
               ) : transcript.length > 0 ? (
                 transcript.map((msg, idx) => {
                   const role = msg.role; // 'ai' or 'user' or 'system'
                   return (
-                  <div key={idx} className={`flex gap-4 max-w-[85%] ${role === 'user' ? 'self-end flex-row-reverse' : role === 'system' ? 'self-center w-full max-w-full justify-center' : 'self-start'}`}>
+                  <div
+                    key={idx}
+                    ref={el => { highlightRefs.current[idx] = el; }}
+                    className={['flex gap-4 max-w-[85%] transition-all duration-700', highlightedIdx === idx ? 'ring-2 ring-sky-400/60 bg-sky-400/5 rounded-xl px-2 -mx-2 shadow-lg shadow-sky-400/10' : '', role === 'human' ? 'self-end flex-row-reverse' : role === 'system' ? 'self-center w-full max-w-full justify-center' : 'self-start'].join(' ')}>
                     
                     {role !== 'system' && (
                       <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${role === 'ai' ? 'bg-[var(--chart-cyan)]/20 text-[var(--chart-cyan)]' : 'bg-[var(--bg-active)] text-[var(--text-primary)]'}`}>
-                        {role === 'ai' ? 'AI' : 'US'}
+                        {role === 'ai' ? 'AI' : (activeSession?.candidate_name ? activeSession.candidate_name.substring(0, 2).toUpperCase() : 'US')}
                       </div>
                     )}
                     
                     {role === 'system' ? (
                       <div className="px-4 py-2 bg-[var(--chart-orange)]/10 border border-[var(--chart-orange)]/30 text-[var(--chart-orange)] text-xs font-medium rounded-lg flex items-center gap-2">
-                        {msg.content}
+                        {msg.text}
                       </div>
                     ) : (
-                      <div className={`flex flex-col gap-1 ${role === 'user' ? 'items-end' : 'items-start'}`}>
+                      <div className={`flex flex-col gap-1 ${role === 'human' ? 'items-end' : 'items-start'}`}>
                         <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted-dark)]">
-                          <span className="font-semibold text-[var(--text-muted)]">{role === 'ai' ? 'Agent' : 'User'}</span>
+                          <span className="font-semibold text-[var(--text-muted)]">{role === 'ai' ? 'Agent' : (activeSession?.candidate_name || 'User')}</span>
                         </div>
-                        <div className={`p-4 rounded-xl text-sm leading-relaxed ${role === 'user' ? 'bg-[var(--bg-active)] text-[var(--text-primary)] rounded-tr-none' : 'bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-none'}`}>
-                          {msg.content}
+                        <div className={`p-4 rounded-xl text-sm leading-relaxed ${role === 'human' ? 'bg-[var(--bg-active)] text-[var(--text-primary)] rounded-tr-none' : 'bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-none'}`}>
+                          {msg.text}
                         </div>
                       </div>
                     )}
@@ -178,29 +198,7 @@ function TranscriptsContent() {
               )}
             </div>
 
-            {/* Bottom Audio Player Dock */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-[var(--bg-card)]/95 backdrop-blur-md border-t border-[var(--border-color)] flex items-center gap-6 z-20">
-              <div className="flex items-center gap-4 shrink-0">
-                <button className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><SkipBack size={18} fill="currentColor" /></button>
-                <button onClick={() => setIsPlaying(!isPlaying)} className="w-10 h-10 rounded-full bg-[var(--chart-cyan)] text-bg-main flex items-center justify-center hover:opacity-80 transition-colors shadow-lg shadow-[var(--chart-cyan)]/30">
-                  {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-0.5" />}
-                </button>
-                <button className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"><SkipForward size={18} fill="currentColor" /></button>
-              </div>
-              
-              <div className="flex-1 flex items-center gap-3">
-                <span className="text-[10px] font-mono text-[var(--text-muted)]">00:00</span>
-                <div className="flex-1 h-1.5 bg-[var(--bg-secondary)] rounded-full overflow-hidden relative cursor-pointer">
-                  <div className="absolute top-0 left-0 h-full bg-[var(--chart-cyan)] w-[0%]"></div>
-                </div>
-                <span className="text-[10px] font-mono text-[var(--text-muted)]">{activeSession.duration_secs ? Math.round(activeSession.duration_secs/60) + 'm' : '0m'}</span>
-              </div>
-              
-              <div className="flex items-center gap-4 shrink-0 text-[var(--text-muted)]">
-                <Volume2 size={16} className="cursor-pointer hover:text-[var(--text-primary)]" />
-                <Maximize2 size={16} className="cursor-pointer hover:text-[var(--text-primary)]" />
-              </div>
-            </div>
+
           </>
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-sm text-[var(--text-muted)]">
@@ -221,3 +219,5 @@ export default function TranscriptsPage() {
     </Suspense>
   );
 }
+
+
