@@ -32,12 +32,12 @@ function fmtMs(ms) { return ms != null ? ms + "ms" : "N/A"; }
 
 async function ensureSession(sessionId, sessionType, telemetryDump) {
   const { error } = await supabaseAdmin.from("sessions").upsert({
-    id:             sessionId,
+    id: sessionId,
     candidate_name: telemetryDump?.candidateName || "Unknown",
-    job_role:       telemetryDump?.jobRole || null,
-    organisation:   telemetryDump?.organisation || null,
-    interview_mode: (["guided","freeflow","roleplay"].includes(sessionType) ? sessionType : "guided"),
-    duration_secs:  telemetryDump?.durationSeconds ?? null,
+    job_role: telemetryDump?.jobRole || null,
+    organisation: telemetryDump?.organisation || null,
+    interview_mode: (["guided", "freeflow", "roleplay"].includes(sessionType) ? sessionType : "guided"),
+    duration_secs: telemetryDump?.durationSeconds ?? null,
     barge_in_count: telemetryDump?.bargeIns ?? 0,
   }, { onConflict: "id", ignoreDuplicates: false });
   if (error) console.error("[evaluate] session upsert error:", error.message);
@@ -48,13 +48,13 @@ async function ensureSession(sessionId, sessionType, telemetryDump) {
 async function upsertTurns(sessionId, timeline) {
   if (!timeline || timeline.length === 0) return;
   const rows = timeline.map((t) => ({
-    session_id:    sessionId,
-    turn_index:    t.turn_index,
-    timestamp_ms:  t.timestamp_ms ?? Date.now(),
+    session_id: sessionId,
+    turn_index: t.turn_index,
+    timestamp_ms: t.timestamp_ms ?? Date.now(),
     stt_latency_ms: t.stt_ms ?? null,
-    llm_ttft_ms:   t.llm_ttft_ms ?? null,
+    llm_ttft_ms: t.llm_ttft_ms ?? null,
     tts_latency_ms: t.tts_ttfb_ms ?? null,
-    barge_in:      t.barge_in ?? false,
+    barge_in: t.barge_in ?? false,
   }));
   const { error } = await supabaseAdmin.from("turn_metrics").insert(rows);
   if (error) console.error("[evaluate] turn_metrics insert error:", error.message);
@@ -64,12 +64,12 @@ async function upsertTurns(sessionId, timeline) {
 async function upsertToolCalls(sessionId, timeline) {
   if (!timeline || timeline.length === 0) return;
   const rows = timeline.map((t) => ({
-    session_id:   sessionId,
-    turn_index:   t.turn_index,
+    session_id: sessionId,
+    turn_index: t.turn_index,
     timestamp_ms: t.timestamp_ms ?? Date.now(),
-    tool_name:    t.tool_name,
-    arguments:    typeof t.arguments === "object" ? t.arguments : { raw: String(t.arguments) },
-    result:       t.result ? String(t.result).slice(0, 500) : null,
+    tool_name: t.tool_name,
+    arguments: typeof t.arguments === "object" ? t.arguments : { raw: String(t.arguments) },
+    result: t.result ? String(t.result).slice(0, 500) : null,
   }));
   const { error } = await supabaseAdmin.from("tool_calls").insert(rows);
   if (error) console.error("[evaluate] tool_calls insert error:", error.message);
@@ -79,11 +79,11 @@ async function upsertToolCalls(sessionId, timeline) {
 async function upsertTranscripts(sessionId, transcript) {
   if (!transcript || transcript.length === 0) return;
   const rows = transcript.map((t) => ({
-    session_id:     sessionId,
+    session_id: sessionId,
     // schema uses role IN ('ai','human','system') and speaker IN ('Agent','User','System')
-    role:           t.role === "agent" ? "ai" : t.role === "user" ? "human" : "system",
-    speaker:        t.role === "agent" ? "Agent" : t.role === "user" ? "User" : "System",
-    text:           t.text ?? "",
+    role: t.role === "agent" ? "ai" : t.role === "user" ? "human" : "system",
+    speaker: t.role === "agent" ? "Agent" : t.role === "user" ? "User" : "System",
+    text: t.text ?? "",
     timestamp_secs: t.timestampMs ? t.timestampMs / 1000 : null,
   }));
   const { error } = await supabaseAdmin.from("transcripts").insert(rows);
@@ -103,9 +103,9 @@ async function runGroqEvaluation(payload) {
 
   const latencySummary = totals.length > 0
     ? "Avg: " + Math.round(totals.reduce((a, b) => a + b, 0) / totals.length) + "ms | " +
-      "P50: " + fmtMs(percentile(totals, 50)) + " | " +
-      "P90: " + fmtMs(percentile(totals, 90)) + " | " +
-      "P99: " + fmtMs(percentile(totals, 99))
+    "P50: " + fmtMs(percentile(totals, 50)) + " | " +
+    "P90: " + fmtMs(percentile(totals, 90)) + " | " +
+    "P99: " + fmtMs(percentile(totals, 99))
     : "STT avg: " + fmtMs(stt_latency) + " | LLM TTFT avg: " + fmtMs(server_llm_ttft) + " | TTS avg: " + fmtMs(tts_latency);
 
   const transcriptText = (transcript || []).slice(0, 60)
@@ -132,7 +132,7 @@ async function runGroqEvaluation(payload) {
     'Return ONLY a JSON object with this exact structure (no markdown, no explanation):\n' +
     '{"overall_score":<0-10 number>,"flag":<"Clean"|"Hallucination"|"Silence"|"Interruption Failure"|"Latency System Failure"|"Transcription Failure"|"Tool Call Crash">,"overall_insight":<string>,' +
     '"radar_data":[{"subject":"Latency","A":<0-10>},{"subject":"Conversational Flow","A":<0-10>},{"subject":"Interruption","A":<0-10>},{"subject":"Context","A":<0-10>},{"subject":"Transcription Accuracy","A":<0-10>},{"subject":"Hallucination","A":<0-10>}],' +
-    '"deductions":[{"turn_number":<number>,"type":<string>,"metric":<string>,"reason":<string>,"insight":<string>}]}\n\n' +
+    '"deductions":[{"turn_number":<number>,"time":<"MM:SS">,"type":<string>,"metric":<string>,"reason":<string>,"insight":<string>}]}\n\n' +
     "Rules: bargeIns > 3 lowers Interruption score. Turn total latency <= 2000ms is good, up to 2500ms is normal. Any turn total latency > 2500ms adds a latency deduction. If ANY turn latency > 5000ms, set flag to \"Latency System Failure\". If the transcript is filled with completely garbled STT text or major speech-to-text failures, set flag to \"Transcription Failure\". If any tool calls failed to execute or returned critical error strings, set flag to \"Tool Call Crash\". Empty deductions=[] if no issues. IMPORTANT: For 'overall_insight', write a comprehensive 2-3 sentence paragraph that explicitly summarizes the session, evaluating the AI's conversational context, any hallucinations, transcription accuracy, and whether the tool calls made were appropriate for the scenario.";
 
   const completion = await getGroq().chat.completions.create({
@@ -174,9 +174,9 @@ export async function POST(req) {
 
     // Step 3: Update session totals
     await supabaseAdmin.from("sessions").update({
-      duration_secs:  telemetryDump?.durationSeconds ?? null,
+      duration_secs: telemetryDump?.durationSeconds ?? null,
       barge_in_count: telemetryDump?.bargeIns ?? 0,
-      total_turns:    turnMetricsTimeline?.length ?? 0,
+      total_turns: turnMetricsTimeline?.length ?? 0,
     }).eq("id", sessionId);
 
     if (skipEvaluation) {
@@ -227,8 +227,4 @@ export async function POST(req) {
     return Response.json({ ok: false, error: err.message }, { status: 500 });
   }
 }
-
-
-
-
 

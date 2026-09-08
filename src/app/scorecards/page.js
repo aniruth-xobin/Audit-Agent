@@ -325,10 +325,10 @@ function ScorecardsContent() {
                             className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline"
                             title="Jump to transcript"
                           >
-                            Turn {deduction.turn_number} ->
+                            {deduction.turn_number} &#x2197;
                           </button>
                         ) : (
-                          <span className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 px-2.5 py-1 rounded-md">{deduction.time || "General"}</span>
+                          <button onClick={() => router.push(`/transcripts?id=${activeSession.id}&time=${deduction.time}`)} className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline" title="Jump to transcript">{deduction.time || "General"} &#x2197;</button>
                         )}
                         <span className="text-sm font-semibold text-[var(--text-primary)]">{deduction.type}</span>
                       </div>
