@@ -1,5 +1,12 @@
 import { supabaseAdmin } from "@/lib/supabase";
+import { evaluationQueue } from "@/lib/queue";
 import Groq from "groq-sdk";
+import { Redis } from "@upstash/redis";
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 export const dynamic = "force-dynamic";
 
@@ -156,10 +163,27 @@ export async function POST(req) {
   try { body = await req.json(); }
   catch { return Response.json({ ok: false, error: "Invalid JSON" }, { status: 400 }); }
 
-  const { sessionId, sessionType, transcript, telemetryDump, turnMetricsTimeline, toolCallTimeline, skipEvaluation } = body;
+  const { sessionId, sessionType, telemetryDump, skipEvaluation } = body;
   if (!sessionId) return Response.json({ ok: false, error: "sessionId required" }, { status: 400 });
 
-  console.log("[evaluate] Received payload for session:", sessionId, "| turns:", turnMetricsTimeline?.length, "| tools:", toolCallTimeline?.length, "| transcript lines:", transcript?.length);
+  console.log("[evaluate] Received payload for session:", sessionId);
+
+  // Step 0: Read transcript, turns, and tool calls from Redis
+  // (Python agent pushes directly to Redis; we no longer pass these in the POST body)
+  let transcript = [], turnMetricsTimeline = [], toolCallTimeline = [];
+  try {
+    const [rTranscript, rTurns, rTools] = await Promise.all([
+      redis.lrange(`session:${sessionId}:transcript`, 0, -1),
+      redis.lrange(`session:${sessionId}:turns`, 0, -1),
+      redis.lrange(`session:${sessionId}:tools`, 0, -1),
+    ]);
+    transcript        = (rTranscript || []).map(i => typeof i === "string" ? JSON.parse(i) : i);
+    turnMetricsTimeline = (rTurns    || []).map(i => typeof i === "string" ? JSON.parse(i) : i);
+    toolCallTimeline    = (rTools    || []).map(i => typeof i === "string" ? JSON.parse(i) : i);
+    console.log(`[evaluate] Redis read -> transcript:${transcript.length} turns:${turnMetricsTimeline.length} tools:${toolCallTimeline.length}`);
+  } catch (redisErr) {
+    console.warn("[evaluate] Redis read failed:", redisErr.message);
+  }
 
   try {
     // Step 1: Ensure session row exists FIRST (child rows need the FK)
@@ -184,43 +208,19 @@ export async function POST(req) {
       return Response.json({ ok: true, sessionId, message: "Data saved, evaluation skipped" });
     }
 
-    // Step 3.5: Fetch merged data from DB before passing to Groq
-    const [{ data: dbTurns }, { data: dbTools }, { data: dbTranscripts }] = await Promise.all([
-      supabaseAdmin.from("turn_metrics").select("*").eq("session_id", sessionId).order("turn_index", { ascending: true }),
-      supabaseAdmin.from("tool_calls").select("*").eq("session_id", sessionId).order("turn_index", { ascending: true }),
-      supabaseAdmin.from("transcripts").select("*").eq("session_id", sessionId).order("id", { ascending: true })
-    ]);
+    // Step 4: Queue the Groq evaluation job (BullMQ, concurrency-limited)
+    await evaluationQueue.add("evaluate", { sessionId, sessionType, transcript, telemetryDump, turnMetricsTimeline, toolCallTimeline });
+    console.log("[evaluate] Job queued for session", sessionId);
 
-    const mergedPayload = {
-      sessionId,
-      sessionType,
-      telemetryDump,
-      turnMetricsTimeline: dbTurns && dbTurns.length > 0 ? dbTurns : (turnMetricsTimeline || []),
-      toolCallTimeline: dbTools && dbTools.length > 0 ? dbTools : (toolCallTimeline || []),
-      transcript: dbTranscripts && dbTranscripts.length > 0 ? dbTranscripts.map(t => ({ role: t.role === 'ai' ? 'agent' : t.role === 'human' ? 'user' : 'system', text: t.text })) : (transcript || [])
-    };
+        // Step 6: Cleanup Redis keys (fire and forget)
+    Promise.allSettled([
+      redis.del(`session:` + sessionId + `:turns`),
+      redis.del(`session:` + sessionId + `:transcript`),
+      redis.del(`session:` + sessionId + `:tools`),
+    ]).then(() => console.log('[evaluate] Redis keys cleaned for session', sessionId))
+      .catch(err2 => console.warn('[evaluate] Redis cleanup failed:', err2.message));
 
-    // Step 4: Run Groq evaluation
-    let scorecard;
-    try {
-      scorecard = await runGroqEvaluation(mergedPayload);
-    } catch (groqErr) {
-      console.error("[evaluate] Groq error:", groqErr.message);
-      return Response.json({ ok: true, warning: "Data saved, Groq failed: " + groqErr.message });
-    }
-
-    // Step 5: Write scorecard back to sessions
-    const { overall_score, flag, overall_insight, radar_data, deductions } = scorecard;
-    await supabaseAdmin.from("sessions").update({
-      overall_score,
-      flag: flag ?? "Clean",
-      overall_insight,
-      radar_data,
-      deductions,
-    }).eq("id", sessionId);
-
-    console.log("[evaluate] ✅ Session", sessionId, "-> Score:", overall_score, "Flag:", flag);
-    return Response.json({ ok: true, sessionId, overall_score, flag });
+    return Response.json({ ok: true, sessionId, queued: true });
 
   } catch (err) {
     console.error("[evaluate] Unexpected error:", err);
