@@ -205,8 +205,14 @@ export async function POST(req) {
   let mergedTranscript = [];
   for (const t of transcript) {
     const last = mergedTranscript[mergedTranscript.length - 1];
-    if (last && last.role === t.role) {
+    const isSameRole = last && last.role === t.role;
+    // Only merge if the time gap is less than 3 seconds (3000ms).
+    // If it's longer, it's a true separate turn (e.g. a delayed barge-in)
+    const isCloseInTime = (!last.ts || !t.ts) || (t.ts - last.ts < 3000);
+
+    if (isSameRole && isCloseInTime) {
       last.text += " " + t.text;
+      last.ts = t.ts; // Move the timestamp forward
     } else {
       mergedTranscript.push(t);
     }
