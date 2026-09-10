@@ -1,6 +1,5 @@
-import { supabaseAdmin } from "@/lib/supabase";
+﻿import { supabaseAdmin } from "@/lib/supabase";
 import { evaluationQueue } from "@/lib/queue";
-import Groq from "groq-sdk";
 import { Redis } from "@upstash/redis";
 
 const redis = new Redis({
@@ -20,20 +19,6 @@ const CORS_HEADERS = {
 export async function OPTIONS() {
   return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
-
-function getGroq() {
-  return new Groq({ apiKey: process.env.GROQ_API_KEY });
-}
-
-// helpers ----------
-
-function percentile(arr, p) {
-  if (!arr || arr.length === 0) return null;
-  const sorted = [...arr].sort((a, b) => a - b);
-  const idx = Math.ceil((p / 100) * sorted.length) - 1;
-  return sorted[Math.max(0, idx)];
-}
-function fmtMs(ms) { return ms != null ? ms + "ms" : "N/A"; }
 
 // session upsert (must run BEFORE child inserts) ----------
 
@@ -98,80 +83,6 @@ async function upsertTranscripts(sessionId, transcript) {
   else console.log("[evaluate] transcripts: inserted", rows.length, "rows");
 }
 
-// Groq evaluation ----------
-
-async function runGroqEvaluation(payload) {
-  const { sessionId, sessionType, transcript, telemetryDump, turnMetricsTimeline, toolCallTimeline } = payload;
-  const { stt_latency, server_llm_ttft, tts_latency, bargeIns, durationSeconds } = telemetryDump || {};
-
-  const totals = (turnMetricsTimeline || [])
-    .map((t) => (t.stt_ms ?? 0) + (t.llm_ttft_ms ?? 0) + (t.tts_ttfb_ms ?? 0))
-    .filter(Boolean);
-
-  const latencySummary = totals.length > 0
-    ? "Avg: " + Math.round(totals.reduce((a, b) => a + b, 0) / totals.length) + "ms | " +
-    "P50: " + fmtMs(percentile(totals, 50)) + " | " +
-    "P90: " + fmtMs(percentile(totals, 90)) + " | " +
-    "P99: " + fmtMs(percentile(totals, 99))
-    : "STT avg: " + fmtMs(stt_latency) + " | LLM TTFT avg: " + fmtMs(server_llm_ttft) + " | TTS avg: " + fmtMs(tts_latency);
-
-  const transcriptText = (transcript || []).slice(0, 60)
-    .map((t) => "[" + (t.role || "?").toUpperCase() + "]: " + t.text)
-    .join("\n");
-
-  const toolSummary = (toolCallTimeline || [])
-    .map((t) => "  Turn " + t.turn_index + " - " + t.tool_name + "(" + JSON.stringify(t.arguments || {}).slice(0, 80) + ") -> " + String(t.result || "").slice(0, 80))
-    .join("\n");
-
-  const turnTable = (turnMetricsTimeline || [])
-    .map((t) => "  Turn " + t.turn_index + ": STT=" + (t.stt_ms ?? t.stt_latency_ms ?? "?") + "ms | LLM=" + (t.llm_ttft_ms ?? "?") + "ms | TTS=" + (t.tts_ttfb_ms ?? t.tts_latency_ms ?? "?") + "ms" + (t.barge_in ? " | BARGE-IN" : ""))
-    .join("\n");
-
-    const userPrompt =
-    "## Session ID: " + sessionId + "\n" +
-    "## Mode: " + (sessionType || "guided") + "\n" +
-    "## Duration: " + (durationSeconds ? Math.round(durationSeconds / 60) + " minutes" : "unknown") + "\n" +
-    "## Barge-ins: " + (bargeIns ?? 0) + "\n\n" +
-    "## Latency Summary\n" + latencySummary + "\n\n" +
-    "## Turn-by-Turn Metrics (" + (turnMetricsTimeline?.length ?? 0) + " turns)\n" + (turnTable || "No turn data") + "\n\n" +
-    "## Tool Call Timeline (" + (toolCallTimeline?.length ?? 0) + " calls)\n" + (toolSummary || "No tool calls") + "\n\n" +
-    "## Transcript\n" + (transcriptText || "No transcript") + "\n\n" +
-    'Return ONLY a JSON object with this exact structure (no markdown, no explanation):\n' +
-    '{"overall_score":<0-10 number>,"flag":<"Clean"|"Hallucination"|"Silence"|"Interruption Failure"|"Latency System Failure"|"Transcription Failure"|"Tool Call Crash">,"overall_insight":<string>,' +
-    '"radar_data":[{"subject":"Latency","A":<0-10>},{"subject":"Conversational Flow","A":<0-10>},{"subject":"Interruption","A":<0-10>},{"subject":"Context","A":<0-10>},{"subject":"Transcription Accuracy","A":<0-10>},{"subject":"Hallucination","A":<0-10>}],' +
-    '"deductions":[{"turn_number":<number>,"time":<"MM:SS">,"type":<string>,"metric":<string>,"reason":<string>,"insight":<string>}]}\n\n' +
-    "Rules for Scoring:\n" +
-    "- Latency: 10 if turn total latency < 2000ms. Deduct points for > 2500ms. Critical deduction for > 5000ms.\n" +
-    "- Conversational Flow: 10 if dialogue is natural. Deduct for awkward cut-offs, robotic repetition, or poor handling of barge-ins.\n" +
-    "- Context: 10 if agent remembers previous answers and asks relevant follow-ups. Deduct if it ignores user context or asks disjointed questions.\n" +
-    "- Transcription Accuracy: 10 if STT text is coherent. Deduct if the text is garbled, misspelled, or obvious STT hallucination.\n" +
-    "- Hallucination: 10 if agent sticks strictly to facts and tools. Deduct if it invents information.\n\n" +
-    "Rules for overall_insight:\n" +
-    "Write a comprehensive 2-3 sentence paragraph. You MUST explicitly justify any low scores. If you deduct points for Latency, Transcription, or Flow, explicitly state WHY in this insight block. If it was a perfect call, explicitly praise the flow and accuracy.\n\n" +
-    "Rules for flag:\n" +
-    "- 'Clean': Smooth call, high scores across the board.\n" +
-    "- 'Latency System Failure': If ANY single turn latency exceeds 5000ms.\n" +
-    "- 'Transcription Failure': If the user text is filled with garbled nonsense.\n" +
-    "- 'Interruption Failure': If bargeIns > 3 and the agent flow completely broke down.\n" +
-    "- 'Hallucination': If the agent fabricated details.\n" +
-    "- 'Tool Call Crash': If a tool returned a critical error string.\n" +
-    "- 'Silence': If the agent failed to respond to the user.\n\n" +
-    "Empty deductions=[] if no issues.";
-
-  const completion = await getGroq().chat.completions.create({
-    model: "openai/gpt-oss-120b",
-    temperature: 0.2,
-    max_tokens: 2048,
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: "You are an expert voice AI audit agent. Evaluate the session and return strict JSON only - no markdown." },
-      { role: "user", content: userPrompt },
-    ],
-  });
-
-  return JSON.parse(completion.choices[0]?.message?.content || "{}");
-}
-
 // main route ----------
 
 export async function POST(req) {
@@ -202,18 +113,17 @@ export async function POST(req) {
   }
   // Sort the transcript chronologically by timestamp BEFORE merging
   transcript.sort((a, b) => (a.ts || 0) - (b.ts || 0));
-  // Merge consecutive transcripts of the same role (fixes fragmented STT bubbles)
+  // Merge consecutive transcripts of the same role unconditionally
+  // If the agent didn't speak in between, it is one contiguous block of user speech.
   let mergedTranscript = [];
   for (const t of transcript) {
     const last = mergedTranscript[mergedTranscript.length - 1];
     const isSameRole = last && last.role === t.role;
-    // Only merge if the time gap is less than 3 seconds (3000ms).
-    // If it's longer, it's a true separate turn (e.g. a delayed barge-in)
-    const isCloseInTime = (!last || !last.ts || !t.ts) || (t.ts - last.ts < 3000);
 
-    if (isSameRole && isCloseInTime) {
+    if (isSameRole) {
+      // Unconditionally merge. LiveKit chunks long sentences into multiple 'final' events.
+      // The time gap between 'final' events is the length of the sentence itself, which can be > 10 seconds.
       last.text += " " + t.text;
-      // Keep last.ts at start time - do NOT shift it forward during merge
     } else {
       mergedTranscript.push({ ...t });
     }

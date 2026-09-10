@@ -1,4 +1,4 @@
-// workerjs  BullMQ worker for Groq evaluation ----------
+﻿// workerjs  BullMQ worker for Groq evaluation ----------
 // Run this as a separate process: node workerjs ----------
 // It reads jobs queued by /api/audit/evaluates and processes them with Groq ----------
 // Concurrency is set to 5: max 5 simultaneous Groq calls no matter how many are queued ----------
@@ -38,7 +38,13 @@ function percentile(arr, p) {
 }
 function fmtMs(ms) { return ms != null ? ms + "ms" : "N/A"; }
 
-// Groq Evaluation (same prompt logic as original routejs) ----------
+// ============================================================================
+// ACTUAL GROQ EVALUATION LOGIC
+// ============================================================================
+// Note: This LLM generation and prompt logic ONLY runs here in the worker.js,
+// which is triggered by a background BullMQ job. 
+// The route.js file only inserts the initial data into the DB and queues the job, 
+// ensuring the main API response is fast. All LLM calls and evaluation are done here.
 async function runGroqEvaluation(payload) {
   const { sessionId, sessionType, transcript, telemetryDump, turnMetricsTimeline, toolCallTimeline } = payload;
   const { stt_latency, server_llm_ttft, tts_latency, bargeIns, durationSeconds } = telemetryDump || {};
@@ -163,7 +169,7 @@ const worker = new Worker(
 
     if (error) throw new Error(`Supabase scorecard write failed: ${error.message}`);
 
-    console.log(`[worker] ✓ Session ${sessionId} -> Score: ${overall_score} | Flag: ${flag}`);
+    console.log(`[worker] âœ“ Session ${sessionId} -> Score: ${overall_score} | Flag: ${flag}`);
     return { sessionId, overall_score, flag };
   },
   {
