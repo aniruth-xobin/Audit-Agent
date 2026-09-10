@@ -1,35 +1,35 @@
-// worker.js — BullMQ worker for Groq evaluation
-// Run this as a separate process: node worker.js
-// It reads jobs queued by /api/audit/evaluates and processes them with Groq.
-// Concurrency is set to 5: max 5 simultaneous Groq calls, no matter how many are queued.
-//
-// To switch to Redis Cloud: just change REDIS_URL in .env.local. Zero code changes needed.
+// workerjs  BullMQ worker for Groq evaluation ----------
+// Run this as a separate process: node workerjs ----------
+// It reads jobs queued by /api/audit/evaluates and processes them with Groq ----------
+// Concurrency is set to 5: max 5 simultaneous Groq calls no matter how many are queued ----------
+//  ----------
+// To switch to Redis Cloud: just change REDISURL in envlocal Zero code changes needed ----------
 
 import "dotenv/config";
 import Redis from "ioredis";
 
-// Pre-constructed ioredis client — required in ESM with BullMQ
-// Change REDIS_URL in .env.local to switch to Redis Cloud — no code changes needed
+// Pre-constructed ioredis client  required in ESM with BullMQ ----------
+// Change REDISURL in envlocal to switch to Redis Cloud  no code changes needed ----------
 const redisClient = new Redis(process.env.REDIS_URL, {
-  maxRetriesPerRequest: null, // Required by BullMQ
-  enableReadyCheck: false,    // Required for Upstash compatibility
+  maxRetriesPerRequest: null, // Required by BullMQ ----------
+  enableReadyCheck: false,    // Required for Upstash compatibility ----------
 });
 import { Worker } from "bullmq";
 import { createClient } from "@supabase/supabase-js";
 import Groq from "groq-sdk";
 
-// ─── Supabase ─────────────────────────────────────────────────────────────────
+// Supabase ----------
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// ─── Groq ─────────────────────────────────────────────────────────────────────
+// Groq ----------
 function getGroq() {
   return new Groq({ apiKey: process.env.GROQ_API_KEY });
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// Helpers ----------
 function percentile(arr, p) {
   if (!arr || arr.length === 0) return null;
   const sorted = [...arr].sort((a, b) => a - b);
@@ -38,7 +38,7 @@ function percentile(arr, p) {
 }
 function fmtMs(ms) { return ms != null ? ms + "ms" : "N/A"; }
 
-// ─── Groq Evaluation (same prompt logic as original route.js) ─────────────────
+// Groq Evaluation (same prompt logic as original routejs) ----------
 async function runGroqEvaluation(payload) {
   const { sessionId, sessionType, transcript, telemetryDump, turnMetricsTimeline, toolCallTimeline } = payload;
   const { stt_latency, server_llm_ttft, tts_latency, bargeIns, durationSeconds } = telemetryDump || {};
@@ -66,7 +66,7 @@ async function runGroqEvaluation(payload) {
     .map((t) => "  Turn " + t.turn_index + ": STT=" + (t.stt_ms ?? t.stt_latency_ms ?? "?") + "ms | LLM=" + (t.llm_ttft_ms ?? "?") + "ms | TTS=" + (t.tts_ttfb_ms ?? t.tts_latency_ms ?? "?") + "ms" + (t.barge_in ? " | BARGE-IN" : ""))
     .join("\n");
 
-  let userPrompt =
+    let userPrompt =
     "## Session ID: " + sessionId + "\n" +
     "## Mode: " + (sessionType || "guided") + "\n" +
     "## Duration: " + (durationSeconds ? Math.round(durationSeconds / 60) + " minutes" : "unknown") + "\n" +
@@ -79,8 +79,23 @@ async function runGroqEvaluation(payload) {
     '{"overall_score":<0-10 number>,"flag":<"Clean"|"Hallucination"|"Silence"|"Interruption Failure"|"Latency System Failure"|"Transcription Failure"|"Tool Call Crash">,"overall_insight":<string>,' +
     '"radar_data":[{"subject":"Latency","A":<0-10>},{"subject":"Conversational Flow","A":<0-10>},{"subject":"Interruption","A":<0-10>},{"subject":"Context","A":<0-10>},{"subject":"Transcription Accuracy","A":<0-10>},{"subject":"Hallucination","A":<0-10>}],' +
     '"deductions":[{"turn_number":<number>,"time":<"MM:SS">,"type":<string>,"metric":<string>,"reason":<string>,"insight":<string>}]}\n\n' +
-    "Rules: Turn total latency <= 2000ms is good, up to 2500ms is normal. Any turn total latency > 2500ms adds a latency deduction. If ANY turn latency > 5000ms, set flag to \"Latency System Failure\". If the transcript is filled with completely garbled STT text or major speech-to-text failures, set flag to \"Transcription Failure\". Empty deductions=[] if no issues.\n\n";
-
+    "Rules for Scoring:\n" +
+    "- Latency Score: 10 if turn total latency < 2000ms. Deduct points for > 2500ms. Critical deduction for > 5000ms.\n" +
+    "- Conversational Flow Score: 10 if dialogue is natural. Deduct for awkward cut-offs, robotic repetition, or poor handling of barge-ins.\n" +
+    "- Context Score: 10 if agent remembers previous answers and asks relevant follow-ups. Deduct if it ignores user context or asks disjointed questions.\n" +
+    "- Transcription Accuracy Score: 10 if STT text is coherent. Deduct if the text is garbled, misspelled, or obvious STT hallucination.\n" +
+    "- Hallucination Score: 10 if agent sticks strictly to facts and tools. Deduct if it invents information.\n\n" +
+    "Rules for overall_insight:\n" +
+    "Write a comprehensive 2-3 sentence paragraph. You MUST explicitly justify any low scores. If you deduct points for Latency, Transcription, or Flow, explicitly state WHY in this insight block. If it was a perfect call, explicitly praise the flow and accuracy.\n\n" +
+    "Rules for flag:\n" +
+    "- 'Clean': Smooth call, high scores across the board.\n" +
+    "- 'Latency System Failure': If ANY single turn latency exceeds 5000ms.\n" +
+    "- 'Transcription Failure': If the user text is filled with garbled nonsense.\n" +
+    "- 'Interruption Failure': If bargeIns > 3 and the agent flow completely broke down.\n" +
+    "- 'Hallucination': If the agent fabricated details.\n" +
+    "- 'Tool Call Crash': If a tool returned a critical error string.\n" +
+    "- 'Silence': If the agent failed to respond to the user.\n\n" +
+    "Empty deductions=[] if no issues.\n\n";
   if (bargeIns > 0) {
     userPrompt += "CRITICAL INSTRUCTION: THE CANDIDATE INTERRUPTED (BARGED IN) DURING THIS SESSION. YOUR `overall_insight` MUST BEGIN WITH A SENTENCE EXPLICITLY EVALUATING HOW GRACEFULLY THE AGENT HANDLED THE INTERRUPTION.\n\n";
   } else {
@@ -107,14 +122,14 @@ async function runGroqEvaluation(payload) {
   return JSON.parse(completion.choices[0]?.message?.content || "{}");
 }
 
-// ─── BullMQ Worker ────────────────────────────────────────────────────────────
+// BullMQ Worker ----------
 const worker = new Worker(
   "groq-evaluation",
   async (job) => {
     const { sessionId, sessionType } = job.data;
     console.log(`[worker] Processing evaluation for session: ${sessionId} (attempt ${job.attemptsMade + 1})`);
 
-    // Fetch merged data from Supabase (this is what was Step 3.5 in route.js)
+    // Fetch merged data from Supabase (this is what was Step 35 in routejs) ----------
     const [{ data: dbTurns }, { data: dbTools }, { data: dbTranscripts }] = await Promise.all([
       supabase.from("turn_metrics").select("*").eq("session_id", sessionId).order("turn_index", { ascending: true }),
       supabase.from("tool_calls").select("*").eq("session_id", sessionId).order("turn_index", { ascending: true }),
@@ -133,11 +148,11 @@ const worker = new Worker(
       })),
     };
 
-    // Run Groq evaluation
+    // Run Groq evaluation ----------
     const scorecard = await runGroqEvaluation(mergedPayload);
     const { overall_score, flag, overall_insight, radar_data, deductions } = scorecard;
 
-    // Write scorecard back to sessions table
+    // Write scorecard back to sessions table ----------
     const { error } = await supabase.from("sessions").update({
       overall_score,
       flag: flag ?? "Clean",
@@ -153,11 +168,11 @@ const worker = new Worker(
   },
   {
     connection: redisClient,
-    concurrency: 5, // Max 5 Groq calls simultaneously — prevents rate limit errors
+    concurrency: 5, // Max 5 Groq calls simultaneously  prevents rate limit errors ----------
   }
 );
 
-// ─── Lifecycle logging ─────────────────────────────────────────────────────────
+// Lifecycle logging ----------
 worker.on("completed", (job, result) => {
   console.log(`[worker] Job ${job.id} completed:`, result);
 });
