@@ -201,6 +201,9 @@ export async function POST(req) {
     console.warn("[evaluate] Redis read failed:", redisErr.message);
   }
 
+  // Sort the transcript chronologically by timestamp BEFORE merging
+  transcript.sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
   // Merge consecutive transcripts of the same role (fixes fragmented STT bubbles)
   let mergedTranscript = [];
   for (const t of transcript) {
