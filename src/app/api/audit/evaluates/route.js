@@ -201,6 +201,19 @@ export async function POST(req) {
     console.warn("[evaluate] Redis read failed:", redisErr.message);
   }
 
+  // Merge consecutive transcripts of the same role (fixes fragmented STT bubbles)
+  let mergedTranscript = [];
+  for (const t of transcript) {
+    const last = mergedTranscript[mergedTranscript.length - 1];
+    if (last && last.role === t.role) {
+      last.text += " " + t.text;
+    } else {
+      mergedTranscript.push(t);
+    }
+  }
+  transcript = mergedTranscript;
+
+
   try {
     // Step 1: Ensure session row exists FIRST (child rows need the FK) ----------
     await ensureSession(sessionId, sessionType, telemetryDump);
