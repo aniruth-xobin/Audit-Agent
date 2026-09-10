@@ -1,4 +1,4 @@
-﻿import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 import { evaluationQueue } from "@/lib/queue";
 import Groq from "groq-sdk";
 import { Redis } from "@upstash/redis";
@@ -200,10 +200,8 @@ export async function POST(req) {
   } catch (redisErr) {
     console.warn("[evaluate] Redis read failed:", redisErr.message);
   }
-
   // Sort the transcript chronologically by timestamp BEFORE merging
   transcript.sort((a, b) => (a.ts || 0) - (b.ts || 0));
-
   // Merge consecutive transcripts of the same role (fixes fragmented STT bubbles)
   let mergedTranscript = [];
   for (const t of transcript) {
@@ -215,13 +213,12 @@ export async function POST(req) {
 
     if (isSameRole && isCloseInTime) {
       last.text += " " + t.text;
-      last.ts = t.ts; // Move the timestamp forward
+      // Keep last.ts at start time - do NOT shift it forward during merge
     } else {
-      mergedTranscript.push(t);
+      mergedTranscript.push({ ...t });
     }
   }
   transcript = mergedTranscript;
-
 
   try {
     // Step 1: Ensure session row exists FIRST (child rows need the FK) ----------
