@@ -208,7 +208,7 @@ export async function POST(req) {
     const isSameRole = last && last.role === t.role;
     // Only merge if the time gap is less than 3 seconds (3000ms).
     // If it's longer, it's a true separate turn (e.g. a delayed barge-in)
-    const isCloseInTime = (!last.ts || !t.ts) || (t.ts - last.ts < 3000);
+    const isCloseInTime = (!last || !last.ts || !t.ts) || (t.ts - last.ts < 3000);
 
     if (isSameRole && isCloseInTime) {
       last.text += " " + t.text;
