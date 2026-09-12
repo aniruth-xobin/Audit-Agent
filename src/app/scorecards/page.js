@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, FileText, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check, ChevronLeft, ChevronDown, ChevronUp, Wrench } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
+import { useSettings } from '@/context/SettingsContext';
 
 const CustomTick = ({ payload, x, y, textAnchor, stroke, radius }) => {
   const words = payload.value.split(' ');
@@ -20,6 +21,7 @@ function ScorecardsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const idParam = searchParams.get('id');
+  const { timeframe, autoRefresh } = useSettings();
   const [showMobileDetail, setShowMobileDetail] = useState(false);
   
   const [sessions, setSessions] = useState([]);
@@ -51,19 +53,25 @@ function ScorecardsContent() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`/api/sessions?sort=${sortOption}&mode=${activeMode}`)
+  const fetchSessionsData = () => {
+    let days = 'all';
+    if (timeframe === 'Past 24 hours') days = '1';
+    else if (timeframe === 'Past 5 days') days = '5';
+    else if (timeframe === 'Past 7 days') days = '7';
+    else if (timeframe === 'Past 30 days') days = '30';
+
+    fetch(`/api/sessions?sort=${sortOption}&mode=${activeMode}&days=${days}`)
       .then(res => res.json())
       .then(data => {
         if (!data.error) {
-          setSessions(data);
+          const sessionsArray = data.data || [];
+          setSessions(sessionsArray);
           if (idParam) {
-            const found = data.find(s => s.id === idParam);
+            const found = sessionsArray.find(s => s.id === idParam);
             if (found) setActiveSession(found);
-            else if (data.length > 0) setActiveSession(data[0]);
-          } else if (data.length > 0) {
-            setActiveSession(data[0]);
+            else if (sessionsArray.length > 0) setActiveSession(sessionsArray[0]);
+          } else if (sessionsArray.length > 0) {
+            setActiveSession(sessionsArray[0]);
           }
         }
         setLoading(false);
@@ -72,7 +80,18 @@ function ScorecardsContent() {
         console.error(err);
         setLoading(false);
       });
-  }, [sortOption, activeMode, idParam]);
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    fetchSessionsData();
+  }, [sortOption, activeMode, idParam, timeframe]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(fetchSessionsData, 30000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, sortOption, activeMode, timeframe]);
 
   useEffect(() => {
     if (!activeSession) return;

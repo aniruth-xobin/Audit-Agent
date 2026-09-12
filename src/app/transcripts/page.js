@@ -2,12 +2,14 @@
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, Play, Pause, SkipBack, SkipForward, BarChart2, Volume2, Maximize2, ChevronLeft } from 'lucide-react';
+import { useSettings } from '@/context/SettingsContext';
 
 function TranscriptsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const idParam = searchParams.get('id');
   const turnParam = searchParams.get('turn') ? parseInt(searchParams.get('turn'), 10) : null;
+  const { timeframe, autoRefresh } = useSettings();
   const [highlightedIdx, setHighlightedIdx] = useState(null);
   const highlightRefs = useRef({});
   
@@ -20,21 +22,27 @@ function TranscriptsContent() {
   const [loadingTranscript, setLoadingTranscript] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  // Fetch all sessions for sidebar
-  useEffect(() => {
-    fetch('/api/sessions?sort=newest')
+  const fetchSessionsData = () => {
+    let days = 'all';
+    if (timeframe === 'Past 24 hours') days = '1';
+    else if (timeframe === 'Past 5 days') days = '5';
+    else if (timeframe === 'Past 7 days') days = '7';
+    else if (timeframe === 'Past 30 days') days = '30';
+
+    fetch(`/api/sessions?sort=newest&days=${days}`)
       .then(res => res.json())
       .then(data => {
         if (!data.error) {
-          setSessions(data);
+          const sessionsArray = data.data || [];
+          setSessions(sessionsArray);
           
           // Select initial session
           if (idParam) {
-            const found = data.find(s => s.id === idParam);
+            const found = sessionsArray.find(s => s.id === idParam);
             if (found) setActiveSession(found);
-            else if (data.length > 0) setActiveSession(data[0]);
-          } else if (data.length > 0) {
-            setActiveSession(data[0]);
+            else if (sessionsArray.length > 0) setActiveSession(sessionsArray[0]);
+          } else if (sessionsArray.length > 0) {
+            setActiveSession(sessionsArray[0]);
           }
         }
         setLoadingSessions(false);
@@ -43,7 +51,19 @@ function TranscriptsContent() {
         console.error(err);
         setLoadingSessions(false);
       });
-  }, [idParam]);
+  };
+
+  // Fetch all sessions for sidebar
+  useEffect(() => {
+    setLoadingSessions(true);
+    fetchSessionsData();
+  }, [idParam, timeframe]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(fetchSessionsData, 30000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, idParam, timeframe]);
 
   // Fetch transcript for active session
   useEffect(() => {
@@ -65,7 +85,7 @@ function TranscriptsContent() {
 
   // Scroll to highlighted turn when transcript loads
   useEffect(() => {
-    if (!turnParam || transcript.length === 0) return;
+    if (!turnParam || transcript.length === 0 || !activeSession || !idParam || activeSession.id !== idParam) return;
     const agentMessages = transcript.map((m, i) => ({ ...m, idx: i })).filter(m => m.role === 'ai');
     const target = agentMessages[turnParam - 1];
     if (target) {
@@ -74,6 +94,13 @@ function TranscriptsContent() {
         const el = highlightRefs.current[target.idx];
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }, 300);
+      
+      // Clear highlight after 3 seconds
+      const timeout = setTimeout(() => {
+        setHighlightedIdx(null);
+      }, 3000);
+      
+      return () => clearTimeout(timeout);
     }
   }, [transcript, turnParam]);
 
@@ -108,7 +135,12 @@ function TranscriptsContent() {
             filteredSessions.map(session => (
               <div 
                 key={session.id} 
-                onClick={() => { setActiveSession(session); setShowMobileDetail(true); }}
+                onClick={() => { 
+                  setActiveSession(session); 
+                  setShowMobileDetail(true); 
+                  setHighlightedIdx(null);
+                  window.history.replaceState(null, '', `/transcripts?id=${session.id}`);
+                }}
                 className={`p-4 border-b border-[var(--border-color)] cursor-pointer transition-colors ${activeSession?.id === session.id ? 'bg-[var(--bg-secondary)]/60 border-l-2 border-l-[var(--chart-cyan)]' : 'hover:bg-[var(--bg-secondary)]/30 border-l-2 border-l-transparent'}`}
               >
                 <div className="flex justify-between items-start mb-1">
@@ -157,42 +189,65 @@ function TranscriptsContent() {
               </div>
             </div>
 
-            {/* Chat Body */}
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 custom-scrollbar">
-              {loadingTranscript ? (
-                <div className="flex-1 flex items-center justify-center text-xs font-mono text-[var(--text-muted)] animate-pulse">Loading transcript...</div>
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6 custom-scrollbar relative">
+              {loadingTranscript && transcript.length === 0 ? (
+                <div className="flex-1 flex flex-col gap-6 overflow-hidden absolute inset-0 p-6">
+                  <div className="flex gap-4 max-w-[85%] self-start animate-pulse w-full">
+                    <div className="w-8 h-8 rounded-full bg-[var(--bg-active)] shrink-0"></div>
+                    <div className="flex flex-col gap-2 items-start w-full">
+                      <div className="h-3 w-16 bg-[var(--bg-active)] rounded"></div>
+                      <div className="rounded-xl rounded-tl-none bg-[var(--bg-card-hover)] border border-[var(--border-color)] h-20 w-3/4 max-w-[400px]"></div>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 max-w-[85%] self-end flex-row-reverse animate-pulse w-full mt-4">
+                    <div className="w-8 h-8 rounded-full bg-[var(--bg-active)] shrink-0"></div>
+                    <div className="flex flex-col gap-2 items-end w-full">
+                      <div className="h-3 w-16 bg-[var(--bg-active)] rounded"></div>
+                      <div className="rounded-xl rounded-tr-none bg-[var(--bg-active)] h-12 w-2/3 max-w-[300px]"></div>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 max-w-[85%] self-start animate-pulse w-full mt-4">
+                    <div className="w-8 h-8 rounded-full bg-[var(--bg-active)] shrink-0"></div>
+                    <div className="flex flex-col gap-2 items-start w-full">
+                      <div className="h-3 w-16 bg-[var(--bg-active)] rounded"></div>
+                      <div className="rounded-xl rounded-tl-none bg-[var(--bg-card-hover)] border border-[var(--border-color)] h-16 w-4/5 max-w-[350px]"></div>
+                    </div>
+                  </div>
+                </div>
               ) : transcript.length > 0 ? (
-                transcript.map((msg, idx) => {
-                  const role = msg.role; // 'ai' or 'user' or 'system'
-                  return (
-                  <div
-                    key={idx}
-                    ref={el => { highlightRefs.current[idx] = el; }}
-                    className={['flex gap-4 max-w-[85%] transition-all duration-700', highlightedIdx === idx ? 'ring-2 ring-sky-400/60 bg-sky-400/5 rounded-xl px-2 -mx-2 shadow-lg shadow-sky-400/10' : '', role === 'human' ? 'self-end flex-row-reverse' : role === 'system' ? 'self-center w-full max-w-full justify-center' : 'self-start'].join(' ')}>
-                    
-                    {role !== 'system' && (
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${role === 'ai' ? 'bg-[var(--chart-cyan)]/20 text-[var(--chart-cyan)]' : 'bg-[var(--bg-active)] text-[var(--text-primary)]'}`}>
-                        {role === 'ai' ? 'AI' : (activeSession?.candidate_name ? activeSession.candidate_name.substring(0, 2).toUpperCase() : 'US')}
-                      </div>
-                    )}
-                    
-                    {role === 'system' ? (
-                      <div className="px-4 py-2 bg-[var(--chart-orange)]/10 border border-[var(--chart-orange)]/30 text-[var(--chart-orange)] text-xs font-medium rounded-lg flex items-center gap-2">
-                        {msg.text}
-                      </div>
-                    ) : (
-                      <div className={`flex flex-col gap-1 ${role === 'human' ? 'items-end' : 'items-start'}`}>
-                        <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted-dark)]">
-                          <span className="font-semibold text-[var(--text-muted)]">{role === 'ai' ? 'Agent' : (activeSession?.candidate_name || 'User')}</span>
+                <div className={`flex flex-col gap-6 transition-opacity duration-200 ${loadingTranscript ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+                  {transcript.map((msg, idx) => {
+                    const role = msg.role; // 'ai' or 'user' or 'system'
+                    return (
+                    <div
+                      key={idx}
+                      ref={el => { highlightRefs.current[idx] = el; }}
+                      className={['flex gap-4 max-w-[85%] transition-all duration-700', highlightedIdx === idx ? 'ring-2 ring-sky-400/60 bg-sky-400/5 rounded-xl px-2 -mx-2 shadow-lg shadow-sky-400/10' : '', role === 'human' ? 'self-end flex-row-reverse' : role === 'system' ? 'self-center w-full max-w-full justify-center' : 'self-start'].join(' ')}>
+                      
+                      {role !== 'system' && (
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${role === 'ai' ? 'bg-[var(--chart-cyan)]/20 text-[var(--chart-cyan)]' : 'bg-[var(--bg-active)] text-[var(--text-primary)]'}`}>
+                          {role === 'ai' ? 'AI' : (activeSession?.candidate_name ? activeSession.candidate_name.substring(0, 2).toUpperCase() : 'US')}
                         </div>
-                        <div className={`p-4 rounded-xl text-sm leading-relaxed ${role === 'human' ? 'bg-[var(--bg-active)] text-[var(--text-primary)] rounded-tr-none' : 'bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-none'}`}>
+                      )}
+                      
+                      {role === 'system' ? (
+                        <div className="px-4 py-2 bg-[var(--chart-orange)]/10 border border-[var(--chart-orange)]/30 text-[var(--chart-orange)] text-xs font-medium rounded-lg flex items-center gap-2">
                           {msg.text}
                         </div>
-                      </div>
-                    )}
-                    
-                  </div>
-                )})
+                      ) : (
+                        <div className={`flex flex-col gap-1 ${role === 'human' ? 'items-end' : 'items-start'}`}>
+                          <div className="flex items-center gap-2 text-[11px] text-[var(--text-muted-dark)]">
+                            <span className="font-semibold text-[var(--text-muted)]">{role === 'ai' ? 'Agent' : (activeSession?.candidate_name || 'User')}</span>
+                          </div>
+                          <div className={`p-4 rounded-xl text-sm leading-relaxed ${role === 'human' ? 'bg-[var(--bg-active)] text-[var(--text-primary)] rounded-tr-none' : 'bg-[var(--bg-card-hover)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-tl-none'}`}>
+                            {msg.text}
+                          </div>
+                        </div>
+                      )}
+                      
+                    </div>
+                  )})}
+                </div>
               ) : (
                 <div className="flex-1 flex items-center justify-center text-sm text-[var(--text-muted)]">No transcript data available for this session.</div>
               )}
