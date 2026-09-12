@@ -1,7 +1,7 @@
-﻿"use client";
+"use client";
 import { useState, useEffect } from 'react';
 import { 
-  BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ComposedChart, Line, LineChart, PieChart, Pie, Cell, Legend
+  BarChart, Bar, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, ComposedChart, Line, LineChart, PieChart, Pie, Cell, Legend, Sector
 } from 'recharts';
 import { 
   HelpCircle, Activity, Zap, ShieldAlert, CheckCircle, Clock, Database, ServerCrash, Terminal, HardDrive, DollarSign, Brain
@@ -47,12 +47,21 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 export default function UsagePage() { 
-  const { chartStyle } = useSettings();
+  const { chartStyle, timeframe, autoRefresh } = useSettings();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  const [activeFlagIndex, setActiveFlagIndex] = useState(null);
+  const [activeRubricIndex, setActiveRubricIndex] = useState(null);
 
-  useEffect(() => {
-    fetch('/api/usage')
+  const fetchUsageData = () => {
+    let days = 'all';
+    if (timeframe === 'Past 24 hours') days = '1';
+    else if (timeframe === 'Past 5 days') days = '5';
+    else if (timeframe === 'Past 7 days') days = '7';
+    else if (timeframe === 'Past 30 days') days = '30';
+
+    fetch(`/api/usage?days=${days}`)
       .then(res => res.json())
       .then(d => {
         setData(d);
@@ -62,7 +71,18 @@ export default function UsagePage() {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    fetchUsageData();
+  }, [timeframe]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(fetchUsageData, 30000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, timeframe]);
 
   if (loading) {
     return <div className="p-8 text-center text-xs font-mono text-[var(--text-muted)] animate-pulse">Loading usage analytics...</div>;
@@ -94,7 +114,7 @@ export default function UsagePage() {
           <pattern id="matrixPattern" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse">
             <rect x="0" y="0" width="2" height="1" fill="var(--chart-cyan)" opacity="0.7" />
           </pattern>
-          {data.tokenDistribution?.map((d, i) => (
+          {data.sessionFlags?.map((d, i) => (
             <pattern key={`patTok-${i}`} id={`patTok-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
               <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
             </pattern>
@@ -172,29 +192,62 @@ export default function UsagePage() {
         <div className="lg:col-span-4 flex flex-col gap-4 h-[400px]">
           
           <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] p-5 flex flex-col flex-1">
-            <CardTitle title="Token Distribution" />
+            <CardTitle title="Session Flags" />
             <div className="flex-1 flex items-center justify-center relative">
               <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={data.tokenDistribution} innerRadius={42} outerRadius={55} paddingAngle={4} dataKey="value" stroke="none" isAnimationActive={false}>
-                      {data.tokenDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={chartStyle === 'matrix' ? `url(#patTok-${index})` : entry.color} stroke={entry.color} strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} />
+                    <Pie 
+                      data={data.sessionFlags} 
+                      innerRadius={42} 
+                      outerRadius={55} 
+                      paddingAngle={4} 
+                      dataKey="value" 
+                      stroke="none" 
+                      isAnimationActive={false}
+                      onMouseEnter={(_, index) => setActiveFlagIndex(index)}
+                      onMouseLeave={() => setActiveFlagIndex(null)}
+                    >
+                      {data.sessionFlags.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={chartStyle === 'matrix' ? `url(#patTok-${index})` : entry.color} 
+                          stroke={entry.color} 
+                          strokeWidth={1.5} 
+                          opacity={activeFlagIndex !== null && activeFlagIndex !== index ? 0.2 : 1}
+                          fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} 
+                        />
                       ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  {activeFlagIndex !== null && data.sessionFlags[activeFlagIndex] ? (
+                    <span className="text-[var(--text-primary)] font-mono text-[14px]">
+                      {data.sessionFlags[activeFlagIndex].value}%
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <div className="flex flex-col gap-2 text-[11px] w-full pl-[130px]">
-                {data.tokenDistribution.map(item => (
-                  <div key={item.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }}></div>
-                      <span className="text-[var(--text-muted)]">{item.name}</span>
+                {data.sessionFlags.map((item, index) => {
+                  const isDulled = activeFlagIndex !== null && activeFlagIndex !== index;
+                  return (
+                    <div 
+                      key={item.name} 
+                      className="flex items-center justify-between transition-opacity duration-200 cursor-default"
+                      style={{ opacity: isDulled ? 0.3 : 1 }}
+                      onMouseEnter={() => setActiveFlagIndex(index)}
+                      onMouseLeave={() => setActiveFlagIndex(null)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }}></div>
+                        <span className={isDulled ? "text-[var(--text-muted-dark)]" : "text-[var(--text-muted)]"}>{item.name}</span>
+                      </div>
+                      <span className={isDulled ? "text-[var(--text-muted-dark)] font-mono" : "text-[var(--text-primary)] font-mono"}>{item.value}%</span>
                     </div>
-                    <span className="text-[var(--text-primary)] font-mono">{item.value}%</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -205,24 +258,57 @@ export default function UsagePage() {
               <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={data.rubricFailures} innerRadius={42} outerRadius={55} paddingAngle={4} dataKey="value" stroke="none" isAnimationActive={false}>
+                    <Pie 
+                      data={data.rubricFailures} 
+                      innerRadius={42} 
+                      outerRadius={55} 
+                      paddingAngle={4} 
+                      dataKey="value" 
+                      stroke="none" 
+                      isAnimationActive={false}
+                      onMouseEnter={(_, index) => setActiveRubricIndex(index)}
+                      onMouseLeave={() => setActiveRubricIndex(null)}
+                    >
                       {data.rubricFailures.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={chartStyle === 'matrix' ? `url(#patRub-${index})` : entry.color} stroke={entry.color} strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} />
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={chartStyle === 'matrix' ? `url(#patRub-${index})` : entry.color} 
+                          stroke={entry.color} 
+                          strokeWidth={1.5} 
+                          opacity={activeRubricIndex !== null && activeRubricIndex !== index ? 0.2 : 1}
+                          fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} 
+                        />
                       ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  {activeRubricIndex !== null && data.rubricFailures[activeRubricIndex] ? (
+                    <span className="text-[var(--text-primary)] font-mono text-[14px]">
+                      {data.rubricFailures[activeRubricIndex].value}%
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <div className="flex flex-col gap-2 text-[11px] w-full pl-[130px]">
-                {data.rubricFailures.map(item => (
-                  <div key={item.name} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }}></div>
-                      <span className="text-[var(--text-muted)]">{item.name.substring(0, 12)}{item.name.length > 12 ? '...' : ''}</span>
+                {data.rubricFailures.map((item, index) => {
+                  const isDulled = activeRubricIndex !== null && activeRubricIndex !== index;
+                  return (
+                    <div 
+                      key={item.name} 
+                      className="flex items-center justify-between transition-opacity duration-200 cursor-default"
+                      style={{ opacity: isDulled ? 0.3 : 1 }}
+                      onMouseEnter={() => setActiveRubricIndex(index)}
+                      onMouseLeave={() => setActiveRubricIndex(null)}
+                    >
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }}></div>
+                        <span className={isDulled ? "text-[var(--text-muted-dark)]" : "text-[var(--text-muted)]"}>{item.name.substring(0, 12)}{item.name.length > 12 ? '...' : ''}</span>
+                      </div>
+                      <span className={isDulled ? "text-[var(--text-muted-dark)] font-mono" : "text-[var(--text-primary)] font-mono"}>{item.value}%</span>
                     </div>
-                    <span className="text-[var(--text-primary)] font-mono">{item.value}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

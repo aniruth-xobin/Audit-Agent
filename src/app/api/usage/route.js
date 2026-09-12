@@ -1,4 +1,4 @@
-﻿import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = 'force-dynamic';
 
@@ -12,11 +12,30 @@ function getPercentiles(arr) {
   };
 }
 
-export async function GET() {
+export async function GET(request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const daysParam = searchParams.get('days');
+
+    let sessionsQuery = supabaseAdmin.from('sessions').select('*');
+    let turnsQuery = supabaseAdmin.from('turn_metrics').select('timestamp_ms, total_latency_ms');
+
+    if (daysParam && daysParam !== 'all') {
+      const days = parseInt(daysParam, 10);
+      if (!isNaN(days)) {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+        const isoString = cutoffDate.toISOString();
+        const msTimestamp = cutoffDate.getTime();
+        
+        sessionsQuery = sessionsQuery.gte('created_at', isoString);
+        turnsQuery = turnsQuery.gte('timestamp_ms', msTimestamp);
+      }
+    }
+
     const [sessionsRes, turnsRes] = await Promise.all([
-      supabaseAdmin.from('sessions').select('*'),
-      supabaseAdmin.from('turn_metrics').select('timestamp_ms, total_latency_ms')
+      sessionsQuery,
+      turnsQuery
     ]);
     
     if (sessionsRes.error) throw sessionsRes.error;
@@ -59,15 +78,17 @@ export async function GET() {
       });
     }
 
-    // Token distribution: derived from turn count as a proxy
-    // (prompt_tokens/completion_tokens not stored; estimate from turn volume)
-    const turnCount = turns.length;
-    const estimatedPromptPct  = turnCount > 0 ? 68 : 70;
-    const estimatedCompletePct = 100 - estimatedPromptPct;
-    let tokenDistribution = [
-      { name: 'Prompt Tokens',     value: estimatedPromptPct,   color: 'var(--chart-cyan)' },
-      { name: 'Completion Tokens', value: estimatedCompletePct, color: 'var(--chart-purple)' },
-    ];
+    // Session Flags (Clean vs Flagged) replacing Token Distribution
+    const cleanCount = totalAudits - flagged;
+    let sessionFlags = [];
+    if (totalAudits > 0) {
+      sessionFlags = [
+        { name: 'Clean Sessions', value: Number(((cleanCount / totalAudits) * 100).toFixed(1)), color: '#06b6d4' }, // cyan
+        { name: 'Flagged Sessions', value: Number(((flagged / totalAudits) * 100).toFixed(1)), color: '#ef4444' }, // red
+      ];
+    } else {
+      sessionFlags = [{ name: 'No Data', value: 100, color: '#06b6d4' }];
+    }
 
     const failuresMap = {};
     let totalFailures = 0;
@@ -81,15 +102,37 @@ export async function GET() {
         });
       }
     });
-    const colors = ['var(--chart-red)', 'var(--chart-orange)', 'var(--chart-cyan)', 'var(--chart-purple)', 'var(--chart-blue)'];
-    let rubricFailures = Object.keys(failuresMap).map((k, i) => ({
-      name: k,
-      value: Math.round((failuresMap[k] / totalFailures) * 100),
-      color: colors[i % colors.length]
-    }));
+    
+    const METRIC_COLORS = {
+      'Latency System Failure': '#eab308', // yellow-500
+      'Transcription Failure': '#ec4899', // pink-500
+      'Interruption Failure': '#ef4444', // red-500
+      'Hallucination': '#f97316', // orange-500
+      'Tool Call Crash': '#8b5cf6', // violet-500
+      'Silence': '#a855f7', // purple-500
+      'Context': '#3b82f6', // blue-500 (for old fake data)
+      'Conversation': '#14b8a6' // teal-500 (for old fake data)
+    };
+
+    const FALLBACK_COLORS = ['#06b6d4', '#3b82f6', '#f43f5e', '#10b981', '#f59e0b'];
+    let fallbackIndex = 0;
+
+    let rubricFailures = Object.keys(failuresMap).map((k) => {
+      let color = METRIC_COLORS[k];
+      if (!color) {
+        color = FALLBACK_COLORS[fallbackIndex % FALLBACK_COLORS.length];
+        fallbackIndex++;
+      }
+      return {
+        name: k,
+        count: failuresMap[k],
+        value: Number(((failuresMap[k] / totalFailures) * 100).toFixed(1)),
+        color: color
+      };
+    });
     
     if (rubricFailures.length === 0) {
-      rubricFailures = [{ name: 'No Failures', value: 100, color: 'var(--chart-cyan)' }];
+      rubricFailures = [{ name: 'No Failures', value: 100, count: 0, color: 'var(--chart-cyan)' }];
     }
 
     const latencyByHour = {};
@@ -116,7 +159,7 @@ export async function GET() {
       flaggedPercent,
       avgCostPerAudit,
       auditVolumeData,
-      tokenDistribution,
+      sessionFlags,
       rubricFailures,
       latencyData,
       errorLogs
