@@ -22,6 +22,9 @@ export default function SessionsPage() {
   const { timeframe, autoRefresh } = useSettings();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [globalAverageScore, setGlobalAverageScore] = useState("0.0");
   
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -50,6 +53,10 @@ export default function SessionsPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, activeMode, sortOption, timeframe]);
+
   const fetchSessionsData = () => {
     let days = 'all';
     if (timeframe === 'Past 24 hours') days = '1';
@@ -57,10 +64,14 @@ export default function SessionsPage() {
     else if (timeframe === 'Past 7 days') days = '7';
     else if (timeframe === 'Past 30 days') days = '30';
 
-    fetch(`/api/sessions?search=${encodeURIComponent(debouncedSearch)}&mode=${activeMode}&sort=${sortOption}&days=${days}`)
+    fetch(`/api/sessions?search=${encodeURIComponent(debouncedSearch)}&mode=${activeMode}&sort=${sortOption}&days=${days}&page=${currentPage}`)
       .then(res => res.json())
       .then(data => {
-        if (!data.error) setSessions(data);
+        if (!data.error) {
+          setSessions(data.data || []);
+          setTotalCount(data.totalCount || 0);
+          setGlobalAverageScore(data.averageScore || "0.0");
+        }
         setLoading(false);
       })
       .catch(err => {
@@ -72,13 +83,13 @@ export default function SessionsPage() {
   useEffect(() => {
     setLoading(true);
     fetchSessionsData();
-  }, [debouncedSearch, activeMode, sortOption, timeframe]);
+  }, [debouncedSearch, activeMode, sortOption, timeframe, currentPage]);
 
   useEffect(() => {
     if (!autoRefresh) return;
     const interval = setInterval(fetchSessionsData, 30000);
     return () => clearInterval(interval);
-  }, [autoRefresh, debouncedSearch, activeMode, sortOption, timeframe]);
+  }, [autoRefresh, debouncedSearch, activeMode, sortOption, timeframe, currentPage]);
 
   const handleSortChange = (opt) => {
     setSortOption(opt);
@@ -110,7 +121,7 @@ export default function SessionsPage() {
         <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] p-6 flex flex-col h-[260px]">
           <CardTitle title="Total Audits" />
           <div className="flex-1 flex flex-col items-center justify-center relative">
-            <span className="text-[64px] font-medium text-[var(--chart-cyan)] tracking-tight mb-4">{sessions.length}</span>
+            <span className="text-[64px] font-medium text-[var(--chart-cyan)] tracking-tight mb-4">{totalCount}</span>
             <div className="absolute bottom-0 w-full h-16">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={auditData}>
@@ -126,7 +137,7 @@ export default function SessionsPage() {
           <CardTitle title="Average Score" />
           <div className="flex-1 flex flex-col items-center justify-center relative">
             <span className="text-[64px] font-medium text-[var(--chart-cyan)] tracking-tight mb-4">
-              {sessions.length > 0 ? (sessions.reduce((acc, curr) => acc + (curr.overall_score || 0), 0) / sessions.length).toFixed(1) : "0.0"}
+              {globalAverageScore}
             </span>
             <div className="absolute bottom-0 w-full h-16">
               <ResponsiveContainer width="100%" height="100%">
@@ -269,10 +280,22 @@ export default function SessionsPage() {
         </div>
         
         <div className="px-5 py-3 border-t border-[var(--border-color)] flex items-center justify-between text-xs text-[var(--text-muted)]">
-          <div>Showing {sessions.length > 0 ? 1 : 0} to {sessions.length} results</div>
+          <div>Showing {totalCount > 0 ? (currentPage - 1) * 30 + 1 : 0} to {Math.min(currentPage * 30, totalCount)} of {totalCount} results</div>
           <div className="flex items-center gap-2">
-            <button className="px-2.5 py-1 rounded border border-[var(--border-color)] bg-[var(--bg-card-hover)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50" disabled>Previous</button>
-            <button className="px-2.5 py-1 rounded border border-[var(--border-color)] bg-[var(--bg-card-hover)] hover:bg-[var(--bg-secondary)] transition-colors" disabled>Next</button>
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-2.5 py-1 rounded border border-[var(--border-color)] bg-[var(--bg-card-hover)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <button 
+              onClick={() => setCurrentPage(p => p + 1)}
+              disabled={currentPage * 30 >= totalCount}
+              className="px-2.5 py-1 rounded border border-[var(--border-color)] bg-[var(--bg-card-hover)] hover:bg-[var(--bg-secondary)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
           </div>
         </div>
       </div>
