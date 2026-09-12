@@ -99,7 +99,6 @@ export default function UsagePage() {
       <div className="flex flex-col gap-1 mb-2">
         <div className="flex justify-between items-start">
           <div>
-            <div className="text-xs text-[var(--text-muted)] font-medium tracking-wide uppercase">AI Interviews / Usage</div>
             <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">Audit Operations</h1>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-md text-xs font-medium text-[var(--text-muted)]">

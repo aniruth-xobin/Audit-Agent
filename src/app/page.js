@@ -122,7 +122,6 @@ export default function Home() {
   return (
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto pb-12 font-mono sm:font-sans">
       <div className="flex flex-col gap-1 mb-2">
-        <div className="text-xs text-[var(--text-muted)] font-medium tracking-wide uppercase">AI Interviews / Overview</div>
         <h1 className="text-2xl font-bold tracking-tight text-[var(--text-primary)]">Overview</h1>
       </div>
       

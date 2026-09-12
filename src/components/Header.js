@@ -6,7 +6,13 @@ import { useSettings } from '../context/SettingsContext';
 
 export default function Header() {
   const pathname = usePathname();
-  const isSessions = pathname === '/sessions';
+  let currentPage = 'Overview';
+  if (pathname === '/sessions') currentPage = 'Sessions';
+  else if (pathname === '/usage') currentPage = 'Usage';
+  else if (pathname === '/transcripts') currentPage = 'Transcripts';
+  else if (pathname === '/scorecards') currentPage = 'Scorecards';
+  else if (pathname === '/settings') currentPage = 'Settings';
+  
   const { isMobileMenuOpen, setIsMobileMenuOpen, timeframe, setTimeframe, autoRefresh, setAutoRefresh } = useSettings();
   
   const [isTimeOpen, setIsTimeOpen] = useState(false);
@@ -29,7 +35,7 @@ export default function Header() {
         <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
           <span className="font-medium text-[var(--text-primary)]">AI Interviews</span>
           <span>/</span>
-          <span className="capitalize">{isSessions ? 'Sessions' : 'Overview'}</span>
+          <span className="capitalize">{currentPage}</span>
         </div>
       </div>
       
