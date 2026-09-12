@@ -2,12 +2,29 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request) {
   try {
+    const { searchParams } = new URL(request.url);
+    const days = searchParams.get('days');
+    let thresholdDate = null;
+    if (days && days !== 'all') {
+      thresholdDate = new Date(Date.now() - parseInt(days) * 24 * 60 * 60 * 1000).toISOString();
+    }
+
+    let sessionsQuery = supabaseAdmin.from("sessions").select("flag, interview_mode, overall_score, duration_secs, barge_in_count, total_turns, candidate_name, id, created_at").order('created_at', { ascending: false });
+    let turnsQuery = supabaseAdmin.from("turn_metrics").select("total_latency_ms");
+    let bargeInQuery = supabaseAdmin.from("turn_metrics").select("session_id").eq("barge_in", true);
+
+    if (thresholdDate) {
+      sessionsQuery = sessionsQuery.gte('created_at', thresholdDate);
+      turnsQuery = turnsQuery.gte('created_at', thresholdDate);
+      bargeInQuery = bargeInQuery.gte('created_at', thresholdDate);
+    }
+
     const [sessionsRes, turnsRes, bargeInRes] = await Promise.all([
-      supabaseAdmin.from("sessions").select("flag, interview_mode, overall_score, duration_secs, barge_in_count, total_turns, candidate_name, id, created_at").order('created_at', { ascending: false }),
-      supabaseAdmin.from("turn_metrics").select("total_latency_ms"),
-      supabaseAdmin.from("turn_metrics").select("session_id").eq("barge_in", true)
+      sessionsQuery,
+      turnsQuery,
+      bargeInQuery
     ]);
 
     if (sessionsRes.error) throw sessionsRes.error;

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useState, useRef, useEffect } from 'react';
 import { ChevronDown, RefreshCcw, Clock, Check, Menu } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -7,10 +7,9 @@ import { useSettings } from '../context/SettingsContext';
 export default function Header() {
   const pathname = usePathname();
   const isSessions = pathname === '/sessions';
-  const { isMobileMenuOpen, setIsMobileMenuOpen } = useSettings();
+  const { isMobileMenuOpen, setIsMobileMenuOpen, timeframe, setTimeframe, autoRefresh, setAutoRefresh } = useSettings();
   
   const [isTimeOpen, setIsTimeOpen] = useState(false);
-  const [timeframe, setTimeframe] = useState('Past 24 hours');
   const timeRef = useRef(null);
 
   useEffect(() => {
@@ -35,9 +34,12 @@ export default function Header() {
       </div>
       
       <div className="flex items-center gap-1 sm:gap-4 relative">
-        <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[var(--text-muted)] bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded hover:bg-[var(--bg-secondary)] transition-colors">
-          <RefreshCcw size={12} />
-          <span className="hidden sm:inline">Auto-refresh off</span>
+        <button 
+          onClick={() => setAutoRefresh(!autoRefresh)}
+          className={`flex items-center gap-2 px-3 py-1.5 text-xs font-medium border rounded transition-colors ${autoRefresh ? 'text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 border-[var(--chart-cyan)]/30 hover:bg-[var(--chart-cyan)]/20' : 'text-[var(--text-muted)] bg-[var(--bg-card-hover)] border-[var(--border-color)] hover:bg-[var(--bg-secondary)]'}`}
+        >
+          <RefreshCcw size={12} className={autoRefresh ? 'animate-spin' : ''} style={autoRefresh ? { animationDuration: '3s' } : {}} />
+          <span className="hidden sm:inline">Auto-refresh {autoRefresh ? 'on' : 'off'}</span>
         </button>
         
         <div className="relative" ref={timeRef}>
@@ -52,7 +54,7 @@ export default function Header() {
           
           {isTimeOpen && (
             <div className="absolute right-0 top-full mt-2 w-48 bg-[var(--bg-card-hover)] border border-[var(--border-color)] rounded-lg shadow-xl z-50 py-1.5">
-              {['Past 24 hours', 'Past 5 days', 'Past 7 days', 'Past 30 days'].map(tf => (
+              {['Past 24 hours', 'Past 5 days', 'Past 7 days', 'Past 30 days', 'All Time'].map(tf => (
                 <button 
                   key={tf} 
                   onClick={() => { setTimeframe(tf); setIsTimeOpen(false); }}

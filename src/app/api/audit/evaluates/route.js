@@ -104,9 +104,9 @@ export async function POST(req) {
       redis.lrange(`session:${sessionId}:turns`, 0, -1),
       redis.lrange(`session:${sessionId}:tools`, 0, -1),
     ]);
-    transcript        = (rTranscript || []).map(i => typeof i === "string" ? JSON.parse(i) : i);
-    turnMetricsTimeline = (rTurns    || []).map(i => typeof i === "string" ? JSON.parse(i) : i);
-    toolCallTimeline    = (rTools    || []).map(i => typeof i === "string" ? JSON.parse(i) : i);
+    transcript = (rTranscript || []).map(i => typeof i === "string" ? JSON.parse(i) : i);
+    turnMetricsTimeline = (rTurns || []).map(i => typeof i === "string" ? JSON.parse(i) : i);
+    toolCallTimeline = (rTools || []).map(i => typeof i === "string" ? JSON.parse(i) : i);
     console.log(`[evaluate] Redis read -> transcript:${transcript.length} turns:${turnMetricsTimeline.length} tools:${toolCallTimeline.length}`);
   } catch (redisErr) {
     console.warn("[evaluate] Redis read failed:", redisErr.message);
@@ -157,7 +157,7 @@ export async function POST(req) {
     await evaluationQueue.add("evaluate", { sessionId, sessionType, transcript, telemetryDump, turnMetricsTimeline, toolCallTimeline }, { removeOnComplete: true, removeOnFail: true });
     console.log("[evaluate] Job queued for session", sessionId);
 
-        // Step 6: Cleanup Redis keys (fire and forget) ----------
+    // Step 6: Cleanup Redis keys (fire and forget) ----------
     Promise.allSettled([
       redis.del(`session:` + sessionId + `:turns`),
       redis.del(`session:` + sessionId + `:transcript`),
@@ -172,5 +172,3 @@ export async function POST(req) {
     return Response.json({ ok: false, error: err.message }, { status: 500 });
   }
 }
-
-

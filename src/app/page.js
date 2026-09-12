@@ -32,7 +32,7 @@ function CardTitle({ title }) {
 }
 
 export default function Home() { 
-  const { chartStyle } = useSettings();
+  const { chartStyle, timeframe, autoRefresh } = useSettings();
   
   const [data, setData] = useState({
     systemHealth: "0.0",
@@ -46,9 +46,18 @@ export default function Home() {
     totalSessions: 0
   });
   const [loading, setLoading] = useState(true);
+  const [hoveredOutcome, setHoveredOutcome] = useState(null);
+  const [hoveredFailure, setHoveredFailure] = useState(null);
+  const [hoveredMode, setHoveredMode] = useState(null);
 
-  useEffect(() => {
-    fetch('/api/dashboard/overview')
+  const fetchDashboardData = () => {
+    let days = 'all';
+    if (timeframe === 'Past 24 hours') days = '1';
+    else if (timeframe === 'Past 5 days') days = '5';
+    else if (timeframe === 'Past 7 days') days = '7';
+    else if (timeframe === 'Past 30 days') days = '30';
+    
+    fetch(`/api/dashboard/overview?days=${days}`)
       .then(res => res.json())
       .then(json => {
         if (!json.error) setData(json);
@@ -58,7 +67,18 @@ export default function Home() {
         console.error(err);
         setLoading(false);
       });
-  }, []);
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    fetchDashboardData();
+  }, [timeframe]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(fetchDashboardData, 30000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, timeframe]);
 
   const outcomeColors = {
     'Clean': 'var(--chart-cyan)',
@@ -88,8 +108,10 @@ export default function Home() {
     color: modeColors[d.name] || 'var(--chart-cyan)'
   }));
 
-  const failureColors = ['var(--chart-green)', 'var(--chart-cyan)', 'var(--chart-orange)', 'var(--chart-purple)'];
-  const dynamicFailuresData = (data.failuresData || []).map((d, i) => ({ ...d, color: failureColors[i % failureColors.length] }));
+  const dynamicFailuresData = (data.failuresData || []).map(d => ({
+    ...d,
+    color: outcomeColors[d.name] || 'var(--chart-cyan)'
+  }));
 
   const { topCandidates, systemHealth, avgLatency, avgBargeIn, auditMinutes, avgTurns, hallucinationRate, failuresData } = data;
 
@@ -185,16 +207,58 @@ export default function Home() {
             <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={outcomesData} innerRadius={42} outerRadius={55} paddingAngle={4} dataKey="value" stroke="none" isAnimationActive={false}>
+                  <Pie 
+                    data={outcomesData} 
+                    innerRadius={42} 
+                    outerRadius={55} 
+                    paddingAngle={4} 
+                    dataKey="value" 
+                    stroke="none" 
+                    isAnimationActive={false}
+                    onMouseEnter={(_, index) => setHoveredOutcome(index)}
+                    onMouseLeave={() => setHoveredOutcome(null)}
+                  >
                     {outcomesData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={chartStyle === 'matrix' ? `url(#patOut-${index})` : entry.color} stroke={entry.color} strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={chartStyle === 'matrix' ? `url(#patOut-${index})` : entry.color} 
+                        stroke={entry.color} 
+                        strokeWidth={1.5} 
+                        opacity={hoveredOutcome !== null && hoveredOutcome !== index ? 0.2 : 1}
+                        fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} 
+                      />
                     ))}
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {hoveredOutcome !== null && data.totalSessions > 0 && outcomesData[hoveredOutcome] ? (
+                  <span className="text-[var(--text-primary)] font-mono text-[14px]">
+                    {Math.round((outcomesData[hoveredOutcome].value / data.totalSessions) * 100)}%
+                  </span>
+                ) : null}
+              </div>
             </div>
             <div className="flex flex-col gap-2 text-[11px] w-full pl-[130px]">
-              {outcomesData.map(item => { const pct = data.totalSessions > 0 ? Math.round((item.value / data.totalSessions) * 100) : (item.name === "No Data" ? 100 : 0); return (<div key={item.name} className="flex items-center justify-between"><div className="flex items-center gap-2"><div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }}></div><span className="text-[var(--text-muted)]">{item.name}</span></div><span className="text-[var(--text-primary)] font-mono">{pct}%</span></div>) })}
+              {outcomesData.map((item, index) => { 
+                const pct = data.totalSessions > 0 ? Math.round((item.value / data.totalSessions) * 100) : (item.name === "No Data" ? 100 : 0); 
+                const isDulled = hoveredOutcome !== null && hoveredOutcome !== index;
+                return (
+                  <div 
+                    key={item.name} 
+                    className="flex items-center justify-between transition-opacity duration-200 cursor-default"
+                    style={{ opacity: isDulled ? 0.3 : 1 }}
+                    onMouseEnter={() => setHoveredOutcome(index)}
+                    onMouseLeave={() => setHoveredOutcome(null)}
+                  >
+                    <div className="flex items-start gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0 mt-0.5" style={{ backgroundColor: item.color }}></div>
+                      <span className={isDulled ? "text-[var(--text-muted-dark)] leading-tight" : "text-[var(--text-muted)] leading-tight"}>{item.name}</span>
+                    </div>
+                    <span className={isDulled ? "text-[var(--text-muted-dark)] font-mono" : "text-[var(--text-primary)] font-mono"}>{pct}%</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -287,21 +351,57 @@ export default function Home() {
             <div className="w-[90px] h-[90px] shrink-0 absolute left-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={dynamicFailuresData} innerRadius={30} outerRadius={40} paddingAngle={4} dataKey="value" stroke="none" isAnimationActive={false}>
+                  <Pie 
+                    data={dynamicFailuresData} 
+                    innerRadius={30} 
+                    outerRadius={40} 
+                    paddingAngle={4} 
+                    dataKey="value" 
+                    stroke="none" 
+                    isAnimationActive={false}
+                    onMouseEnter={(_, index) => setHoveredFailure(index)}
+                    onMouseLeave={() => setHoveredFailure(null)}
+                  >
                     {dynamicFailuresData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={chartStyle === 'matrix' ? `url(#patFail-${index})` : entry.color} stroke={entry.color} strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={chartStyle === 'matrix' ? `url(#patFail-${index})` : entry.color} 
+                        stroke={entry.color} 
+                        strokeWidth={1.5} 
+                        opacity={hoveredFailure !== null && hoveredFailure !== index ? 0.2 : 1}
+                        fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} 
+                      />
                     ))}
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {hoveredFailure !== null && dynamicFailuresData[hoveredFailure] ? (
+                  <span className="text-[var(--text-primary)] font-mono text-[12px] font-medium">
+                    {dynamicFailuresData[hoveredFailure].value}%
+                  </span>
+                ) : null}
+              </div>
             </div>
             <div className="flex flex-col gap-1.5 text-[10px] w-full pl-[100px]">
-              {dynamicFailuresData.map((item) => (
-                <div key={item.name} className="flex items-center justify-between">
-                  <span className="text-[var(--text-muted)] flex items-center gap-1.5"><div className="w-2 h-2 rounded-sm" style={{backgroundColor: item.color}}></div> {item.name}</span>
-                  <span className="text-[var(--text-primary)] font-mono">{item.value}%</span>
-                </div>
-              ))}
+              {dynamicFailuresData.map((item, index) => {
+                const isDulled = hoveredFailure !== null && hoveredFailure !== index;
+                return (
+                  <div 
+                    key={item.name} 
+                    className="flex items-center justify-between transition-opacity duration-200 cursor-default"
+                    style={{ opacity: isDulled ? 0.3 : 1 }}
+                    onMouseEnter={() => setHoveredFailure(index)}
+                    onMouseLeave={() => setHoveredFailure(null)}
+                  >
+                    <span className={isDulled ? "text-[var(--text-muted-dark)] flex items-start gap-1.5 leading-tight" : "text-[var(--text-muted)] flex items-start gap-1.5 leading-tight"}>
+                      <div className="w-2 h-2 rounded-full shrink-0 mt-[1px]" style={{backgroundColor: item.color}}></div> 
+                      {item.name}
+                    </span>
+                    <span className={isDulled ? "text-[var(--text-muted-dark)] font-mono" : "text-[var(--text-primary)] font-mono"}>{item.value}%</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -340,24 +440,57 @@ export default function Home() {
             <div className="w-[150px] h-[150px] shrink-0 relative mr-8">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={scoresData} innerRadius={50} outerRadius={68} paddingAngle={4} dataKey="value" stroke="none" isAnimationActive={false}>
+                  <Pie 
+                    data={scoresData} 
+                    innerRadius={50} 
+                    outerRadius={68} 
+                    paddingAngle={4} 
+                    dataKey="value" 
+                    stroke="none" 
+                    isAnimationActive={false}
+                    onMouseEnter={(_, index) => setHoveredMode(index)}
+                    onMouseLeave={() => setHoveredMode(null)}
+                  >
                     {scoresData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={chartStyle === 'matrix' ? `url(#patScore-${index})` : entry.color} stroke={entry.color} strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} />
+                      <Cell 
+                        key={`cell-${index}`} 
+                        fill={chartStyle === 'matrix' ? `url(#patScore-${index})` : entry.color} 
+                        stroke={entry.color} 
+                        strokeWidth={1.5} 
+                        opacity={hoveredMode !== null && hoveredMode !== index ? 0.2 : 1}
+                        fillOpacity={chartStyle === 'matrix' ? 1 : 0.8} 
+                      />
                     ))}
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {hoveredMode !== null && auditMinutes > 0 && scoresData[hoveredMode] ? (
+                  <span className="text-[var(--text-primary)] font-mono text-[15px] font-medium">
+                    {Math.round((scoresData[hoveredMode].value / auditMinutes) * 100)}%
+                  </span>
+                ) : null}
+              </div>
             </div>
             <div className="flex flex-col gap-4 text-xs w-[200px]">
-              {scoresData.map((item, i) => (
-                <div key={item.name} className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: item.color }}></div>
-                    <span className="text-[var(--text-muted)]">{item.name} audits</span>
+              {scoresData.map((item, index) => {
+                const isDulled = hoveredMode !== null && hoveredMode !== index;
+                return (
+                  <div 
+                    key={item.name} 
+                    className="flex items-center justify-between transition-opacity duration-200 cursor-default"
+                    style={{ opacity: isDulled ? 0.3 : 1 }}
+                    onMouseEnter={() => setHoveredMode(index)}
+                    onMouseLeave={() => setHoveredMode(null)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }}></div>
+                      <span className={isDulled ? "text-[var(--text-muted-dark)]" : "text-[var(--text-muted)]"}>{item.name} audits</span>
+                    </div>
+                    <span className={isDulled ? "text-[var(--text-muted-dark)] font-mono" : "text-[var(--text-primary)] font-mono"}>{item.value.toFixed(1)} mins</span>
                   </div>
-                  <span className="text-[var(--text-primary)] font-mono">{item.value.toFixed(1)} mins</span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

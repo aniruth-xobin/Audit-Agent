@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const SettingsContext = createContext();
@@ -10,6 +10,8 @@ export const SettingsProvider = ({ children }) => {
   const [colorMode, setColorMode] = useState('colorful');
   const [chartStyle, setChartStyle] = useState('matrix');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [timeframe, setTimeframe] = useState('All Time');
+  const [autoRefresh, setAutoRefresh] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from local storage on mount
@@ -22,6 +24,12 @@ export const SettingsProvider = ({ children }) => {
     
     const savedChartStyle = localStorage.getItem('audit_chartStyle');
     if (savedChartStyle) setChartStyle(savedChartStyle);
+    
+    const savedTimeframe = localStorage.getItem('audit_timeframe');
+    if (savedTimeframe) setTimeframe(savedTimeframe);
+    
+    const savedAutoRefresh = localStorage.getItem('audit_autoRefresh');
+    if (savedAutoRefresh) setAutoRefresh(savedAutoRefresh === 'true');
     
     // Also apply initial data attributes immediately to prevent flash if possible
     const html = document.documentElement;
@@ -39,6 +47,8 @@ export const SettingsProvider = ({ children }) => {
     localStorage.setItem('audit_theme', theme);
     localStorage.setItem('audit_colorMode', colorMode);
     localStorage.setItem('audit_chartStyle', chartStyle);
+    localStorage.setItem('audit_timeframe', timeframe);
+    localStorage.setItem('audit_autoRefresh', autoRefresh.toString());
 
     // Apply data attributes to <html> for global CSS targeting
     const html = document.documentElement;
@@ -52,7 +62,9 @@ export const SettingsProvider = ({ children }) => {
       theme, setTheme,
       colorMode, setColorMode,
       chartStyle, setChartStyle,
-      isMobileMenuOpen, setIsMobileMenuOpen
+      isMobileMenuOpen, setIsMobileMenuOpen,
+      timeframe, setTimeframe,
+      autoRefresh, setAutoRefresh
     }}>
       {children}
     </SettingsContext.Provider>

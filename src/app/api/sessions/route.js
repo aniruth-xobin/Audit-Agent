@@ -1,4 +1,4 @@
-﻿import { supabaseAdmin } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
 
 export const dynamic = 'force-dynamic';
 
@@ -8,8 +8,14 @@ export async function GET(request) {
     const search = searchParams.get('search') || '';
     const mode = searchParams.get('mode') || 'all';
     const sort = searchParams.get('sort') || 'newest';
+    const days = searchParams.get('days');
 
     let query = supabaseAdmin.from("sessions").select("*");
+
+    if (days && days !== 'all') {
+      const thresholdDate = new Date(Date.now() - parseInt(days) * 24 * 60 * 60 * 1000).toISOString();
+      query = query.gte('created_at', thresholdDate);
+    }
 
     if (search) {
       query = query.ilike('candidate_name', `%${search}%`);

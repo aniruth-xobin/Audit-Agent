@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AreaChart, Area, ResponsiveContainer } from 'recharts';
 import { Search, Filter, SlidersHorizontal, HelpCircle, Check } from 'lucide-react';
+import { useSettings } from '@/context/SettingsContext';
 
 const auditData = Array.from({ length: 40 }).map(() => ({ val: 150 + Math.random() * 50 }));
 const scoreData = Array.from({ length: 40 }).map(() => ({ val: 8 + Math.random() * 2 }));
@@ -18,6 +19,7 @@ function CardTitle({ title }) {
 
 export default function SessionsPage() {
   const router = useRouter();
+  const { timeframe, autoRefresh } = useSettings();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -48,9 +50,14 @@ export default function SessionsPage() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  useEffect(() => {
-    setLoading(true);
-    fetch(`/api/sessions?search=${encodeURIComponent(debouncedSearch)}&mode=${activeMode}&sort=${sortOption}`)
+  const fetchSessionsData = () => {
+    let days = 'all';
+    if (timeframe === 'Past 24 hours') days = '1';
+    else if (timeframe === 'Past 5 days') days = '5';
+    else if (timeframe === 'Past 7 days') days = '7';
+    else if (timeframe === 'Past 30 days') days = '30';
+
+    fetch(`/api/sessions?search=${encodeURIComponent(debouncedSearch)}&mode=${activeMode}&sort=${sortOption}&days=${days}`)
       .then(res => res.json())
       .then(data => {
         if (!data.error) setSessions(data);
@@ -60,7 +67,18 @@ export default function SessionsPage() {
         console.error(err);
         setLoading(false);
       });
-  }, [debouncedSearch, activeMode, sortOption]);
+  };
+
+  useEffect(() => {
+    setLoading(true);
+    fetchSessionsData();
+  }, [debouncedSearch, activeMode, sortOption, timeframe]);
+
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const interval = setInterval(fetchSessionsData, 30000);
+    return () => clearInterval(interval);
+  }, [autoRefresh, debouncedSearch, activeMode, sortOption, timeframe]);
 
   const handleSortChange = (opt) => {
     setSortOption(opt);
