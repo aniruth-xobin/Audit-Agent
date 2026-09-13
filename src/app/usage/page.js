@@ -181,7 +181,7 @@ export default function UsagePage() {
                 <XAxis dataKey="date" stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={{stroke: 'var(--border-color)'}} tickMargin={12} />
                 <YAxis stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'var(--bg-secondary)', opacity: 0.4}} />
-                <Bar dataKey="audits" name="Audits" fill="var(--chart-cyan)" shape={chartStyle === 'matrix' ? <CustomBar /> : undefined}  />
+                <Bar dataKey="audits" name="Audits" fill="var(--chart-cyan)" shape={chartStyle === 'matrix' ? <CustomBar /> : undefined} isAnimationActive={false} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -335,9 +335,9 @@ export default function UsagePage() {
                 <XAxis dataKey="time" stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={false} />
                 <YAxis stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} />
-                <Line type="monotone" dataKey="p99" name="P99 (s)" stroke="var(--chart-red)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="p90" name="P90 (s)" stroke="var(--chart-orange)" strokeWidth={2} dot={false} />
-                <Line type="monotone" dataKey="p50" name="P50 (s)" stroke="var(--chart-cyan)" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="p99" name="P99 (s)" stroke="var(--chart-red)" strokeWidth={2} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="p90" name="P90 (s)" stroke="var(--chart-orange)" strokeWidth={2} dot={false} isAnimationActive={false} />
+                <Line type="monotone" dataKey="p50" name="P50 (s)" stroke="var(--chart-cyan)" strokeWidth={2} dot={false} isAnimationActive={false} />
               </LineChart>
             </ResponsiveContainer>
           </div>
