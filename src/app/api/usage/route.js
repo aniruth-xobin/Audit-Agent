@@ -83,11 +83,11 @@ export async function GET(request) {
     let sessionFlags = [];
     if (totalAudits > 0) {
       sessionFlags = [
-        { name: 'Clean Sessions', value: Number(((cleanCount / totalAudits) * 100).toFixed(1)), color: '#06b6d4' }, // cyan
-        { name: 'Flagged Sessions', value: Number(((flagged / totalAudits) * 100).toFixed(1)), color: '#ef4444' }, // red
+        { name: 'Clean Sessions', value: Number(((cleanCount / totalAudits) * 100).toFixed(1)), color: 'var(--chart-cyan)' }, 
+        { name: 'Flagged Sessions', value: Number(((flagged / totalAudits) * 100).toFixed(1)), color: 'var(--chart-red)' }, 
       ];
     } else {
-      sessionFlags = [{ name: 'No Data', value: 100, color: '#06b6d4' }];
+      sessionFlags = [{ name: 'No Data', value: 100, color: '#52525b' }];
     }
 
     const failuresMap = {};
