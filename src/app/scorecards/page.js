@@ -135,7 +135,9 @@ function ScorecardsContent() {
   };
 
   const getDeductions = (session) => {
-    if (session.deductions && Array.isArray(session.deductions)) return session.deductions;
+    if (session.deductions && Array.isArray(session.deductions)) {
+      return session.deductions.filter(d => d.type !== 'TOOL_PREVIEW');
+    }
     return [];
   };
 
@@ -341,13 +343,13 @@ function ScorecardsContent() {
                         {deduction.turn_number ? (
                           <button
                             onClick={() => router.push(`/transcripts?id=${activeSession.id}&turn=${deduction.turn_number}`)}
-                            className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline"
+                            className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline whitespace-nowrap inline-flex items-center gap-1"
                             title="Jump to transcript"
                           >
                             {deduction.turn_number} &#x2197;
                           </button>
                         ) : (
-                          <button onClick={() => router.push(`/transcripts?id=${activeSession.id}&time=${deduction.time}`)} className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline" title="Jump to transcript">{deduction.time || "General"} &#x2197;</button>
+                          <button onClick={() => router.push(`/transcripts?id=${activeSession.id}&time=${deduction.time}`)} className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline whitespace-nowrap inline-flex items-center gap-1" title="Jump to transcript">{deduction.time || "General"} &#x2197;</button>
                         )}
                         <span className="text-sm font-semibold text-[var(--text-primary)]">{deduction.type}</span>
                       </div>
@@ -415,7 +417,7 @@ function ScorecardsContent() {
                             <td className="py-3 px-3 font-mono text-[var(--text-primary)] font-medium">
                                 <button
                                   onClick={() => router.push(`/transcripts?id=${activeSession.id}&turn=${t.turn_index}`)}
-                                  className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline"
+                                  className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline whitespace-nowrap inline-flex items-center gap-1"
                                   title="Jump to transcript"
                                 >
                                   {t.turn_index} ↗
@@ -469,13 +471,50 @@ function ScorecardsContent() {
                     </thead>
                     <tbody>
                       {toolCalls.map((t, i) => {
-                                                  let resultStr = String(t.result ?? '-');
-                          // Clean up Python tuple/array stringification and internal tags
-                          resultStr = resultStr.replace(/^\[.*?,\s*['"]/, '').replace(/['"]\]$/, '');
-                          resultStr = resultStr.replace(/\[INTERNAL\]/g, '').replace(/\[Skill \d+ of \d+\]/g, '');
-                          resultStr = resultStr.replace(/\\n/g, ' ').replace(/\n/g, ' ').trim();
-                          if (resultStr.includes(' (')) {
-                            resultStr = resultStr.split(' (')[0].trim();
+                                                  const preview = activeSession.deductions?.find(d => d.type === 'TOOL_PREVIEW' && d.turn_number === t.turn_index && d.metric === t.tool_name);
+                          let resultStr = preview?.insight || '-';
+                          
+                          if (!preview) {
+                            try {
+                              if (typeof t.result === 'object' && t.result !== null) {
+                                resultStr = JSON.stringify(t.result);
+                              } else {
+                                resultStr = String(t.result ?? '-');
+                              }
+                              
+                              if (resultStr.startsWith('[')) {
+                                try {
+                                  // Try standard JSON first (for modern tools)
+                                  if (resultStr.endsWith(']')) {
+                                    const parsed = JSON.parse(resultStr);
+                                    if (Array.isArray(parsed) && parsed.length > 0) {
+                                      resultStr = String(parsed[parsed.length - 1]);
+                                    }
+                                  } else {
+                                    throw new Error("Truncated");
+                                  }
+                                } catch(e) { 
+                                  // Fallback for historical/truncated Python tuples like `[None, 'message...`
+                                  const match = resultStr.match(/^\[.*?,\s*(['"])(.*)/s);
+                                  if (match) {
+                                    resultStr = match[2];
+                                    // Strip the trailing quote and bracket if they weren't truncated
+                                    resultStr = resultStr.replace(/['"]\]$/, '');
+                                  }
+                                }
+                              }
+                              
+                              // Strip internal UI tags safely
+                              resultStr = resultStr.replace(/\[INTERNAL\]/g, '').replace(/\[Skill \d+ of \d+\]/g, '');
+                              resultStr = resultStr.replace(/\\n/g, ' ').replace(/\n/g, ' ').trim();
+                            } catch (err) {
+                              resultStr = 'Error rendering result';
+                            }
+                            
+                            // If it's a plain text sentence (not JSON), grab only the first sentence to keep the UI clean
+                            if (!resultStr.startsWith('{') && !resultStr.startsWith('[')) {
+                              resultStr = resultStr.split('. ')[0].trim();
+                            }
                           }
                           
                           return (
@@ -484,7 +523,7 @@ function ScorecardsContent() {
                                 <td className="py-3 px-3 font-mono text-[var(--text-primary)]">
                                   <button
                                     onClick={() => router.push(`/transcripts?id=${activeSession.id}&turn=${t.turn_index}`)}
-                                    className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline"
+                                    className="font-mono text-xs font-bold text-[var(--chart-cyan)] bg-[var(--chart-cyan)]/10 hover:bg-[var(--chart-cyan)]/25 px-2.5 py-1 rounded-md border border-[var(--chart-cyan)]/20 hover:border-[var(--chart-cyan)]/50 transition-all cursor-pointer underline-offset-2 hover:underline whitespace-nowrap inline-flex items-center gap-1"
                                     title="Jump to transcript"
                                   >
                                     {t.turn_index} ↗

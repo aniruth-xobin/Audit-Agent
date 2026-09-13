@@ -1,4 +1,4 @@
-﻿// workerjs  BullMQ worker for Groq evaluation ----------
+// workerjs  BullMQ worker for Groq evaluation ----------
 // Run this as a separate process: node workerjs ----------
 // It reads jobs queued by /api/audit/evaluates and processes them with Groq ----------
 // Concurrency is set to 5: max 5 simultaneous Groq calls no matter how many are queued ----------
@@ -109,7 +109,8 @@ async function runGroqEvaluation(payload) {
   }
 
   if (toolCallTimeline && toolCallTimeline.length > 0) {
-    userPrompt += "SECOND CRITICAL INSTRUCTION: TOOL CALLS WERE MADE DURING THIS SESSION. IN YOUR `overall_insight`, YOU MUST EXPLICITLY MENTION THAT TOOL CALLS WERE EXECUTED AND EVALUATE WHETHER THEY WERE MADE AT THE CORRECT OR WRONG TIME.\n\n";
+    userPrompt += "SECOND CRITICAL INSTRUCTION: TOOL CALLS WERE MADE DURING THIS SESSION. IN YOUR `overall_insight`, YOU MUST EXPLICITLY MENTION THAT TOOL CALLS WERE EXECUTED AND EVALUATE WHETHER THEY WERE MADE AT THE CORRECT OR WRONG TIME.\n\n" +
+                  "THIRD CRITICAL INSTRUCTION: FOR EVERY TOOL CALL MADE, YOU MUST ADD A NEW ENTRY TO THE `deductions` ARRAY WITH \"type\": \"TOOL_PREVIEW\". Set \"turn_number\" to the turn it occurred on, \"metric\" to the EXACT tool name, and \"insight\" to a clean, 1-line human-readable summary of what the raw tool result achieved.\n\n";
   } else {
     userPrompt += "SECOND CRITICAL INSTRUCTION: NO TOOL CALLS WERE MADE DURING THIS SESSION. IN YOUR `overall_insight`, YOU MUST EXPLICITLY STATE THAT NO TOOL CALLS WERE MADE AND EVALUATE WHETHER IT WAS APPROPRIATE FOR THIS INTERVIEW SCENARIO NOT TO HAVE ANY.\n\n";
   }

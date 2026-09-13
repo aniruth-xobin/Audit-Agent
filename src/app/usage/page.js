@@ -324,9 +324,9 @@ export default function UsagePage() {
         System Logs & Processing
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6">
         
-        <div className="lg:col-span-1 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] h-[300px] flex flex-col">
+        <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] h-[300px] flex flex-col">
           <div className="px-5 pt-5 pb-3">
              <CardTitle title="Eval Processing Latency" />
           </div>
@@ -347,46 +347,6 @@ export default function UsagePage() {
             <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-[var(--chart-red)] rounded-sm"></div><span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wider">P99</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-[var(--chart-orange)] rounded-sm"></div><span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wider">P90</span></div>
             <div className="flex items-center gap-1.5"><div className="w-2 h-2 bg-[var(--chart-cyan)] rounded-sm"></div><span className="text-[10px] text-[var(--text-muted)] font-medium uppercase tracking-wider">P50</span></div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-2 rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] h-[300px] flex flex-col overflow-hidden">
-          <div className="px-5 pt-5 pb-3 border-b border-[var(--border-color)] flex items-center justify-between">
-             <CardTitle title="Agent System Logs" />
-             <button className="text-[10px] font-semibold text-[var(--chart-cyan)] hover:text-[var(--text-primary)] transition-colors uppercase tracking-wider -mt-4">View All</button>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto custom-scrollbar px-5 pb-2">
-            <table className="w-full text-left text-xs whitespace-nowrap mt-2">
-              <thead className="bg-[var(--bg-card)] sticky top-0 z-10 border-b border-[var(--border-color)]">
-                <tr className="text-[var(--text-muted-dark)] uppercase tracking-wider">
-                  <th className="pb-3 font-semibold">Time</th>
-                  <th className="px-4 pb-3 font-semibold">Level</th>
-                  <th className="px-4 pb-3 font-semibold w-full">Message</th>
-                  <th className="pb-3 font-semibold text-right">Session ID</th>
-                </tr>
-              </thead>
-              <tbody className="text-[var(--text-muted)]">
-                {data.errorLogs && data.errorLogs.length > 0 && data.errorLogs.map((log, i) => (
-                  <tr key={i} className="border-b border-[var(--border-color)]/50 last:border-0 hover:bg-[var(--bg-secondary)]/30 transition-colors h-12">
-                    <td className="font-mono text-[var(--text-muted-dark)]">{log.time}</td>
-                    <td className="px-4">
-                      <span className={`px-2 py-0.5 rounded text-[9px] font-bold tracking-wide ${
-                        log.level === 'CRITICAL' ? 'bg-[var(--chart-red)]/20 text-[var(--chart-red)]' : 
-                        log.level === 'ERROR' ? 'bg-[var(--chart-orange)]/20 text-[var(--chart-orange)]' : 
-                        'bg-[var(--chart-orange)]/20 text-[var(--chart-orange)]'
-                      }`}>
-                        {log.level}
-                      </span>
-                    </td>
-                    <td className="px-4 font-mono text-[11px] text-[var(--text-primary)] whitespace-normal min-w-[250px]">
-                      {log.msg}
-                    </td>
-                    <td className="font-mono text-[var(--text-muted-dark)] text-right">{log.session}</td>
-                  </tr>
-                ))}
-              </tbody>{(!data.errorLogs || data.errorLogs.length === 0) && <tbody><tr><td colSpan="4" className="text-center py-4 text-[var(--text-muted)]">No recent system errors logged</td></tr></tbody>}
-            </table>
           </div>
         </div>
 
