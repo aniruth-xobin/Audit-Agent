@@ -104,21 +104,21 @@ export async function GET(request) {
     });
     
     const METRIC_COLORS = {
-      'Latency System Failure': '#eab308', // yellow-500
-      'Latency': '#eab308',
-      'Transcription Failure': '#ec4899', // pink-500
-      'Transcription Accuracy': '#ec4899',
-      'Interruption Failure': '#ef4444', // red-500
-      'Interruption': '#ef4444',
-      'Hallucination': '#f97316', // orange-500
-      'Tool Call Crash': '#8b5cf6', // violet-500
-      'Silence': '#a855f7', // purple-500
-      'Context': '#3b82f6', // blue-500
-      'Conversation': '#10b981', // emerald-500
-      'Conversational Flow': '#10b981' // emerald-500
+      'Latency System Failure': 'var(--chart-yellow)',
+      'Latency': 'var(--chart-yellow)',
+      'Transcription Failure': 'var(--chart-pink)',
+      'Transcription Accuracy': 'var(--chart-pink)',
+      'Interruption Failure': 'var(--chart-red)',
+      'Interruption': 'var(--chart-red)',
+      'Hallucination': 'var(--chart-orange)',
+      'Tool Call Crash': 'var(--chart-purple)',
+      'Silence': 'var(--chart-purple)',
+      'Context': 'var(--chart-blue)',
+      'Conversation': 'var(--chart-green)',
+      'Conversational Flow': 'var(--chart-green)'
     };
 
-    const FALLBACK_COLORS = ['#06b6d4', '#3b82f6', '#f43f5e', '#10b981', '#f59e0b'];
+    const FALLBACK_COLORS = ['var(--chart-cyan)', 'var(--chart-blue)', 'var(--chart-pink)', 'var(--chart-green)', 'var(--chart-yellow)'];
     let fallbackIndex = 0;
 
     let rubricFailures = Object.keys(failuresMap).map((k) => {
