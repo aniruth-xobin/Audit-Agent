@@ -158,17 +158,17 @@ export default function UsagePage() {
              <CardTitle title="Audit Volume vs Evaluation Cost" />
           </div>
           <div className="flex-1 w-full pb-4">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" debounce={50}>
               <ComposedChart data={data.auditVolumeData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }} barCategoryGap={0} barGap={0}>
                 <defs>
-                  <pattern id="matrixPattern" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse">
+                  <pattern id="matrixPattern" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                     <rect x="0" y="0" width="2" height="1" fill="var(--chart-cyan)" opacity="0.7" />
                   </pattern>
                 </defs>
                 <CartesianGrid stroke="var(--border-color)" vertical={false} horizontal={true} />
                 <XAxis dataKey="date" stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={{stroke: 'var(--border-color)'}} tickMargin={12} />
                 <YAxis stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={false} />
-                <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'var(--bg-secondary)', opacity: 0.4}} />
+                <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'var(--bg-secondary)', opacity: 0.4}} isAnimationActive={false} />
                 <Bar dataKey="audits" name="Audits" fill="var(--chart-cyan)" shape={chartStyle === 'matrix' ? CustomBar : undefined} isAnimationActive={false} />
               </ComposedChart>
             </ResponsiveContainer>
@@ -186,7 +186,7 @@ export default function UsagePage() {
                   <PieChart>
                     <defs>
                       {data.sessionFlags?.map((d, i) => (
-                        <pattern key={`patTok-${i}`} id={`patTok-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                        <pattern key={`patTok-${i}`} id={`patTok-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                           <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
                         </pattern>
                       ))}
@@ -254,7 +254,7 @@ export default function UsagePage() {
                   <PieChart>
                     <defs>
                       {data.rubricFailures?.map((d, i) => (
-                        <pattern key={`patRub-${i}`} id={`patRub-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                        <pattern key={`patRub-${i}`} id={`patRub-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                           <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
                         </pattern>
                       ))}
@@ -336,7 +336,7 @@ export default function UsagePage() {
                 <CartesianGrid stroke="var(--border-color)" vertical={false} horizontal={true} />
                 <XAxis dataKey="time" stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={false} />
                 <YAxis stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={false} />
-                <RechartsTooltip content={<CustomTooltip />} />
+                <RechartsTooltip content={<CustomTooltip />} isAnimationActive={false} />
                 <Line type="monotone" dataKey="p99" name="P99 (s)" stroke="var(--chart-red)" strokeWidth={2} dot={false} isAnimationActive={false} />
                 <Line type="monotone" dataKey="p90" name="P90 (s)" stroke="var(--chart-orange)" strokeWidth={2} dot={false} isAnimationActive={false} />
                 <Line type="monotone" dataKey="p50" name="P50 (s)" stroke="var(--chart-cyan)" strokeWidth={2} dot={false} isAnimationActive={false} />

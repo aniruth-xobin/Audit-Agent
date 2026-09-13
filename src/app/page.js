@@ -85,9 +85,15 @@ export default function Home() {
     'Hallucination': 'var(--chart-orange)',
     'Silence': 'var(--chart-purple)',
     'Interruption Failure': '#ef4444',
-      'Latency System Failure': '#eab308',
-      'Transcription Failure': '#ec4899',
-      'Tool Call Crash': '#8b5cf6',
+    'Interruption': '#ef4444',
+    'Latency System Failure': '#eab308',
+    'Latency': '#eab308',
+    'Transcription Failure': '#ec4899',
+    'Transcription Accuracy': '#ec4899',
+    'Tool Call Crash': '#8b5cf6',
+    'Context': '#3b82f6',
+    'Conversation': '#10b981',
+    'Conversational Flow': '#10b981',
     'No Data': '#52525b'
   };
 
@@ -172,7 +178,7 @@ export default function Home() {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={healthData}>
                   <defs>
-                    <pattern id="dotPatternHealth" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                    <pattern id="dotPatternHealth" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                       <circle cx="1" cy="1" r="0.5" fill="var(--chart-cyan)" opacity="0.3" />
                     </pattern>
                   </defs>
@@ -197,7 +203,7 @@ export default function Home() {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={latencyData}>
                   <defs>
-                    <pattern id="dotPatternLatency" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                    <pattern id="dotPatternLatency" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                       <circle cx="1" cy="1" r="0.5" fill="var(--chart-purple)" opacity="0.3" />
                     </pattern>
                   </defs>
@@ -218,7 +224,7 @@ export default function Home() {
                 <PieChart>
                   <defs>
                     {outcomesData.map((d, i) => (
-                      <pattern key={`patOut-${i}`} id={`patOut-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                      <pattern key={`patOut-${i}`} id={`patOut-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                         <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
                       </pattern>
                     ))}
@@ -323,7 +329,7 @@ export default function Home() {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={hallucinationData}>
                   <defs>
-                    <pattern id="dotPatternWarn1" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                    <pattern id="dotPatternWarn1" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                       <circle cx="1" cy="1" r="0.5" fill="var(--chart-orange)" opacity="0.3" />
                     </pattern>
                   </defs>
@@ -347,7 +353,7 @@ export default function Home() {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={interruptionData}>
                   <defs>
-                    <pattern id="dotPatternWarn2" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                    <pattern id="dotPatternWarn2" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                       <circle cx="1" cy="1" r="0.5" fill="var(--chart-orange)" opacity="0.3" />
                     </pattern>
                   </defs>
@@ -379,7 +385,7 @@ export default function Home() {
                 <PieChart>
                   <defs>
                     {dynamicFailuresData.map((d, i) => (
-                      <pattern key={`patFail-${i}`} id={`patFail-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                      <pattern key={`patFail-${i}`} id={`patFail-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                         <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
                       </pattern>
                     ))}
@@ -475,7 +481,7 @@ export default function Home() {
                 <PieChart>
                   <defs>
                     {scoresData.map((d, i) => (
-                      <pattern key={`patScore-${i}`} id={`patScore-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                      <pattern key={`patScore-${i}`} id={`patScore-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="matrix(1,0,0,1,0,0)">
                         <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
                       </pattern>
                     ))}

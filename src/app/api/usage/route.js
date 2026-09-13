@@ -105,13 +105,17 @@ export async function GET(request) {
     
     const METRIC_COLORS = {
       'Latency System Failure': '#eab308', // yellow-500
+      'Latency': '#eab308',
       'Transcription Failure': '#ec4899', // pink-500
+      'Transcription Accuracy': '#ec4899',
       'Interruption Failure': '#ef4444', // red-500
+      'Interruption': '#ef4444',
       'Hallucination': '#f97316', // orange-500
       'Tool Call Crash': '#8b5cf6', // violet-500
       'Silence': '#a855f7', // purple-500
-      'Context': '#3b82f6', // blue-500 (for old fake data)
-      'Conversation': '#14b8a6' // teal-500 (for old fake data)
+      'Context': '#3b82f6', // blue-500
+      'Conversation': '#10b981', // emerald-500
+      'Conversational Flow': '#10b981' // emerald-500
     };
 
     const FALLBACK_COLORS = ['#06b6d4', '#3b82f6', '#f43f5e', '#10b981', '#f59e0b'];
