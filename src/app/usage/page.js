@@ -108,23 +108,6 @@ export default function UsagePage() {
         </div>
       </div>
       
-      <svg width="0" height="0" className="absolute">
-        <defs>
-          <pattern id="matrixPattern" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="2" height="1" fill="var(--chart-cyan)" opacity="0.7" />
-          </pattern>
-          {data.sessionFlags?.map((d, i) => (
-            <pattern key={`patTok-${i}`} id={`patTok-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
-            </pattern>
-          ))}
-          {data.rubricFailures?.map((d, i) => (
-            <pattern key={`patRub-${i}`} id={`patRub-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
-              <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
-            </pattern>
-          ))}
-        </defs>
-      </svg>
 
       {/* Tier 1: KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -177,11 +160,16 @@ export default function UsagePage() {
           <div className="flex-1 w-full pb-4">
             <ResponsiveContainer width="100%" height="100%">
               <ComposedChart data={data.auditVolumeData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }} barCategoryGap={0} barGap={0}>
+                <defs>
+                  <pattern id="matrixPattern" x="0" y="0" width="3" height="3" patternUnits="userSpaceOnUse">
+                    <rect x="0" y="0" width="2" height="1" fill="var(--chart-cyan)" opacity="0.7" />
+                  </pattern>
+                </defs>
                 <CartesianGrid stroke="var(--border-color)" vertical={false} horizontal={true} />
                 <XAxis dataKey="date" stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={{stroke: 'var(--border-color)'}} tickMargin={12} />
                 <YAxis stroke="var(--text-muted-dark)" tick={{fill: 'var(--text-muted-dark)', fontSize: 10}} axisLine={false} tickLine={false} />
                 <RechartsTooltip content={<CustomTooltip />} cursor={{fill: 'var(--bg-secondary)', opacity: 0.4}} />
-                <Bar dataKey="audits" name="Audits" fill="var(--chart-cyan)" shape={chartStyle === 'matrix' ? <CustomBar /> : undefined} isAnimationActive={false} />
+                <Bar dataKey="audits" name="Audits" fill="var(--chart-cyan)" shape={chartStyle === 'matrix' ? CustomBar : undefined} isAnimationActive={false} />
               </ComposedChart>
             </ResponsiveContainer>
           </div>
@@ -196,6 +184,13 @@ export default function UsagePage() {
               <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <defs>
+                      {data.sessionFlags?.map((d, i) => (
+                        <pattern key={`patTok-${i}`} id={`patTok-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                          <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
+                        </pattern>
+                      ))}
+                    </defs>
                     <Pie 
                       data={data.sessionFlags} 
                       innerRadius={42} 
@@ -257,6 +252,13 @@ export default function UsagePage() {
               <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
+                    <defs>
+                      {data.rubricFailures?.map((d, i) => (
+                        <pattern key={`patRub-${i}`} id={`patRub-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                          <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
+                        </pattern>
+                      ))}
+                    </defs>
                     <Pie 
                       data={data.rubricFailures} 
                       innerRadius={42} 

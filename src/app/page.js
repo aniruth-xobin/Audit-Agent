@@ -171,6 +171,11 @@ export default function Home() {
             <div className="absolute bottom-0 w-full h-12">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={healthData}>
+                  <defs>
+                    <pattern id="dotPatternHealth" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                      <circle cx="1" cy="1" r="0.5" fill="var(--chart-cyan)" opacity="0.3" />
+                    </pattern>
+                  </defs>
                   <Area type="linear" dataKey="val" stroke="var(--chart-cyan)" strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.15} fill={chartStyle === 'matrix' ? 'url(#dotPatternHealth)' : 'var(--chart-cyan)'} isAnimationActive={false} />
                   <Area type="step" dataKey="val" stroke="none" fill="none" dot={{ stroke: 'var(--chart-cyan)', fill: 'var(--chart-cyan)', r: 0, strokeWidth: 0 }} activeDot={false} />
                 </AreaChart>
@@ -191,6 +196,11 @@ export default function Home() {
             <div className="absolute bottom-0 w-full h-12">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={latencyData}>
+                  <defs>
+                    <pattern id="dotPatternLatency" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                      <circle cx="1" cy="1" r="0.5" fill="var(--chart-purple)" opacity="0.3" />
+                    </pattern>
+                  </defs>
                   <Area type="linear" dataKey="val" stroke="var(--chart-purple)" strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.15} fill={chartStyle === 'matrix' ? 'url(#dotPatternLatency)' : 'var(--chart-purple)'} isAnimationActive={false} />
                 </AreaChart>
               </ResponsiveContainer>
@@ -206,6 +216,13 @@ export default function Home() {
             <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <defs>
+                    {outcomesData.map((d, i) => (
+                      <pattern key={`patOut-${i}`} id={`patOut-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                        <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
+                      </pattern>
+                    ))}
+                  </defs>
                   <Pie 
                     data={outcomesData} 
                     innerRadius={42} 
@@ -305,7 +322,12 @@ export default function Home() {
             <div className="absolute bottom-0 w-full h-10">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={hallucinationData}>
-                  <Area type="linear" dataKey="val" stroke="var(--chart-orange)" strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.15} fill={chartStyle === 'matrix' ? 'url(#dotPatternWarn)' : 'var(--chart-orange)'} isAnimationActive={false} />
+                  <defs>
+                    <pattern id="dotPatternWarn1" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                      <circle cx="1" cy="1" r="0.5" fill="var(--chart-orange)" opacity="0.3" />
+                    </pattern>
+                  </defs>
+                  <Area type="linear" dataKey="val" stroke="var(--chart-orange)" strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.15} fill={chartStyle === 'matrix' ? 'url(#dotPatternWarn1)' : 'var(--chart-orange)'} isAnimationActive={false} />
                 </AreaChart>
               </ResponsiveContainer>
               <div className="absolute right-0 bottom-1 w-1.5 h-1.5 bg-[var(--chart-orange)]"></div>
@@ -324,7 +346,12 @@ export default function Home() {
             <div className="absolute bottom-0 w-full h-10">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={interruptionData}>
-                  <Area type="linear" dataKey="val" stroke="var(--chart-orange)" strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.15} fill={chartStyle === 'matrix' ? 'url(#dotPatternWarn)' : 'var(--chart-orange)'} isAnimationActive={false} />
+                  <defs>
+                    <pattern id="dotPatternWarn2" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                      <circle cx="1" cy="1" r="0.5" fill="var(--chart-orange)" opacity="0.3" />
+                    </pattern>
+                  </defs>
+                  <Area type="linear" dataKey="val" stroke="var(--chart-orange)" strokeWidth={1.5} fillOpacity={chartStyle === 'matrix' ? 1 : 0.15} fill={chartStyle === 'matrix' ? 'url(#dotPatternWarn2)' : 'var(--chart-orange)'} isAnimationActive={false} />
                 </AreaChart>
               </ResponsiveContainer>
               <div className="absolute right-0 bottom-2 w-1.5 h-1.5 bg-[var(--chart-orange)]"></div>
@@ -350,6 +377,13 @@ export default function Home() {
             <div className="w-[90px] h-[90px] shrink-0 absolute left-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <defs>
+                    {dynamicFailuresData.map((d, i) => (
+                      <pattern key={`patFail-${i}`} id={`patFail-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                        <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
+                      </pattern>
+                    ))}
+                  </defs>
                   <Pie 
                     data={dynamicFailuresData} 
                     innerRadius={30} 
@@ -439,6 +473,13 @@ export default function Home() {
             <div className="w-[150px] h-[150px] shrink-0 relative mr-8">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
+                  <defs>
+                    {scoresData.map((d, i) => (
+                      <pattern key={`patScore-${i}`} id={`patScore-${i}`} x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
+                        <circle cx="1" cy="1" r="0.5" fill={d.color} opacity="0.5" />
+                      </pattern>
+                    ))}
+                  </defs>
                   <Pie 
                     data={scoresData} 
                     innerRadius={50} 
