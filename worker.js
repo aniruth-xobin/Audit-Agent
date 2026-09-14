@@ -1,4 +1,4 @@
-// workerjs  BullMQ worker for Groq evaluation ----------
+﻿// workerjs  BullMQ worker for Groq evaluation ----------
 // Run this as a separate process: node workerjs ----------
 // It reads jobs queued by /api/audit/evaluates and processes them with Groq ----------
 // Concurrency is set to 5: max 5 simultaneous Groq calls no matter how many are queued ----------
@@ -55,9 +55,9 @@ async function runGroqEvaluation(payload) {
 
   const latencySummary = totals.length > 0
     ? "Avg: " + Math.round(totals.reduce((a, b) => a + b, 0) / totals.length) + "ms | " +
-      "P50: " + fmtMs(percentile(totals, 50)) + " | " +
-      "P90: " + fmtMs(percentile(totals, 90)) + " | " +
-      "P99: " + fmtMs(percentile(totals, 99))
+    "P50: " + fmtMs(percentile(totals, 50)) + " | " +
+    "P90: " + fmtMs(percentile(totals, 90)) + " | " +
+    "P99: " + fmtMs(percentile(totals, 99))
     : "STT avg: " + fmtMs(stt_latency) + " | LLM TTFT avg: " + fmtMs(server_llm_ttft) + " | TTS avg: " + fmtMs(tts_latency);
 
   const transcriptText = (transcript || []).slice(0, 60)
@@ -72,7 +72,7 @@ async function runGroqEvaluation(payload) {
     .map((t) => "  Turn " + t.turn_index + ": STT=" + (t.stt_ms ?? t.stt_latency_ms ?? "?") + "ms | LLM=" + (t.llm_ttft_ms ?? "?") + "ms | TTS=" + (t.tts_ttfb_ms ?? t.tts_latency_ms ?? "?") + "ms" + (t.barge_in ? " | BARGE-IN" : ""))
     .join("\n");
 
-    let userPrompt =
+  let userPrompt =
     "## Session ID: " + sessionId + "\n" +
     "## Mode: " + (sessionType || "guided") + "\n" +
     "## Duration: " + (durationSeconds ? Math.round(durationSeconds / 60) + " minutes" : "unknown") + "\n" +
@@ -110,7 +110,7 @@ async function runGroqEvaluation(payload) {
 
   if (toolCallTimeline && toolCallTimeline.length > 0) {
     userPrompt += "SECOND CRITICAL INSTRUCTION: TOOL CALLS WERE MADE DURING THIS SESSION. IN YOUR `overall_insight`, YOU MUST EXPLICITLY MENTION THAT TOOL CALLS WERE EXECUTED AND EVALUATE WHETHER THEY WERE MADE AT THE CORRECT OR WRONG TIME.\n\n" +
-                  "THIRD CRITICAL INSTRUCTION: FOR EVERY TOOL CALL MADE, YOU MUST ADD A NEW ENTRY TO THE `deductions` ARRAY WITH \"type\": \"TOOL_PREVIEW\". Set \"turn_number\" to the turn it occurred on, \"metric\" to the EXACT tool name, and \"insight\" to a clean, 1-line human-readable summary of what the raw tool result achieved.\n\n";
+      "THIRD CRITICAL INSTRUCTION: FOR EVERY TOOL CALL MADE, YOU MUST ADD A NEW ENTRY TO THE `deductions` ARRAY WITH \"type\": \"TOOL_PREVIEW\". Set \"turn_number\" to the turn it occurred on, \"metric\" to the EXACT tool name, and \"insight\" to a clean, 1-line human-readable summary of what the raw tool result achieved.\n\n";
   } else {
     userPrompt += "SECOND CRITICAL INSTRUCTION: NO TOOL CALLS WERE MADE DURING THIS SESSION. IN YOUR `overall_insight`, YOU MUST EXPLICITLY STATE THAT NO TOOL CALLS WERE MADE AND EVALUATE WHETHER IT WAS APPROPRIATE FOR THIS INTERVIEW SCENARIO NOT TO HAVE ANY.\n\n";
   }
@@ -170,7 +170,7 @@ const worker = new Worker(
 
     if (error) throw new Error(`Supabase scorecard write failed: ${error.message}`);
 
-    console.log(`[worker] âœ“ Session ${sessionId} -> Score: ${overall_score} | Flag: ${flag}`);
+    console.log(`[worker] Session ${sessionId} -> Score: ${overall_score} | Flag: ${flag}`);
     return { sessionId, overall_score, flag };
   },
   {
