@@ -176,12 +176,12 @@ export default function UsagePage() {
         </div>
 
         {/* Right Column Stack for Donuts */}
-        <div className="lg:col-span-4 flex flex-col gap-4 h-[400px]">
+        <div className="lg:col-span-4 flex flex-col gap-4">
           
           <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] p-5 flex flex-col flex-1">
             <CardTitle title="Session Flags" />
-            <div className="flex-1 flex items-center justify-center relative">
-              <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
+            <div className="flex-1 flex flex-col sm:flex-row items-center gap-6 relative mt-2">
+              <div className="w-[120px] h-[120px] shrink-0 relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <defs>
@@ -223,7 +223,7 @@ export default function UsagePage() {
                   ) : null}
                 </div>
               </div>
-              <div className="flex flex-col gap-2 text-[11px] w-full pl-[130px]">
+              <div className="flex flex-col gap-2 text-[11px] w-full">
                 {data.sessionFlags.map((item, index) => {
                   const isDulled = activeFlagIndex !== null && activeFlagIndex !== index;
                   return (
@@ -248,8 +248,8 @@ export default function UsagePage() {
 
           <div className="rounded-lg border border-[var(--border-color)] bg-[var(--bg-card)] p-5 flex flex-col flex-1">
             <CardTitle title="Rubric Failure Distribution" />
-            <div className="flex-1 flex items-center justify-center relative">
-              <div className="w-[120px] h-[120px] shrink-0 absolute left-0">
+            <div className="flex-1 flex flex-col sm:flex-row items-center gap-6 relative mt-2">
+              <div className="w-[120px] h-[120px] shrink-0 relative">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <defs>
@@ -291,7 +291,7 @@ export default function UsagePage() {
                   ) : null}
                 </div>
               </div>
-              <div className="flex flex-col gap-2 text-[11px] w-full pl-[130px]">
+              <div className="flex flex-col gap-2 text-[11px] w-full">
                 {data.rubricFailures.map((item, index) => {
                   const isDulled = activeRubricIndex !== null && activeRubricIndex !== index;
                   return (

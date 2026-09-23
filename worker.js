@@ -1,4 +1,4 @@
-﻿// workerjs  BullMQ worker for Groq evaluation ----------
+// workerjs  BullMQ worker for Groq evaluation ----------
 // Run this as a separate process: node workerjs ----------
 // It reads jobs queued by /api/audit/evaluates and processes them with Groq ----------
 // Concurrency is set to 5: max 5 simultaneous Groq calls no matter how many are queued ----------
@@ -82,17 +82,34 @@ async function runGroqEvaluation(payload) {
     "## Tool Call Timeline (" + (toolCallTimeline?.length ?? 0) + " calls)\n" + (toolSummary || "No tool calls") + "\n\n" +
     "## Transcript\n" + (transcriptText || "No transcript") + "\n\n" +
     'Return ONLY a JSON object with this exact structure (no markdown, no explanation):\n' +
-    '{"overall_score":<0-10 number>,"flag":<"Clean"|"Hallucination"|"Silence"|"Interruption Failure"|"Latency System Failure"|"Transcription Failure"|"Tool Call Crash">,"overall_insight":<string>,' +
-    '"radar_data":[{"subject":"Latency","A":<0-10>},{"subject":"Conversational Flow","A":<0-10>},{"subject":"Interruption","A":<0-10>},{"subject":"Context","A":<0-10>},{"subject":"Transcription Accuracy","A":<0-10>},{"subject":"Hallucination","A":<0-10>}],' +
+    '{"overall_score":<0-10 number>,"flag":<"Clean"|"Hallucination"|"Silence"|"Interruption Failure"|"Latency System Failure"|"Transcription Failure"|"Tool Call Crash">,' +
+    '"summary_insight":<string: ONE short plain-English sentence for a recruiter>,' +
+    '"overall_insight":<string: 2-3 sentence detailed technical paragraph>,' +
+    '"candidate_experience_insight":<string: 1-2 sentence warm description of the candidate experience. If scores are high (>=8), write an encouraging sentence about pace and comfort. If scores are low, note what could improve. Example: \'Patient pacing with natural pause allowance, giving candidates breathing room to think, elaborate, and perform at their best.\'>,' +
+    '"radar_data":[' +
+    '{"subject":"Latency","A":<0-10>,"insight":<string: exactly 5-6 words about overall system latency>},' +
+    '{"subject":"Conversational Flow","A":<0-10>,"insight":<string: exactly 5-6 words about overall dialogue flow>},' +
+    '{"subject":"Interruption","A":<0-10>,"insight":<string: exactly 5-6 words about barge-in handling>},' +
+    '{"subject":"Context","A":<0-10>,"insight":<string: exactly 5-6 words about context retention>},' +
+    '{"subject":"Transcription Accuracy","A":<0-10>,"insight":<string: exactly 5-6 words about transcription accuracy>},' +
+    '{"subject":"Hallucination","A":<0-10>,"insight":<string: exactly 5-6 words about hallucination/factual grounding>}' +
+    '],' +
     '"deductions":[{"turn_number":<number>,"time":<"MM:SS">,"type":<string>,"metric":<string>,"reason":<string>,"insight":<string>}]}\n\n' +
     "Rules for Scoring:\n" +
-    "- Latency Score: 10 if turn total latency < 2000ms. Deduct points for > 2500ms. Critical deduction for > 5000ms.\n" +
-    "- Conversational Flow Score: 10 if dialogue is natural. Deduct for awkward cut-offs, robotic repetition, or poor handling of barge-ins.\n" +
-    "- Context Score: 10 if agent remembers previous answers and asks relevant follow-ups. Deduct if it ignores user context or asks disjointed questions.\n" +
-    "- Transcription Accuracy Score: 10 if STT text is coherent. Deduct if the text is garbled, misspelled, or obvious STT hallucination.\n" +
-    "- Hallucination Score: 10 if agent sticks strictly to facts and tools. Deduct if it invents information.\n\n" +
+    "- Latency: 10 if all turn total latencies < 2000ms. Deduct for > 2500ms. Critical deduction for > 5000ms.\n" +
+    "- Conversational Flow: 10 if dialogue is natural and flowing. Deduct for robotic repetition, awkward phrasing, or poor turn management.\n" +
+    "- Interruption: 10 if candidate was never interrupted. Deduct for each barge-in that broke conversation flow.\n" +
+    "- Context: 10 if agent remembers previous answers and asks relevant follow-ups. Deduct if it ignores user context.\n" +
+    "- Transcription Accuracy: 10 if STT text is fully coherent. Deduct if garbled, misspelled, or obvious STT errors.\n" +
+    "- Hallucination: 10 if agent stayed strictly factual. Deduct if it invented or fabricated any information.\n\n" +
+    "Rules for summary_insight:\n" +
+    "Write ONE concise plain-English sentence a recruiter can understand at a glance. Example: 'The AI listened attentively, maintained conversational context, avoided interruptions, and asked follow-ups at the correct time.'\n\n" +
+    "Rules for candidate_experience_insight:\n" +
+    "Write 1-2 warm sentences describing what the candidate experience felt like. If overall scores >= 8: focus on comfort, pacing, and natural flow. If scores are mixed or low: note what affected the experience. Example (high): 'Patient pacing with natural pause allowance, giving candidates breathing room to think, elaborate, and perform at their best.' Example (low): 'Some latency spikes may have felt abrupt, and the pacing occasionally disrupted the candidate\'s train of thought.'\n\n" +
     "Rules for overall_insight:\n" +
-    "Write a comprehensive 2-3 sentence paragraph. You MUST explicitly justify any low scores. If you deduct points for Latency, Transcription, or Flow, explicitly state WHY in this insight block. If it was a perfect call, explicitly praise the flow and accuracy.\n\n" +
+    "Write a detailed 2-3 sentence technical paragraph. Explicitly justify any low scores mentioning exact metrics (e.g. LLM latency of 4200ms). If everything was clean, praise the specific strengths observed.\n\n" +
+    "Rules for pillar insight strings:\n" +
+    "Each insight MUST be exactly 5-6 words. Factual. Present tense. Trailing period only. Examples: 'Retained context across all questions.' / 'One barge-in disrupted conversation flow.'\n\n" +
     "Rules for flag:\n" +
     "- 'Clean': Smooth call, high scores across the board.\n" +
     "- 'Latency System Failure': If ANY single turn latency exceeds 5000ms.\n" +
@@ -103,16 +120,12 @@ async function runGroqEvaluation(payload) {
     "- 'Silence': If the agent failed to respond to the user.\n\n" +
     "Empty deductions=[] if no issues.\n\n";
   if (bargeIns > 0) {
-    userPrompt += "CRITICAL INSTRUCTION: THE CANDIDATE INTERRUPTED (BARGED IN) DURING THIS SESSION. YOUR `overall_insight` MUST BEGIN WITH A SENTENCE EXPLICITLY EVALUATING HOW GRACEFULLY THE AGENT HANDLED THE INTERRUPTION.\n\n";
-  } else {
-    userPrompt += "CRITICAL INSTRUCTION: Write a 3 sentence paragraph for `overall_insight` evaluating conversational context, hallucinations, transcription accuracy, and tool usage.\n\n";
+    userPrompt += "CRITICAL INSTRUCTION: THE CANDIDATE INTERRUPTED (BARGED IN) DURING THIS SESSION. Reflect this accurately in the Patient Listen score and insight.\n\n";
   }
 
   if (toolCallTimeline && toolCallTimeline.length > 0) {
     userPrompt += "SECOND CRITICAL INSTRUCTION: TOOL CALLS WERE MADE DURING THIS SESSION. IN YOUR `overall_insight`, YOU MUST EXPLICITLY MENTION THAT TOOL CALLS WERE EXECUTED AND EVALUATE WHETHER THEY WERE MADE AT THE CORRECT OR WRONG TIME.\n\n" +
       "THIRD CRITICAL INSTRUCTION: FOR EVERY TOOL CALL MADE, YOU MUST ADD A NEW ENTRY TO THE `deductions` ARRAY WITH \"type\": \"TOOL_PREVIEW\". Set \"turn_number\" to the turn it occurred on, \"metric\" to the EXACT tool name, and \"insight\" to a clean, 1-line human-readable summary of what the raw tool result achieved.\n\n";
-  } else {
-    userPrompt += "SECOND CRITICAL INSTRUCTION: NO TOOL CALLS WERE MADE DURING THIS SESSION. IN YOUR `overall_insight`, YOU MUST EXPLICITLY STATE THAT NO TOOL CALLS WERE MADE AND EVALUATE WHETHER IT WAS APPROPRIATE FOR THIS INTERVIEW SCENARIO NOT TO HAVE ANY.\n\n";
   }
 
   const completion = await getGroq().chat.completions.create({
@@ -133,7 +146,7 @@ async function runGroqEvaluation(payload) {
 const worker = new Worker(
   "groq-evaluation",
   async (job) => {
-    const { sessionId, sessionType } = job.data;
+    const { sessionId, sessionType, candidate_id, interview_id } = job.data;
     console.log(`[worker] Processing evaluation for session: ${sessionId} (attempt ${job.attemptsMade + 1})`);
 
     // Fetch merged data from Supabase (this is what was Step 35 in routejs) ----------
@@ -157,16 +170,24 @@ const worker = new Worker(
 
     // Run Groq evaluation ----------
     const scorecard = await runGroqEvaluation(mergedPayload);
-    const { overall_score, flag, overall_insight, radar_data, deductions } = scorecard;
+    const { overall_score, flag, summary_insight, overall_insight, candidate_experience_insight, radar_data, deductions } = scorecard;
 
     // Write scorecard back to sessions table ----------
-    const { error } = await supabase.from("sessions").update({
+    const updatePayload = {
       overall_score,
       flag: flag ?? "Clean",
+      summary_insight,
       overall_insight,
+      candidate_experience_insight,
       radar_data,
       deductions,
-    }).eq("id", sessionId);
+    };
+    
+    // Only update these if the Python agent provided them in the payload
+    if (candidate_id) updatePayload.candidate_id = candidate_id;
+    if (interview_id) updatePayload.interview_id = interview_id;
+
+    const { error } = await supabase.from("sessions").update(updatePayload).eq("id", sessionId);
 
     if (error) throw new Error(`Supabase scorecard write failed: ${error.message}`);
 
