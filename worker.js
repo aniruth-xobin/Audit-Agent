@@ -64,8 +64,27 @@ async function runGroqEvaluation(payload) {
     .map((t) => "[" + (t.role || "?").toUpperCase() + "]: " + t.text)
     .join("\n");
 
+  // Build tool summary with FAILED/OK status for each call
   const toolSummary = (toolCallTimeline || [])
-    .map((t) => "  Turn " + t.turn_index + " - " + t.tool_name + "(" + JSON.stringify(t.arguments || {}).slice(0, 80) + ") -> " + String(t.result || "").slice(0, 80))
+    .map((t) => {
+      const resultStr = String(t.result || "");
+      const failed = /blocked|error|failed/i.test(resultStr);
+      return "  Turn " + t.turn_index + " - " + t.tool_name + "(" + JSON.stringify(t.arguments || {}).slice(0, 80) + ") -> [" + (failed ? "FAILED" : "OK") + "] " + resultStr.slice(0, 120);
+    })
+    .join("\n");
+
+  // Build available tool contract (Option B: dynamic from Python agent)
+  const availableTools = (telemetryDump?.availableTools || []);
+  const toolContractText = availableTools.length > 0
+    ? availableTools.map((t) => "  - " + t.name + ": " + t.trigger).join("\n")
+    : "  No tool contract provided (freeflow or unregistered session type).";
+
+  // Detect missing required tools
+  const toolsCalledNames = (toolCallTimeline || []).map((t) => t.tool_name);
+  const requiredToolNames = ["get_next_question", "end_interview"];
+  const missingRequiredTools = availableTools
+    .filter((t) => requiredToolNames.includes(t.name) && !toolsCalledNames.includes(t.name))
+    .map((t) => "  - MISSING REQUIRED CALL: " + t.name + " (" + t.trigger + ")")
     .join("\n");
 
   const turnTable = (turnMetricsTimeline || [])
@@ -79,10 +98,12 @@ async function runGroqEvaluation(payload) {
     "## Barge-ins: " + (bargeIns ?? 0) + "\n\n" +
     "## Latency Summary\n" + latencySummary + "\n\n" +
     "## Turn-by-Turn Metrics (" + (turnMetricsTimeline?.length ?? 0) + " turns)\n" + (turnTable || "No turn data") + "\n\n" +
+    "## Available Tool Contract (expected tools and their correct trigger conditions)\n" + toolContractText + "\n" +
+    (missingRequiredTools ? "\n## ALERT - Missing Required Tool Calls:\n" + missingRequiredTools + "\n" : "") + "\n" +
     "## Tool Call Timeline (" + (toolCallTimeline?.length ?? 0) + " calls)\n" + (toolSummary || "No tool calls") + "\n\n" +
     "## Transcript\n" + (transcriptText || "No transcript") + "\n\n" +
     'Return ONLY a JSON object with this exact structure (no markdown, no explanation):\n' +
-    '{"overall_score":<0-10 number>,"flag":<"Clean"|"Hallucination"|"Silence"|"Interruption Failure"|"Latency System Failure"|"Transcription Failure"|"Tool Call Crash">,' +
+    '{"overall_score":<0-10 number>,"flag":<"Clean"|"Hallucination"|"Silence"|"Interruption Failure"|"Latency System Failure"|"Transcription Failure"|"Tool Call Failure"|"Tool Sequence Error">,' +
     '"summary_insight":<string: ONE short plain-English sentence for a recruiter>,' +
     '"overall_insight":<string: 2-3 sentence detailed technical paragraph>,' +
     '"candidate_experience_insight":<string: 1-2 sentence warm description of the candidate experience. If scores are high (>=8), write an encouraging sentence about pace and comfort. If scores are low, note what could improve. Example: \'Patient pacing with natural pause allowance, giving candidates breathing room to think, elaborate, and perform at their best.\'>,' +
@@ -94,7 +115,18 @@ async function runGroqEvaluation(payload) {
     '{"subject":"Transcription Accuracy","A":<0-10>,"insight":<string: exactly 5-6 words about transcription accuracy>},' +
     '{"subject":"Hallucination","A":<0-10>,"insight":<string: exactly 5-6 words about hallucination/factual grounding>}' +
     '],' +
-    '"deductions":[{"turn_number":<number>,"time":<"MM:SS">,"type":<string>,"metric":<string>,"reason":<string>,"insight":<string>}]}\n\n' +
+    '"deductions":[{' +
+    '"turn_number":<number>,' +
+    '"time":<"MM:SS">,' +
+    '"type":<"TOOL_CALL"|"HALLUCINATION"|"LATENCY"|"INTERRUPTION"|"TRANSCRIPTION"|"CONTEXT">,' +
+    '"metric":<string: tool name for TOOL_CALL, pillar name for others>,' +
+    '"reason":<string: what went wrong or what was correctly done>,' +
+    '"insight":<string: 1-line human-readable summary>,' +
+    '"tool_status":<"success"|"failed"|null - only set for TOOL_CALL type>,' +
+    '"recovered":<true|false|null - only set for HALLUCINATION type>,' +
+    '"recovery_turn":<number|null - turn where agent returned to correct path>,' +
+    '"recovery_time":<"MM:SS"|null>,' +
+    '"recovery_turns_taken":<number|null>}]}\n\n' +
     "Rules for Scoring:\n" +
     "- Latency: 10 if all turn total latencies < 2000ms. Deduct for > 2500ms. Critical deduction for > 5000ms.\n" +
     "- Conversational Flow: 10 if dialogue is natural and flowing. Deduct for robotic repetition, awkward phrasing, or poor turn management.\n" +
@@ -102,46 +134,77 @@ async function runGroqEvaluation(payload) {
     "- Context: 10 if agent remembers previous answers and asks relevant follow-ups. Deduct if it ignores user context.\n" +
     "- Transcription Accuracy: 10 if STT text is fully coherent. Deduct if garbled, misspelled, or obvious STT errors.\n" +
     "- Hallucination: 10 if agent stayed strictly factual. Deduct if it invented or fabricated any information.\n\n" +
+    "Rules for Tool Call Validation (CRITICAL):\n" +
+    "For EVERY tool call in the Tool Call Timeline, add one entry to deductions with type=TOOL_CALL.\n" +
+    "- Set tool_status='success' if the result shows [OK] AND the tool was called at the correct time per the Tool Contract.\n" +
+    "- Set tool_status='failed' if: (a) result shows [FAILED]; OR (b) tool was called at wrong time; OR (c) wrong tool was used in place of expected tool.\n" +
+    "- For any MISSING required tool (in ALERT section), add a deduction at turn_number=0, time='00:00', tool_status='failed', reason='Required tool was never called during the session.'\n" +
+    "- TOOL_CALL entries must have tool_status set. Set recovered=null, recovery_turn=null, recovery_time=null, recovery_turns_taken=null for all TOOL_CALL entries.\n" +
+    "- Never invent tool calls not in the Tool Call Timeline.\n\n" +
+    "Rules for Hallucination Detection (CRITICAL):\n" +
+    "- If you detect a hallucination in the transcript, add a HALLUCINATION deduction entry.\n" +
+    "- Set recovered=true if the agent corrected itself or returned to factual path later in the transcript.\n" +
+    "- If recovered=true: recovery_turn=turn number of correction, recovery_time=MM:SS, recovery_turns_taken=turns it took.\n" +
+    "- If recovered=false: recovery_turn=null, recovery_time=null, recovery_turns_taken=null.\n" +
+    "- HALLUCINATION entries must NOT have tool_status set (leave it null).\n" +
+    "- If no hallucination occurred, do NOT add a HALLUCINATION entry.\n\n" +
     "Rules for summary_insight:\n" +
-    "Write ONE concise plain-English sentence a recruiter can understand at a glance. Example: 'The AI listened attentively, maintained conversational context, avoided interruptions, and asked follow-ups at the correct time.'\n\n" +
+    "Write ONE concise plain-English sentence a recruiter can understand at a glance.\n\n" +
     "Rules for candidate_experience_insight:\n" +
-    "Write 1-2 warm sentences describing what the candidate experience felt like. If overall scores >= 8: focus on comfort, pacing, and natural flow. If scores are mixed or low: note what affected the experience. Example (high): 'Patient pacing with natural pause allowance, giving candidates breathing room to think, elaborate, and perform at their best.' Example (low): 'Some latency spikes may have felt abrupt, and the pacing occasionally disrupted the candidate\'s train of thought.'\n\n" +
+    "Write 1-2 warm sentences describing what the candidate experience felt like. If overall scores >= 8: focus on comfort, pacing, and natural flow. If scores are mixed or low: note what affected the experience.\n\n" +
     "Rules for overall_insight:\n" +
     "Write a detailed 2-3 sentence technical paragraph. Explicitly justify any low scores mentioning exact metrics (e.g. LLM latency of 4200ms). If everything was clean, praise the specific strengths observed.\n\n" +
     "Rules for pillar insight strings:\n" +
     "Each insight MUST be exactly 5-6 words. Factual. Present tense. Trailing period only. Examples: 'Retained context across all questions.' / 'One barge-in disrupted conversation flow.'\n\n" +
     "Rules for flag:\n" +
-    "- 'Clean': Smooth call, high scores across the board.\n" +
+    "- 'Clean': Smooth call, high scores, all tools called correctly.\n" +
     "- 'Latency System Failure': If ANY single turn latency exceeds 5000ms.\n" +
     "- 'Transcription Failure': If the user text is filled with garbled nonsense.\n" +
     "- 'Interruption Failure': If bargeIns > 3 and the agent flow completely broke down.\n" +
-    "- 'Hallucination': If the agent fabricated details.\n" +
-    "- 'Tool Call Crash': If a tool returned a critical error string.\n" +
-    "- 'Silence': If the agent failed to respond to the user.\n\n" +
-    "Empty deductions=[] if no issues.\n\n";
-  if (bargeIns > 0) {
-    userPrompt += "CRITICAL INSTRUCTION: THE CANDIDATE INTERRUPTED (BARGED IN) DURING THIS SESSION. Reflect this accurately in the Patient Listen score and insight.\n\n";
-  }
+    "- 'Hallucination': If the agent fabricated details that were never corrected.\n" +
+    "- 'Tool Call Failure': If any tool result was FAILED or a required tool was never called.\n" +
+    "- 'Tool Sequence Error': If tools were called in the wrong order or a wrong tool used in place of another.\n" +
+    "- 'Silence': If the agent failed to respond to the user.\n" +
+    "- Priority order if multiple apply: Latency System Failure > Tool Call Failure > Tool Sequence Error > Hallucination > Interruption Failure > Transcription Failure > Silence > Clean.\n\n" +
+    "Empty deductions=[] only if absolutely no issues detected.\n\n";uation ----------
+// Run this as a separate process: node workerjs ----------
+// It reads jobs queued by /api/audit/evaluates and processes them with Groq ----------
+// Concurrency is set to 5: max 5 simultaneous Groq calls no matter how many are queued ----------
+//  ----------
+// To switch to Redis Cloud: just change REDISURL in envlocal Zero code changes needed ----------
 
-  if (toolCallTimeline && toolCallTimeline.length > 0) {
-    userPrompt += "SECOND CRITICAL INSTRUCTION: TOOL CALLS WERE MADE DURING THIS SESSION. IN YOUR `overall_insight`, YOU MUST EXPLICITLY MENTION THAT TOOL CALLS WERE EXECUTED AND EVALUATE WHETHER THEY WERE MADE AT THE CORRECT OR WRONG TIME.\n\n" +
-      "THIRD CRITICAL INSTRUCTION: FOR EVERY TOOL CALL MADE, YOU MUST ADD A NEW ENTRY TO THE `deductions` ARRAY WITH \"type\": \"TOOL_PREVIEW\". Set \"turn_number\" to the turn it occurred on, \"metric\" to the EXACT tool name, and \"insight\" to a clean, 1-line human-readable summary of what the raw tool result achieved.\n\n";
-  }
+import "dotenv/config";
+import Redis from "ioredis";
 
-  const completion = await getGroq().chat.completions.create({
-    model: "openai/gpt-oss-120b",
-    temperature: 0.2,
-    max_tokens: 2048,
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: "You are an expert voice AI audit agent. Evaluate the session and return strict JSON only - no markdown." },
-      { role: "user", content: userPrompt },
-    ],
-  });
+// Pre-constructed ioredis client  required in ESM with BullMQ ----------
+// Change REDISURL in envlocal to switch to Redis Cloud  no code changes needed ----------
+const redisClient = new Redis(process.env.REDIS_URL, {
+  maxRetriesPerRequest: null, // Required by BullMQ ----------
+  enableReadyCheck: false,    // Required for Upstash compatibility ----------
+});
+import { Worker } from "bullmq";
+import { createClient } from "@supabase/supabase-js";
+import Groq from "groq-sdk";
 
-  return JSON.parse(completion.choices[0]?.message?.content || "{}");
+// Supabase ----------
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
+// Groq ----------
+function getGroq() {
+  return new Groq({ apiKey: process.env.GROQ_API_KEY });
 }
 
+// Helpers ----------
+function percentile(arr, p) {
+  if (!arr || arr.length === 0) return null;
+  const sorted = [...arr].sort((a, b) => a - b);
+  const idx = Math.ceil((p / 100) * sorted.length) - 1;
+  return sorted[Math.max(0, idx)];
+}
+function fmtMs(ms) { return ms != null ? ms + "ms" : "N/A"; }
 // BullMQ Worker ----------
 const worker = new Worker(
   "groq-evaluation",
