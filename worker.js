@@ -1,14 +1,14 @@
-// worker.js — BullMQ worker for Groq evaluation
+// worker.js â€” BullMQ worker for Groq evaluation
 // Run this as a separate process: node worker.js
 // It reads jobs queued by /api/audit/evaluates and processes them with Groq
 // Concurrency is set to 5: max 5 simultaneous Groq calls no matter how many are queued
-// To switch to Redis Cloud: just change REDIS_URL in .env.local — zero code changes needed
+// To switch to Redis Cloud: just change REDIS_URL in .env.local â€” zero code changes needed
 
 import "dotenv/config";
 import Redis from "ioredis";
 
-// Pre-constructed ioredis client — required in ESM with BullMQ
-// Change REDIS_URL in .env.local to switch to Redis Cloud — no code changes needed
+// Pre-constructed ioredis client â€” required in ESM with BullMQ
+// Change REDIS_URL in .env.local to switch to Redis Cloud â€” no code changes needed
 const redisClient = new Redis(process.env.REDIS_URL, {
   maxRetriesPerRequest: null, // Required by BullMQ
   enableReadyCheck: false,    // Required for Upstash compatibility
@@ -102,7 +102,7 @@ async function runGroqEvaluation(payload) {
     "## Tool Call Timeline (" + (toolCallTimeline?.length ?? 0) + " calls)\n" + (toolSummary || "No tool calls") + "\n\n" +
     "## Transcript\n" + (transcriptText || "No transcript") + "\n\n" +
     'Return ONLY a JSON object with this exact structure (no markdown, no explanation):\n' +
-    '{"overall_score":<0-10 number>,"flag":<"Clean"|"Hallucination"|"Silence"|"Interruption Failure"|"Latency System Failure"|"Transcription Failure"|"Tool Call Failure"|"Tool Sequence Error">,' +
+    '{"overall_score":<0-10 number>,"flag":<"Clean"|"Hallucination"|"Silence"|"Interruption Failure"|"Latency System Failure"|"Transcription Failure"|"Tool Call Failure">,' +
     '"summary_insight":<string: ONE short plain-English sentence for a recruiter>,' +
     '"overall_insight":<string: 2-3 sentence detailed technical paragraph>,' +
     '"candidate_experience_insight":<string: 1-2 sentence warm description of the candidate experience>,' +
@@ -150,10 +150,9 @@ async function runGroqEvaluation(payload) {
     "- 'Transcription Failure': If the user text is filled with garbled nonsense.\n" +
     "- 'Interruption Failure': If bargeIns > 3 and the agent flow completely broke down.\n" +
     "- 'Hallucination': If the agent fabricated details that were never corrected.\n" +
-    "- 'Tool Call Failure': If any tool result was FAILED or a required tool was never called.\n" +
-    "- 'Tool Sequence Error': If tools were called in the wrong order or a wrong tool used in place of another.\n" +
+    "- 'Tool Call Failure': If any tool result was FAILED, a required tool was never called, or tools were called in wrong order or wrong time.\n" +
     "- 'Silence': If the agent failed to respond to the user.\n" +
-    "- Priority order if multiple apply: Latency System Failure > Tool Call Failure > Tool Sequence Error > Hallucination > Interruption Failure > Transcription Failure > Silence > Clean.\n\n" +
+    "- Priority order if multiple apply: Latency System Failure > Tool Call Failure > Hallucination > Interruption Failure > Transcription Failure > Silence > Clean.\n\n" +
     "Empty deductions=[] only if absolutely no issues detected.\n\n";
 
   if (bargeIns > 0) {
@@ -233,7 +232,7 @@ const worker = new Worker(
   },
   {
     connection: redisClient,
-    concurrency: 5, // Max 5 Groq calls simultaneously — prevents rate limit errors
+    concurrency: 5, // Max 5 Groq calls simultaneously â€” prevents rate limit errors
   }
 );
 
