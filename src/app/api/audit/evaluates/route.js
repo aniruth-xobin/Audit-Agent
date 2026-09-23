@@ -31,8 +31,8 @@ async function ensureSession(sessionId, sessionType, telemetryDump) {
     organisation: telemetryDump?.organisation || null,
     interview_mode: (["guided", "freeflow", "roleplay"].includes(sessionType) ? sessionType : "guided"),
     // HARDCODED FOR END-TO-END TESTING WITH TRACKS SANDBOX (Fallback)
-    candidate_id: 30755,
-    interview_id: 16855,
+    candidate_id: 30788,
+    interview_id: 16888,
   }, { onConflict: "id", ignoreDuplicates: true });
   if (error) console.error("[evaluate] session upsert error:", error.message);
 

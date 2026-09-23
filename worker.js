@@ -114,7 +114,14 @@ async function runGroqEvaluation(payload) {
     '{"subject":"Transcription Accuracy","A":<0-10>,"insight":<string: exactly 5-6 words about transcription accuracy>},' +
     '{"subject":"Hallucination","A":<0-10>,"insight":<string: exactly 5-6 words about hallucination/factual grounding>}' +
     '],' +
-    '"deductions":[{"turn_number":<number>,"time":<"MM:SS">,"type":<"TOOL_CALL"|"HALLUCINATION"|"LATENCY"|"INTERRUPTION"|"TRANSCRIPTION"|"CONTEXT">,"metric":<string>,"reason":<string>,"insight":<string>,"tool_status":<"success"|"failed"|null>,"recovered":<true|false|null>,"recovery_turn":<number|null>,"recovery_time":<"MM:SS"|null>,"recovery_turns_taken":<number|null>}]}\n\n' +
+    '"deductions":[' +
+    '{"turn_number":<integer>,"time":<"MM:SS" string>,"type":<"TOOL_CALL"|"HALLUCINATION"|"LATENCY"|"INTERRUPTION"|"TRANSCRIPTION"|"CONTEXT">,' +
+    '"metric":<string: tool name for TOOL_CALL, pillar name for others>,' +
+    '"reason":<string: what happened>,"insight":<string: 1-line human-readable summary>,' +
+    '"tool_status":<"success"|"failed" for TOOL_CALL type, null for all others>,' +
+    '"recovered":<true|false for HALLUCINATION type, null for all others>,' +
+    '"recovery_turn":<integer or null>,"recovery_time":<"MM:SS" or null>,"recovery_turns_taken":<integer or null>}' +
+    ']}\n\n' +
     "Rules for Scoring:\n" +
     "- Latency: 10 if all turn total latencies < 2000ms. Deduct for > 2500ms. Critical deduction for > 5000ms.\n" +
     "- Conversational Flow: 10 if dialogue is natural and flowing. Deduct for robotic repetition, awkward phrasing, or poor turn management.\n" +
@@ -123,12 +130,12 @@ async function runGroqEvaluation(payload) {
     "- Transcription Accuracy: 10 if STT text is fully coherent. Deduct if garbled, misspelled, or obvious STT errors.\n" +
     "- Hallucination: 10 if agent stayed strictly factual. Deduct if it invented or fabricated any information.\n\n" +
     "Rules for Tool Call Validation (CRITICAL):\n" +
-    "For EVERY tool call in the Tool Call Timeline, add one entry to deductions with type=TOOL_CALL.\n" +
-    "- Set tool_status='success' if the result shows [OK] AND the tool was called at the correct time per the Tool Contract.\n" +
-    "- Set tool_status='failed' if: (a) result shows [FAILED]; OR (b) tool was called at wrong time; OR (c) wrong tool was used in place of expected tool.\n" +
-    "- For any MISSING required tool (in ALERT section), add a deduction at turn_number=0, time='00:00', tool_status='failed', reason='Required tool was never called during the session.'\n" +
-    "- TOOL_CALL entries: set recovered=null, recovery_turn=null, recovery_time=null, recovery_turns_taken=null.\n" +
-    "- Never invent tool calls not in the Tool Call Timeline.\n\n" +
+    "1. For EVERY tool call in the Tool Call Timeline, add one entry to deductions with type=TOOL_CALL.\n" +
+    "   - Set tool_status='success' if the result shows [OK] AND the tool was called at the correct time per the Tool Contract.\n" +
+    "   - Set tool_status='failed' if: (a) result shows [FAILED]; OR (b) tool was called at wrong time; OR (c) wrong tool was used in place of expected tool.\n" +
+    "2. For any MISSING required tool (in ALERT section), add a deduction at turn_number=0, time='00:00', tool_status='failed', reason='Required tool was never called during the session.'\n" +
+    "3. MISSED CALLS IN TRANSCRIPT: You must read the transcript carefully. If the agent announces an action that requires ANY tool listed in the Available Tool Contract (e.g., 'Let's move on' -> get_next_question, 'All done' -> end_interview, or any other tool), it MUST have a corresponding tool call in the timeline. If the tool call is missing at that turn, it is a critical failure! Add a deduction with type=TOOL_CALL, tool_status='failed', metric=the missed tool name, reason='Agent announced an action but failed to call the required tool.', and set turn_number to the turn where it happened.\n" +
+    "4. TOOL_CALL entries: set recovered=null, recovery_turn=null, recovery_time=null, recovery_turns_taken=null.\n\n" +
     "Rules for Hallucination Detection (CRITICAL):\n" +
     "- If you detect a hallucination in the transcript, add a HALLUCINATION deduction entry.\n" +
     "- Set recovered=true if the agent corrected itself or returned to factual path later in the transcript.\n" +
