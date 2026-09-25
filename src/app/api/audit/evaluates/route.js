@@ -79,7 +79,7 @@ async function upsertTranscripts(sessionId, transcript) {
     role: t.role === "agent" ? "ai" : t.role === "user" ? "human" : "system",
     speaker: t.role === "agent" ? "Agent" : t.role === "user" ? "User" : "System",
     text: t.text ?? "",
-    timestamp_secs: t.timestampMs ? t.timestampMs / 1000 : null,
+    timestamp_secs: t.ts ? t.ts / 1000 : null,
   }));
   const { error } = await supabaseAdmin.from("transcripts").insert(rows);
   if (error) console.error("[evaluate] transcripts insert error:", error.message);
@@ -149,6 +149,7 @@ export async function POST(req) {
       duration_secs: telemetryDump?.durationSeconds ?? null,
       barge_in_count: telemetryDump?.bargeIns ?? 0,
       total_turns: turnMetricsTimeline?.length ?? 0,
+      ended_at: new Date().toISOString(),
     }).eq("id", sessionId);
 
     if (skipEvaluation) {
