@@ -2,7 +2,7 @@
 import React from "react";
 import { useState, useRef, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Search, FileText, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check, ChevronLeft, ChevronDown, ChevronUp, Wrench } from 'lucide-react';
+import { Search, FileText, ShieldAlert, Zap, MessageSquare, Clock, Activity, AlertTriangle, Lightbulb, Layers, Filter, SlidersHorizontal, Check, ChevronLeft, ChevronDown, ChevronUp, Wrench, CheckCircle, XCircle } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 import { useSettings } from '@/context/SettingsContext';
 
@@ -317,7 +317,8 @@ function ScorecardsContent() {
                             r.subject === 'Conversational Flow' ? <MessageSquare size={16} /> :
                               r.subject === 'Interruption' ? <Zap size={16} /> :
                                 r.subject === 'Context' ? <Layers size={16} /> :
-                                  <ShieldAlert size={16} />}
+                                  (r.subject === 'Transcription Accuracy' || r.subject === 'Transcription') ? <FileText size={16} /> :
+                                    <ShieldAlert size={16} />}
                         </div>
                         <div>
                           <div className="text-sm font-medium text-[var(--text-primary)]">{r.subject} Score</div>
@@ -376,7 +377,7 @@ function ScorecardsContent() {
 
                         {/* tool_status badge — only for TOOL_CALL type */}
                         {deduction.type === 'TOOL_CALL' && deduction.tool_status && (
-                          <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg border"
+                          <div className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg border mt-1"
                             style={{
                               background: deduction.tool_status === 'success'
                                 ? 'color-mix(in srgb, var(--chart-green) 8%, transparent)'
@@ -386,18 +387,17 @@ function ScorecardsContent() {
                                 : 'color-mix(in srgb, var(--chart-red) 25%, transparent)',
                             }}
                           >
-                            <span className="text-base leading-none" style={{ color: deduction.tool_status === 'success' ? 'var(--chart-green)' : 'var(--chart-red)' }}>
+                            <span className="text-base leading-none shrink-0 mt-0.5" style={{ color: deduction.tool_status === 'success' ? 'var(--chart-green)' : 'var(--chart-red)' }}>
                               {deduction.tool_status === 'success' ? '✓' : '✗'}
                             </span>
                             <div className="flex flex-col gap-0.5">
-                              <span className="text-[11px] font-bold uppercase tracking-widest"
-                                style={{ color: deduction.tool_status === 'success' ? 'var(--chart-green)' : 'var(--chart-red)' }}>
+                              <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: deduction.tool_status === 'success' ? 'var(--chart-green)' : 'var(--chart-red)' }}>
                                 {deduction.tool_status === 'success' ? 'Correct Call' : 'Failed Call'}
                               </span>
-                              <span className="text-xs text-[var(--text-muted)]">
-                                {deduction.tool_status === 'success'
+                              <span className="text-xs text-[var(--text-muted)] leading-relaxed">
+                                {deduction.insight || (deduction.tool_status === 'success'
                                   ? 'Tool was called at the right time and executed successfully.'
-                                  : 'Tool was called at the wrong time or returned a failure.'}
+                                  : 'Tool was called at the wrong time or returned a failure.')}
                               </span>
                             </div>
                           </div>
@@ -433,8 +433,8 @@ function ScorecardsContent() {
                           </div>
                         )}
 
-                        {/* Actionable Insight */}
-                        {deduction.insight && (
+                        {/* Actionable Insight (standalone for non-tool calls) */}
+                        {deduction.insight && deduction.type !== 'TOOL_CALL' && (
                           <div className="flex gap-3 p-3.5 bg-[var(--bg-card)] border border-[var(--border-strong)] rounded-md text-xs mt-1">
                             <Lightbulb size={15} className="text-[var(--chart-yellow)] shrink-0 mt-0.5" />
                             <div>

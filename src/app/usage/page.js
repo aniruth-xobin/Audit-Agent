@@ -136,7 +136,7 @@ export default function UsagePage() {
           <CardTitle title="Avg Cost / Audit" />
           <div className="flex-1 flex items-center justify-center">
              <div className="flex flex-col items-center">
-                <span className="text-[40px] font-medium text-[var(--chart-orange)] tracking-tight">`${data.avgCostPerAudit || "0.000"}</span>
+                <span className="text-[40px] font-medium text-[var(--chart-orange)] tracking-tight">${data.avgCostPerAudit || "0.000"}</span>
                 <span className="text-xs text-[var(--text-muted)] mt-1">Estimated</span>
              </div>
           </div>

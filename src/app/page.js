@@ -261,7 +261,7 @@ export default function Home() {
                 ) : null}
               </div>
             </div>
-            <div className="flex flex-col gap-2 text-[11px] w-full pl-[130px]">
+            <div className="flex flex-col gap-1 text-[11px] w-full pl-[130px]">
               {outcomesData.map((item, index) => { 
                 const pct = data.totalSessions > 0 ? Math.round((item.value / data.totalSessions) * 100) : (item.name === "No Data" ? 100 : 0); 
                 const isDulled = hoveredOutcome !== null && hoveredOutcome !== index;

@@ -96,7 +96,13 @@ export async function GET(request) {
       if (s.radar_data && Array.isArray(s.radar_data)) {
         s.radar_data.forEach(r => {
           if (r.A < 7) {
-            failuresMap[r.subject] = (failuresMap[r.subject] || 0) + 1;
+            let subject = r.subject;
+            // Normalize historical LLM hallucinations/variants
+            if (subject === 'Response Latency' || subject === 'Latency Score') subject = 'Latency';
+            if (subject === 'Flow') subject = 'Conversational Flow';
+            if (subject === 'Transcription') subject = 'Transcription Accuracy';
+            
+            failuresMap[subject] = (failuresMap[subject] || 0) + 1;
             totalFailures++;
           }
         });
